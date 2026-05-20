@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الّلي ذاكر فاكر ⚡</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => {
+                        console.log('Service Worker Registered!', reg);
+                        // لو فيه تحديث جديد ينزله علطول من غير ما يعلق على القديم
+                        reg.onupdatefound = () => {
+                            const installingWorker = reg.installing;
+                            if (installingWorker) {
+                                installingWorker.onstatechange = () => {
+                                    if (installingWorker.state === 'installed') {
+                                        if (navigator.serviceWorker.controller) {
+                                            console.log('New update available, reloading...');
+                                            window.location.reload();
+                                        }
+                                    }
+                                };
+                            }
+                        };
+                    })
+                    .catch(err => console.log('Service Worker Reg Failed!', err));
+            });
+        }
+    </script>
+</head>
+<body>
+
+<header>
+    <div class="header-right">
+        <div class="neon-logo">⚡ الّلي ذاكر فاكر</div>
+        <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙 المظهر الداكن</button>
+    </div>
+    <div class="header-left">
+        <div class="header-prayer-countdown" id="headerPrayerCountdown">جاري حساب الصلاة...</div>
+        <button class="tab-switch-btn" id="tabSwitchBtn" onclick="toggleInterface()">🕋 الواحة الدينية</button>
+        <div class="date-bar" id="dateBar">جاري قراءة تاريخ اليوم...</div>
+    </div>
+</header>
+
+<div class="main-content">
+    
+    <div id="studyTab" class="tab-content">
+        <div class="card card-quote-full">
+            <div class="quote-text" id="quoteDisplay">جاري تحميل عبارتك الملهمة...</div>
+            <button class="btn-primary" id="quoteBtn">کمّل يا بطل 🚀</button>
+        </div>
+
+        <div class="card">
+            <div class="timer-container">
+                <div class="timer-left-side">
+                    <div class="timer-modes">
+                        <button class="btn-mode active" onclick="setMode('heroes')">🧠 جلسة الأبطال (4س)</button>
+                        <button class="btn-mode" onclick="setMode('focus')">⚡ جلسة الإنجاز (2س)</button>
+                        <button class="btn-mode" onclick="setMode('pomodoro')">⏱️ بومودورو (25د)</button>
+                        <button class="btn-mode" onclick="setMode('free')">🔄 عداد حر</button>
+                    </div>
+                </div>
+                <div class="timer-right-side">
+                    <div class="timer-display" id="timerDisplay">04:00:00</div>
+                    <div class="timer-message" id="timerMessage">مستعد للمقاوحة؟ سَمّي الله ودوس ابدأ! 🎯</div>
+                    <div class="timer-controls">
+                        <button class="btn-control btn-start" id="startBtn">ابدأ</button>
+                        <button class="btn-control btn-pause" id="pauseBtn">فصل</button>
+                        <button class="btn-control btn-reset" id="resetBtn">إعادة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📝 جدول وبوصلة اليوم</div>
+            <div class="todo-input-group">
+                <input type="text" class="todo-input" id="todoInput" placeholder="اكتب المهمة اللي ناويلها النهاردة...">
+                <button class="btn-add-todo" id="todoBtn">+</button>
+            </div>
+            <ul class="todo-list" id="todoList"></ul>
+        </div>
+
+        <div class="analytics-grid">
+            <div class="analytic-item">
+                <div class="analytic-num" id="statHours">0.00</div>
+                <div class="analytic-label">ساعات المذاكرة 📚</div>
+            </div>
+            <div class="analytic-item">
+                <div class="analytic-num" id="statTodos">0</div>
+                <div class="analytic-label">مهام أنجزتها ✅</div>
+            </div>
+            <div class="analytic-item">
+                <div class="analytic-num" id="statAzkar">0</div>
+                <div class="analytic-label">إجمالي الأذكار 📿</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="deenTab" class="tab-content" style="display: none;">
+        <div class="top-grid">
+            
+            <div class="card prayers-card">
+                <div class="prayers-title">🕋 مواقيت الصلاة والعبادة</div>
+                <div class="location-select-group">
+                    <label for="citySelect">المحافظة: </label>
+                    <select id="citySelect" onchange="changeCity()">
+                        <option value="Cairo">القاهرة</option>
+                        <option value="Giza">الجيزة</option>
+                        <option value="Alexandria">الإسكندرية</option>
+                        <option value="Aswan">أسوان 👑</option>
+                        <option value="Qalyubia">القليوبية</option>
+                        <option value="Gharbia">الغربية</option>
+                        <option value="Monufia">المنوفية</option>
+                        <option value="Sharqia">الشرقية</option>
+                        <option value="Dakahlia">الدقهلية</option>
+                        <option value="Beheira">البحيرة</option>
+                        <option value="Damietta">دمياط</option>
+                        <option value="Port Said">بورسعيد</option>
+                        <option value="Ismailia">الإسماعيلية</option>
+                        <option value="Suez">السويس</option>
+                        <option value="Kafr El Sheikh">كفر الشيخ</option>
+                        <option value="Faiyum">الفيوم</option>
+                        <option value="Beni Suef">بني سويف</option>
+                        <option value="Minya">المنيا</option>
+                        <option value="Asyut">أسيوط</option>
+                        <option value="Sohag">سوهاج</option>
+                        <option value="Qena">قنا</option>
+                        <option value="Luxor">الأقصر</option>
+                        <option value="Red Sea">البحر الأحمر</option>
+                        <option value="New Valley">الوادي الجديد</option>
+                        <option value="Matrouh">مطروح</option>
+                        <option value="North Sinai">شمال سيناء</option>
+                        <option value="South Sinai">جنوب سيناء</option>
+                    </select>
+                </div>
+                <div id="nextPrayerCountdown" class="countdown-prayer">جاري حساب المتبقي...</div>
+                <div class="prayers-list">
+                    <div class="prayer-row" id="p-Fajr">
+                        <span>الفجر</span>
+                        <div class="prayer-left-zone">
+                            <span class="prayer-time" id="time-Fajr">--:--</span>
+                            <input type="checkbox" class="prayer-checkbox" id="check-Fajr" onchange="togglePrayerDone('Fajr')" disabled>
+                        </div>
+                    </div>
+                    <div class="prayer-row" id="p-Dhuhr">
+                        <span>الظهر</span>
+                        <div class="prayer-left-zone">
+                            <span class="prayer-time" id="time-Dhuhr">--:--</span>
+                            <input type="checkbox" class="prayer-checkbox" id="check-Dhuhr" onchange="togglePrayerDone('Dhuhr')" disabled>
+                        </div>
+                    </div>
+                    <div class="prayer-row" id="p-Asr">
+                        <span>العصر</span>
+                        <div class="prayer-left-zone">
+                            <span class="prayer-time" id="time-Asr">--:--</span>
+                            <input type="checkbox" class="prayer-checkbox" id="check-Asr" onchange="togglePrayerDone('Asr')" disabled>
+                        </div>
+                    </div>
+                    <div class="prayer-row" id="p-Maghrib">
+                        <span>المغرب</span>
+                        <div class="prayer-left-zone">
+                            <span class="prayer-time" id="time-Maghrib">--:--</span>
+                            <input type="checkbox" class="prayer-checkbox" id="check-Maghrib" onchange="togglePrayerDone('Maghrib')" disabled>
+                        </div>
+                    </div>
+                    <div class="prayer-row" id="p-Isha">
+                        <span>العشاء</span>
+                        <div class="prayer-left-zone">
+                            <span class="prayer-time" id="time-Isha">--:--</span>
+                            <input type="checkbox" class="prayer-checkbox" id="check-Isha" onchange="togglePrayerDone('Isha')" disabled>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-primary" id="notifBtn" style="margin-top:10px; font-size:11px; padding:6px 12px; transition:0.3s;" onclick="requestNotificationPermission()">تفعيل إشعارات الأذان 🔔</button>
+            </div>
+
+            <div class="card azkar-card">
+                <div class="azkar-title">📿 واحة الأذكار والسبحة التفاعلية</div>
+                
+                <div class="azkar-sections">
+                    <button class="btn-azkar-section active" id="sec-sabah" onclick="switchAzkarSection('sabah')">☀️ الصباح</button>
+                    <button class="btn-azkar-section" id="sec-maseh" onclick="switchAzkarSection('maseh')">🌙 المساء</button>
+                    <button class="btn-azkar-section" id="sec-free" onclick="switchAzkarSection('free')">📿 تسبيح حر</button>
+                </div>
+
+                <div id="freeZikrSelectorContainer" style="display: none; margin-bottom: 12px; text-align: center;">
+                    <label for="freeZikrSelect" style="font-size: 13px; color: var(--text-muted);">اختر الذكر: </label>
+                    <select id="freeZikrSelect" onchange="changeFreeZikr()" style="background: var(--btn-mode-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; font-weight: bold; font-family: inherit;">
+                        <option value="0">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</option>
+                        <option value="1">أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ</option>
+                        <option value="2">لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ</option>
+                        <option value="3">اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ</option>
+                        <option value="4">لَا إِلَهَ إِلَّا اللَّه وَحْدَهُ لَا شَرِيكَ لَهُ</option>
+                    </select>
+                </div>
+
+                <div class="azkar-content" id="azkarDisplay">جاري تحميل الذكر...</div>
+                
+                <div class="tasbeeh-container">
+                    <div class="beads-circle" id="beadsCircle">
+                        <button class="bead-center-button" id="zikrCounterBtn" onclick="countZikr()">0</button>
+                    </div>
+                </div>
+
+                <div class="azkar-controls">
+                    <button class="btn-azkar-nav" id="btnNextZikr" onclick="nextZikr()">الذكر التالي ↩️</button>
+                    <button class="btn-primary" style="font-size: 11px; padding: 10px 15px; background: #10b981;" onclick="resetZikrCounter()">تصفير 🔄</button>
+                </div>
+            </div>
+
+            <div class="card quran-card" style="grid-column: span 2;">
+                <div class="azkar-title" style="color: #059669;">📖 الورد القرآني اليومي المتجدد تلقائياً</div>
+                <div class="quran-setup-zone" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
+                    <label style="font-size: 14px; font-weight: bold;">حدد طاقتك النهاردة لِوردك:</label>
+                    <select id="quranTargetSelect" onchange="generateQuranPlan()" style="background: var(--btn-mode-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-weight: bold; font-family: inherit;">
+                        <option value="1">صفحة واحدة (على السريع) ⚡</option>
+                        <option value="2" selected>صفحتين (التزام بطل) 📚</option>
+                        <option value="5">٥ صفحات (إنجاز عظيم) 🔥</option>
+                        <option value="10">ربع حزب (شحن كامل للروح) 👑</option>
+                    </select>
+                </div>
+                <div class="quran-suggestion-box" id="quranSuggestionBox" style="background: rgba(16, 185, 129, 0.06); border: 1px dashed #10b981; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px;"></div>
+                <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                    <button class="btn-primary" id="btnOpenQuranModal" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);" onclick="openQuranModal()">قراءة الورد من الموقع مباشرة 🌍</button>
+                    <button class="btn-primary" id="btnCompleteQuran" style="background: #10b981;" onclick="toggleQuranDone()">تم قراءة ورد اليوم بنجاح 🎉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="quranModal" class="quran-modal-overlay" onclick="if(event.target == this) closeQuranModal();">
+    <div class="quran-modal-content">
+        <div class="quran-modal-header">
+            <span id="quranModalTitle" style="font-weight: bold; color: var(--text-main);\">📖 مصحفك الإلكتروني</span>
+            <button class="close-modal-btn" onclick="closeQuranModal()">إغلاق ✖</button>
+        </div>
+        <div class="quran-iframe-container">
+            <iframe id="quranIframe" src=""></iframe>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-text">صُنع بكل حب لدعم أبطال الثانوية العامة ⚡ الّلي ذاكر فاكر © 2026</div>
+    <div class="developer-signature">
+        Developed by: 
+        <a href="https://t.me/MaZeN_VlP" target="_blank">👑 Mazen</a>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
