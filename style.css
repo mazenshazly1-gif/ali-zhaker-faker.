@@ -1,40 +1,271 @@
-const CACHE_NAME = 'ali-zhaker-faker-v6';
-const ASSETS = [
-  './',
-  './index.html',
-  './style.css',
-  './script.js',
-  './manifest.json',
-  './1000066393.jpg' // اسم ملف النجمة الذهبية المرفوعة
-];
+:root {
+    --bg-color: #0b0f19;
+    --card-bg: #111827;
+    --border-color: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --btn-mode-bg: #1f2937;
+    --btn-mode-border: #374151;
+    --timer-bg: #0f172a;
+    --todo-input-bg: #1f2937;
+    --accent-color: #3b82f6;
+    --logo-shadow: #3b82f6;
+}
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
-  self.skipWaiting(); 
-});
+[data-theme="light"] {
+    --bg-color: #f0f4f8;
+    --card-bg: #ffffff;
+    --border-color: #cbd5e1;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --btn-mode-bg: #e2e8f0;
+    --btn-mode-border: #cbd5e1;
+    --timer-bg: #f8fafc;
+    --todo-input-bg: #f1f5f9;
+}
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key); 
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
-});
+/* السيم الروحاني الإسلامي للواحة الدينية */
+[data-interface="deen"] {
+    --bg-color: #04120e;
+    --card-bg: #06241c;
+    --border-color: #0d4738;
+    --text-main: #ecfdf5;
+    --text-muted: #a7f3d0;
+    --btn-mode-bg: #0b3c2f;
+    --btn-mode-border: #105e4a;
+    --timer-bg: #031a15;
+    --todo-input-bg: #0b3c2f;
+    --accent-color: #10b981;
+    --logo-shadow: #10b981;
+}
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request);
-    })
-  );
-});
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; padding: 0;
+    background-color: var(--bg-color); color: var(--text-main);
+    display: flex; flex-direction: column; align-items: center;
+    min-height: 100vh; padding-bottom: 20px; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); direction: rtl;
+}
+
+header {
+    width: 100%; box-sizing: border-box; padding: 15px 5%;
+    background-color: var(--card-bg); border-bottom: 1px solid var(--border-color);
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background-color 0.4s, border-color 0.4s;
+}
+
+.header-right, .header-left { display: flex; align-items: center; gap: 15px; }
+.neon-logo { font-size: 24px; font-weight: 800; color: var(--text-main); text-shadow: 0 0 7px var(--logo-shadow); animation: pulse 2s infinite alternate; transition: text-shadow 0.4s; }
+
+.header-prayer-countdown {
+    font-size: 13px;
+    font-weight: 800;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+    padding: 6px 12px;
+    border-radius: 30px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    white-space: nowrap;
+}
+
+.theme-toggle-btn, .tab-switch-btn { 
+    background: var(--btn-mode-bg); 
+    border: 1px solid var(--btn-mode-border); 
+    color: var(--text-main); 
+    padding: 8px 16px; 
+    border-radius: 50px; 
+    cursor: pointer; 
+    font-size: 14px; 
+    font-weight: bold;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.tab-switch-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.tab-switch-btn.study-mode-active {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+.date-bar { font-size: 16px; font-weight: 700; color: var(--text-muted); }
+.date-bar span { color: var(--accent-color); transition: color 0.4s; }
+
+.tab-content { width: 100%; display: block; animation: tabFadeIn 0.4s ease; }
+@keyframes tabFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.azkar-sections { display: flex; gap: 8px; margin-bottom: 15px; background: var(--timer-bg); padding: 4px; border-radius: 10px; border: 1px solid var(--border-color); }
+.btn-azkar-section { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 8px; font-size: 13px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.2s; font-family: inherit; }
+.btn-azkar-section.active { background: var(--card-bg); color: #8b5cf6; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+[data-interface="deen"] .btn-azkar-section.active { color: #10b981; }
+
+.main-content { width: 95%; max-width: 750px; margin-top: 30px; text-align: center; }
+.card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; margin-bottom: 25px; text-align: right; transition: all 0.4s ease; }
+.top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 5px; }
+
+.card-quote-full { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px 25px; margin-bottom: 25px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.quote-text { font-size: 18px; font-weight: 600; line-height: 1.6; color: var(--text-main); }
+
+.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 12px 30px; font-size: 14px; font-weight: 700; border-radius: 50px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+[data-interface="deen"] .btn-primary:not(#btnOpenQuranModal) { background: linear-gradient(135deg, #10b981, #059669); }
+.btn-primary.activated { background: linear-gradient(135deg, #10b981, #059669) !important; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+
+.prayers-title, .azkar-title { font-size: 17px; font-weight: 700; color: #10b981; text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 10px; }
+.azkar-title { color: #8b5cf6; }
+[data-interface="deen"] .azkar-title { color: #10b981; }
+.location-select-group { text-align: center; margin-bottom: 8px; font-size: 13px; color: var(--text-muted); }
+.location-select-group select { background: var(--btn-mode-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 6px; font-weight: bold; font-family: inherit; }
+.countdown-prayer { text-align: center; font-size: 14px; font-weight: 700; color: #f59e0b; background: rgba(245, 158, 11, 0.1); padding: 6px; border-radius: 8px; margin-bottom: 10px; }
+
+.prayers-list { display: flex; flex-direction: column; gap: 6px; }
+.prayer-row { display: flex; justify-content: space-between; align-items: center; background: var(--todo-input-bg); padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 14px; transition: 0.2s; opacity: 0.6; }
+.prayer-left-zone { display: flex; align-items: center; gap: 10px; }
+
+.prayer-row.prayer-available { opacity: 1; border: 1px dashed #f59e0b; }
+.prayer-row.next-active { border: 1px solid #10b981; background: rgba(16, 185, 129, 0.08); color: #10b981; opacity: 1; }
+.prayer-time { color: var(--text-muted); }
+.prayer-row.next-active .prayer-time { color: #10b981; }
+.prayer-checkbox { width: 17px; height: 17px; accent-color: #10b981; cursor: not-allowed; }
+.prayer-row.prayer-available .prayer-checkbox, .prayer-row.next-active .prayer-checkbox { cursor: pointer; }
+
+.prayer-row.completed-prayer { background: rgba(16, 185, 129, 0.15) !important; color: #10b981 !important; opacity: 0.95 !important; border: 1px solid #10b981 !important; }
+.prayer-row.completed-prayer .prayer-time { color: #10b981; text-decoration: line-through; }
+
+.azkar-content { min-height: 90px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; text-align: center; line-height: 1.6; padding: 5px; color: var(--text-main); }
+.azkar-controls { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; }
+.btn-azkar-nav { background: var(--btn-mode-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 13px; font-family: inherit; }
+
+.tasbeeh-container { display: flex; justify-content: center; align-items: center; margin: 20px 0; }
+.beads-circle { width: 130px; height: 130px; border-radius: 50%; border: 4px dashed #8b5cf6; display: flex; justify-content: center; align-items: center; position: relative; transition: transform 0.2s ease, border-color 0.2s; }
+[data-interface="deen"] .beads-circle { border-color: #10b981; }
+.beads-circle.pulsing { border-color: #d946ef; transform: scale(1.06) rotate(15deg); }
+[data-interface="deen"] .beads-circle.pulsing { border-color: #34d399; }
+.bead-center-button { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; font-size: 26px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 15px rgba(139, 92, 246, 0.4); font-family: inherit; transition: transform 0.1s ease, background 0.3s; outline: none; }
+[data-interface="deen"] .bead-center-button { background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3); }
+.bead-center-button:active { transform: scale(0.92); background: linear-gradient(135deg, #6d28d9, #4c1d95); }
+[data-interface="deen"] .bead-center-button:active { background: linear-gradient(135deg, #047857, #064e3b); }
+
+.quran-card { transition: all 0.3s ease; }
+.quran-card.completed { border-color: #10b981; background: rgba(16, 185, 129, 0.02); }
+
+.quran-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); z-index: 9999;
+    display: none; justify-content: center; align-items: center;
+    backdrop-filter: blur(5px);
+}
+.quran-modal-content {
+    background-color: var(--card-bg); border: 2px solid #10b981;
+    width: 90%; max-width: 900px; height: 85vh;
+    border-radius: 16px; display: flex; flex-direction: column;
+    overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: modalScaleUp 0.3s ease;
+}
+.quran-modal-header {
+    padding: 15px 20px; border-bottom: 1px solid var(--border-color);
+    display: flex; justify-content: space-between; align-items: center;
+    background-color: var(--timer-bg);
+}
+.close-modal-btn {
+    background: #ef4444; color: white; border: none; padding: 6px 14px;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.quran-iframe-container { flex: 1; width: 100%; height: 100%; background: #fff; }
+.quran-iframe-container iframe { width: 100%; height: 100%; border: none; }
+
+@keyframes modalScaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.timer-container { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.timer-left-side { flex: 1; display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.timer-right-side { flex: 1; display: flex; flex-direction: column; align-items: center; background-color: var(--timer-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+.timer-modes { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.btn-mode { background-color: var(--btn-mode-bg); border: 1px solid var(--btn-mode-border); color: var(--text-muted); padding: 12px; border-radius: 8px; cursor: pointer; text-align: right; font-weight: 600; font-family: inherit; }
+.btn-mode.active { background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; color: #3b82f6; }
+
+.timer-display { font-size: 48px; font-weight: 800; color: var(--text-main); font-family: monospace; margin-bottom: 15px; }
+.timer-message { font-size: 15px; color: #10b981; font-weight: 600; min-height: 44px; text-align: center; }
+.timer-controls { display: flex; gap: 8px; width: 100%; }
+.btn-control { border: none; padding: 10px 15px; font-weight: 700; border-radius: 6px; cursor: pointer; flex: 1; font-family: inherit; }
+.btn-start { background-color: #10b981; color: white; }
+.btn-pause { background-color: #f59e0b; color: white; }
+.btn-reset { background-color: #ef4444; color: white; }
+
+.analytics-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px; }
+.analytic-item { background: var(--timer-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; text-align: center; }
+.analytic-num { font-size: 24px; font-weight: 800; color: #f59e0b; font-family: monospace; }
+.analytic-label { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-top: 5px; }
+
+.card-title { font-size: 22px; font-weight: 700; color: #3b82f6; margin-bottom: 15px; transition: color 0.4s; }
+[data-interface="deen"] .card-title { color: #10b981; }
+
+.todo-input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+.todo-input { flex: 1; background-color: var(--todo-input-bg); border: 1px solid var(--btn-mode-border); border-radius: 8px; padding: 14px; color: var(--text-main); font-size: 18px; outline: none; font-family: inherit; }
+.btn-add-todo { background-color: #3b82f6; color: white; border: none; padding: 0 25px; font-size: 24px; font-weight: 700; border-radius: 8px; cursor: pointer; font-family: inherit; }
+[data-interface="deen"] .btn-add-todo { background-color: #10b981; }
+.todo-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.todo-item { display: flex; justify-content: space-between; align-items: center; background-color: var(--todo-input-bg); padding: 10px 20px; border: 1px solid var(--btn-mode-border); border-radius: 8px; }
+.todo-text { font-size: 18px; font-weight: 700; color: var(--text-main); }
+.todo-item.completed .todo-text { text-decoration: line-through; color: #6b7280; }
+.btn-done-todo { background-color: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; padding: 8px 16px; font-weight: 700; border-radius: 6px; cursor: pointer; font-family: inherit; }
+.todo-item.completed .btn-done-todo { background-color: #10b981; color: white; }
+
+/* الفوتر الرئيسي والتوقيع المتطور بالزاوية */
+footer { 
+    margin-top: 40px; 
+    text-align: center; 
+    font-size: 14px; 
+    font-weight: 700; 
+    color: var(--text-muted); 
+    width: 95%; 
+    max-width: 750px; 
+    padding-top: 20px; 
+    border-top: 1px solid var(--border-color);
+    position: relative; 
+}
+
+.developer-signature {
+    position: absolute;
+    bottom: 0;
+    left: 10px; 
+    font-size: 12px;
+    font-family: 'Courier New', Courier, monospace; 
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.developer-signature a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.developer-signature a:hover {
+    color: #10b981; 
+    text-shadow: 0 0 8px var(--accent-color);
+}
+
+@media (max-width: 780px) {
+    header { flex-direction: column; gap: 12px; }
+    .header-right, .header-left { width: 100%; justify-content: space-between; }
+    .timer-container { flex-direction: column; }
+    .analytics-grid { grid-template-columns: 1fr; }
+    .quran-modal-content { height: 95vh; width: 95%; }
+    footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 10px;
+    }
+    .developer-signature {
+        position: static; 
+        margin-top: 5px;
+    }
+}
+@keyframes pulse { 0% { text-shadow: 0 0 5px var(--logo-shadow); } 100% { text-shadow: 0 0 15px var(--logo-shadow); } }

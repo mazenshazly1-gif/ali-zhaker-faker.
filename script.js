@@ -21,6 +21,7 @@ function toggleInterface() {
         if(document.getElementById("analyticsTitle")) document.getElementById("analyticsTitle").style.color = "#10b981";
         if(document.getElementById("totalAzkarBox")) document.getElementById("totalAzkarBox").style.background = "rgba(16, 185, 129, 0.05)";
         
+        // تحديث أذكار الواحة الدينية فوراً لمنع أي تعليق في العرض
         updateZikrDisplay();
     } else {
         deenTab.style.display = 'none';
@@ -34,6 +35,7 @@ function toggleInterface() {
         if(document.getElementById("totalAzkarBox")) document.getElementById("totalAzkarBox").style.background = "rgba(139, 92, 246, 0.05)";
     }
     
+    // إعادة تهيئة وتحديث أرقام التايمر والـ UI لضمان عدم تعليق العدادات أثناء التنقل
     updateTimerDisplayUI();
     checkNextPrayer();
 }
@@ -51,7 +53,7 @@ function setMode(mode) {
 }
 
 // ==========================================
-// 2. المتغيرات والبيانات (Global Setup) + سيستم الرتب والـ XP
+// 2. المتغيرات والبيانات (Global Setup)
 // ==========================================
 let timerInterval; 
 const modeDurations = { 'heroes': 4 * 60 * 60, 'focus': 2 * 60 * 60, 'pomodoro': 25 * 60, 'free': 0 };
@@ -64,44 +66,6 @@ const modeMessages = {
 let currentMode = localStorage.getItem('timer_currentMode') || 'heroes';
 let totalHoursStudied = parseFloat(localStorage.getItem('totalHoursStudied')) || 0.0;
 let completedTodosCount = parseInt(localStorage.getItem('completedTodosCount')) || 0;
-
-// إعدادات الـ XP والرتب الجديدة بتاعت ميزو
-let userXp = parseFloat(localStorage.getItem('userXp')) || 0.0;
-const RANKS = [
-    { name: "1. مبتدئ بيسخن 🥶⏳", minXp: 0, maxXp: 120 },
-    { name: "2. بطل المواجهة 🔥⚔️", minXp: 120, maxXp: 500 },
-    { name: "3. إنت كدا أيقونة 👑⭐", minXp: 500, maxXp: 999999 }
-];
-
-function addXp(amount) {
-    userXp += amount;
-    localStorage.setItem('userXp', userXp.toFixed(1));
-    updateRankUI();
-}
-
-function updateRankUI() {
-    let currentRank = RANKS[0];
-    for (let i = 0; i < RANKS.length; i++) {
-        if (userXp >= RANKS[i].minXp) {
-            currentRank = RANKS[i];
-        }
-    }
-    
-    const rankTitleEl = document.getElementById("rankTitle");
-    const xpTextEl = document.getElementById("xpText");
-    const xpBarFillEl = document.getElementById("xpBarFill");
-    
-    if (rankTitleEl) rankTitleEl.innerText = currentRank.name;
-    
-    if (currentRank.maxXp === 999999) {
-        if (xpTextEl) xpTextEl.innerText = `${userXp.toFixed(0)} XP (قـفّلت اللعبة! 🛡️)`;
-        if (xpBarFillEl) xpBarFillEl.style.width = "100%";
-    } else {
-        let progress = ((userXp - currentRank.minXp) / (currentRank.maxXp - currentRank.minXp)) * 100;
-        if (xpTextEl) xpTextEl.innerText = `${userXp.toFixed(0)} / ${currentRank.maxXp} XP`;
-        if (xpBarFillEl) xpBarFillEl.style.width = `${progress}%`;
-    }
-}
 
 let prayerTimesData = {};
 const prayerNamesArabic = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
@@ -191,14 +155,11 @@ function togglePrayerDone(prayerKey) {
     if (!checkbox || checkbox.disabled) { if(checkbox) checkbox.checked = false; return; }
     completedPrayers[prayerKey] = checkbox.checked;
     localStorage.setItem('completedPrayers', JSON.stringify(completedPrayers));
-    if (checkbox.checked) {
-        row.classList.add("completed-prayer");
-    } else {
-        row.classList.remove("completed-prayer");
-    }
+    if (checkbox.checked) row.classList.add("completed-prayer"); else row.classList.remove("completed-prayer");
     updatePrayersAnalyticsUI();
 }
 
+// ربط الضغط على السطر بالكامل لتسهيل الاختيار في الشاشات والتأكيد
 document.querySelectorAll('.prayer-row').forEach(row => {
     row.addEventListener('click', (e) => {
         if(e.target.type !== 'checkbox') {
@@ -323,14 +284,20 @@ function changeFreeZikr() {
     currentZikrIndex = parseInt(document.getElementById("freeZikrSelect").value); zikrCounter = 0; updateZikrDisplay();
 }
 
-// تم دمج الـ XP هنا: كل تسبيحة = 0.5 XP لرفع المستوى
+function updateZikrDisplay() {
+    if(document.getElementById("azkarDisplay")) document.getElementById("azkarDisplay").innerText = azkarData[currentSection][currentZikrIndex];
+    if(document.getElementById("zikrCounterBtn")) document.getElementById("zikrCounterBtn").innerText = zikrCounter;
+}
+
+function nextZikr() {
+    currentZikrIndex = (currentZikrIndex + 1) % azkarData[currentSection].length; zikrCounter = 0; updateZikrDisplay();
+}
+
 function countZikr() {
     zikrCounter++; totalAzkarCount++;
     if(document.getElementById("zikrCounterBtn")) document.getElementById("zikrCounterBtn").innerText = zikrCounter;
     localStorage.setItem('totalAzkarCount', totalAzkarCount);
     if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = totalAzkarCount;
-    
-    addXp(0.5); // زيادة الـ XP من السبحة
     
     const circle = document.getElementById("beadsCircle"); 
     if(circle) {
@@ -341,22 +308,13 @@ function countZikr() {
     if ("vibrate" in navigator) { navigator.vibrate(40); }
 }
 
-function updateZikrDisplay() {
-    if(document.getElementById("azkarDisplay")) document.getElementById("azkarDisplay").innerText = azkarData[currentSection][currentZikrIndex];
-    if(document.getElementById("zikrCounterBtn")) document.getElementById("zikrCounterBtn").innerText = zikrCounter;
-}
-
-function nextZikr() {
-    currentZikrIndex = (currentZikrIndex + 1) % azkarData[currentSection].length; zikrCounter = 0; updateZikrDisplay();
-}
-
 function resetZikrCounter() { 
     zikrCounter = 0; 
     if(document.getElementById("zikrCounterBtn")) document.getElementById("zikrCounterBtn").innerText = zikrCounter; 
 }
 
 // ==========================================
-// 6. سيستم الورد القرآني والمودال
+// 6. سيستم الورد القرآني والمودال (الرابط الآمن المفتوح)
 // ==========================================
 function generateQuranPlan() {
     const targetSelect = document.getElementById("quranTargetSelect");
@@ -450,7 +408,6 @@ function toggleQuranDone() {
         if(card) card.classList.add("completed"); 
         if(btn) { btn.innerText = "أنجزت ورد اليوم! 🟢"; btn.style.opacity = "0.7"; }
         if ("vibrate" in navigator) { navigator.vibrate([50, 50, 50]); }
-        addXp(30); // بونص قراءة الورد اليومي
     } else {
         localStorage.removeItem('quran_completed_date');
         if(card) card.classList.remove("completed"); 
@@ -459,7 +416,7 @@ function toggleQuranDone() {
 }
 
 // ==========================================
-// 7. سيستم التايمر (Timer Logic) + زيادة الـ XP التلقائية مع الثواني
+// 7. سيستم التايمر (Timer Logic)
 // ==========================================
 function updateTimerDisplayUI() {
     const timerDisplay = document.getElementById("timerDisplay");
@@ -485,7 +442,6 @@ function handleTimerFinishedComplete() {
     }
 }
 
-// تعديل الـ Loop لإضافة (1/60 من الـ XP) كل ثانية مذاكرة حقيقية
 function startCountdownLoop() {
     clearInterval(timerInterval); 
     const timerMessage = document.getElementById("timerMessage");
@@ -495,8 +451,6 @@ function startCountdownLoop() {
         if (remaining > 0) {
             window.timeLeft = remaining; totalHoursStudied += (1 / 3600); localStorage.setItem('totalHoursStudied', totalHoursStudied.toString());
             if (document.getElementById("statHours")) document.getElementById("statHours").innerText = totalHoursStudied.toFixed(2);
-            
-            addXp(1 / 60); // كل دقيقة مذاكرة بتديك 1 XP كامل
             updateTimerDisplayUI();
         } else { handleTimerFinishedComplete(); }
     }, 1000);
@@ -510,8 +464,6 @@ function startFreeTimerLoop() {
         window.secondsElapsed = Math.floor(Date.now() / 1000) - parseInt(localStorage.getItem('timer_freeStartTime'));
         totalHoursStudied += (1 / 3600); localStorage.setItem('totalHoursStudied', totalHoursStudied.toString());
         if (document.getElementById("statHours")) document.getElementById("statHours").innerText = totalHoursStudied.toFixed(2);
-        
-        addXp(1 / 60); // زيادة الـ XP في العداد الحر
         updateTimerDisplayUI();
     }, 1000);
 }
@@ -540,6 +492,7 @@ function initTimerSystem() {
     }
 }
 
+// اختصارات أزرار التايمر
 document.addEventListener("DOMContentLoaded", () => {
     if(document.getElementById("startBtn")) {
         document.getElementById("startBtn").addEventListener("click", () => {
@@ -575,7 +528,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================
-// 8. سيستم قائمة المهام اليومية (To-Do List) + بونص إنجاز المهمة
+// 8. سيستم قائمة المهام اليومية (To-Do List)
 // ==========================================
 function saveTodos() {
     const todos = []; completedTodosCount = 0;
@@ -595,18 +548,8 @@ function createTodoElement(text, isCompleted) {
     todoList.appendChild(li);
 }
 
-// دمج الـ XP هنا: كل علامة صح ✅ تديك 10 XP للمستويات
 function toggleTodo(btn) {
-    const item = btn.parentElement.parentElement; 
-    const wasCompleted = item.classList.contains("completed");
-    item.classList.toggle("completed");
-    
-    if (!wasCompleted) {
-        addXp(10); // بونص إنجاز التاسك
-    } else {
-        addXp(-10); // سحب الـ XP لو شال علامة الإنجاز
-    }
-    
+    const item = btn.parentElement.parentElement; item.classList.toggle("completed");
     btn.innerText = item.classList.contains("completed") ? "أنجزت 🎉" : "إنجاز ✓"; saveTodos();
 }
 
@@ -632,7 +575,6 @@ function getNewQuote() {
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     updateThemeButtonUI(savedTheme); displayCurrentDate(); getNewQuote();
-    updateRankUI(); // تشغيل الرتب فور فتح الصفحة
     
     if ("Notification" in window && Notification.permission !== 'granted') {
         Notification.requestPermission();
