@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الّلي ذاكر فاكر ⚡</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./style.css">
     
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(reg => {
                         console.log('Service Worker Registered!', reg);
                         // لو فيه تحديث جديد ينزله علطول من غير ما يعلق على القديم
@@ -238,7 +238,7 @@
 <div id="quranModal" class="quran-modal-overlay" onclick="if(event.target == this) closeQuranModal();">
     <div class="quran-modal-content">
         <div class="quran-modal-header">
-            <span id="quranModalTitle" style="font-weight: bold; color: var(--text-main);\">📖 مصحفك الإلكتروني</span>
+            <span id="quranModalTitle" style="font-weight: bold; color: var(--text-main);">📖 مصحفك الإلكتروني</span>
             <button class="close-modal-btn" onclick="closeQuranModal()">إغلاق ✖</button>
         </div>
         <div class="quran-iframe-container">

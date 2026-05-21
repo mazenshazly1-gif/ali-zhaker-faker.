@@ -1,10 +1,12 @@
-const CACHE_NAME = 'ali-zhaker-faker-v2'; // تغيير الاسم هنا لـ v2 هو السحر اللي هيخلي التابلت يلقط التحديث فوراً!
+const CACHE_NAME = 'ali-zhaker-faker-v4';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './style.css',
+  './script.js',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -22,7 +24,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            return caches.delete(key); // بيمسح الكاش القديم v1 تماماً
+            return caches.delete(key); 
           }
         })
       );
