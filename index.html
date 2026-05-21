@@ -4,41 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الّلي ذاكر فاكر ⚡</title>
-    <link rel="manifest" href="./manifest.json">
+    
     <link rel="stylesheet" href="./style.css">
     
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => {
-                        console.log('Service Worker Registered!', reg);
-                        // لو فيه تحديث جديد ينزله علطول من غير ما يعلق على القديم
-                        reg.onupdatefound = () => {
-                            const installingWorker = reg.installing;
-                            if (installingWorker) {
-                                installingWorker.onstatechange = () => {
-                                    if (installingWorker.state === 'installed') {
-                                        if (navigator.serviceWorker.controller) {
-                                            console.log('New update available, reloading...');
-                                            window.location.reload();
-                                        }
-                                    }
-                                };
-                            }
-                        };
-                    })
-                    .catch(err => console.log('Service Worker Reg Failed!', err));
-            });
-        }
-    </script>
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="icon" type="image/png" href="./icon-192.png" sizes="192x192">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <header>
     <div class="header-right">
         <div class="neon-logo">⚡ الّلي ذاكر فاكر</div>
-        <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙 المظهر الداكن</button>
+        <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">☀️ المظهر الفاتح</button>
     </div>
     <div class="header-left">
         <div class="header-prayer-countdown" id="headerPrayerCountdown">جاري حساب الصلاة...</div>
@@ -55,14 +36,29 @@
             <button class="btn-primary" id="quoteBtn">کمّل يا بطل 🚀</button>
         </div>
 
+        <div class="rank-card">
+            <div class="rank-header">
+                <span class="rank-title-label">🏅 رتبة المقاوحة الحالية:</span>
+                <span class="rank-name" id="rankTitle">جاري حساب الرتبة...</span>
+            </div>
+            <div class="xp-bar-container">
+                <div class="xp-bar-fill" id="xpBarFill"></div>
+            </div>
+            <div class="xp-text" id="xpText">0 / 120 XP</div>
+        </div>
+
         <div class="card">
             <div class="timer-container">
                 <div class="timer-left-side">
                     <div class="timer-modes">
-                        <button class="btn-mode active" onclick="setMode('heroes')">🧠 جلسة الأبطال (4س)</button>
-                        <button class="btn-mode" onclick="setMode('focus')">⚡ جلسة الإنجاز (2س)</button>
-                        <button class="btn-mode" onclick="setMode('pomodoro')">⏱️ بومودورو (25د)</button>
-                        <button class="btn-mode" onclick="setMode('free')">🔄 عداد حر</button>
+                        <button class="btn-mode active" id="mode-heroes" onclick="setMode('heroes')">🧠 جلسة الأبطال (4س)</button>
+                        <button class="btn-mode" id="mode-focus" onclick="setMode('focus')">⚡ جلسة الإنجاز (2س)</button>
+                        <button class="btn-mode" id="mode-pomodoro" onclick="setMode('pomodoro')">⏱️ بومودورو (25د)</button>
+                        <button class="btn-mode" id="mode-free" onclick="setMode('free')">🔄 عداد حر</button>
+                    </div>
+                    <div class="hardcore-zone">
+                        <input type="checkbox" id="hardcoreToggle" onchange="toggleHardcoreMode()">
+                        <label for="hardcoreToggle" class="hardcore-label">🔥 تفعيل وضع الـ Hardcore (ممنوع الهروب!)</label>
                     </div>
                 </div>
                 <div class="timer-right-side">
@@ -78,7 +74,7 @@
         </div>
 
         <div class="card">
-            <div class="card-title">📝 جدول وبوصلة اليوم</div>
+            <div class="card-title" id="todoTitle">📝 جدول وبوصلة اليوم</div>
             <div class="todo-input-group">
                 <input type="text" class="todo-input" id="todoInput" placeholder="اكتب المهمة اللي ناويلها النهاردة...">
                 <button class="btn-add-todo" id="todoBtn">+</button>
@@ -87,26 +83,45 @@
         </div>
 
         <div class="analytics-grid">
-            <div class="analytic-item">
+            <div class="analytic-item" id="totalHoursBox">
                 <div class="analytic-num" id="statHours">0.00</div>
                 <div class="analytic-label">ساعات المذاكرة 📚</div>
             </div>
-            <div class="analytic-item">
+            <div class="analytic-item" id="streakBox" style="border: 1px solid #f59e0b; background: rgba(245, 158, 11, 0.05);">
+                <div class="analytic-num" id="statStreak" style="color: #f59e0b;">🔥 0</div>
+                <div class="analytic-label">أيام الالتزام (Streak)</div>
+            </div>
+            <div class="analytic-item" id="totalTodosBox">
                 <div class="analytic-num" id="statTodos">0</div>
                 <div class="analytic-label">مهام أنجزتها ✅</div>
             </div>
-            <div class="analytic-item">
-                <div class="analytic-num" id="statAzkar">0</div>
-                <div class="analytic-label">إجمالي الأذكار 📿</div>
+        </div>
+
+        <div class="card chart-card">
+            <div class="card-title" style="color: #a855f7; text-align: right;">📊 مؤشر الأداء الأسبوعي</div>
+            <div class="chart-container" style="position: relative; height:220px; width:100%">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card history-card">
+            <div class="history-header" onclick="toggleHistoryAccordion()">
+                <div class="card-title" style="margin:0; color:#f59e0b;">📜 سجل البطولات وتاريخ تعبك</div>
+                <span id="historyArrow" class="arrow-icon">▼</span>
+            </div>
+            <div class="history-content" id="historyContent" style="display: none;">
+                <div style="text-align: left; margin-bottom: 10px;">
+                    <button class="btn-primary" style="background:#ef4444; padding:5px 12px; font-size:11px;" onclick="clearHistoryLog()">مسح السجل 🗑️</button>
+                </div>
+                <div id="historyLogList" class="history-log-list"></div>
             </div>
         </div>
     </div>
 
     <div id="deenTab" class="tab-content" style="display: none;">
         <div class="top-grid">
-            
             <div class="card prayers-card">
-                <div class="prayers-title">🕋 مواقيت الصلاة والعبادة</div>
+                <div class="prayers-title" id="analyticsTitle">🕋 مواقيت الصلاة والعبادة</div>
                 <div class="location-select-group">
                     <label for="citySelect">المحافظة: </label>
                     <select id="citySelect" onchange="changeCity()">
@@ -182,7 +197,6 @@
 
             <div class="card azkar-card">
                 <div class="azkar-title">📿 واحة الأذكار والسبحة التفاعلية</div>
-                
                 <div class="azkar-sections">
                     <button class="btn-azkar-section active" id="sec-sabah" onclick="switchAzkarSection('sabah')">☀️ الصباح</button>
                     <button class="btn-azkar-section" id="sec-maseh" onclick="switchAzkarSection('maseh')">🌙 المساء</button>
@@ -255,6 +269,6 @@
     </div>
 </footer>
 
-<script src="script.js"></script>
+<script src="./script.js"></script>
 </body>
 </html>
