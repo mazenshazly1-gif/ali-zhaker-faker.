@@ -13,7 +13,6 @@
                 navigator.serviceWorker.register('./sw.js')
                     .then(reg => {
                         console.log('Service Worker Registered!', reg);
-                        // لو فيه تحديث جديد ينزله علطول من غير ما يعلق على القديم
                         reg.onupdatefound = () => {
                             const installingWorker = reg.installing;
                             if (installingWorker) {
@@ -53,6 +52,17 @@
         <div class="card card-quote-full">
             <div class="quote-text" id="quoteDisplay">جاري تحميل عبارتك الملهمة...</div>
             <button class="btn-primary" id="quoteBtn">کمّل يا بطل 🚀</button>
+        </div>
+
+        <div class="rank-card">
+            <div class="rank-header">
+                <span class="rank-title-label">🏅 رتبة المقاوحة الحالية:</span>
+                <span class="rank-name" id="rankTitle">جاري حساب الرتبة...</span>
+            </div>
+            <div class="xp-bar-container">
+                <div class="xp-bar-fill" id="xpBarFill"></div>
+            </div>
+            <div class="xp-text" id="xpText">0 / 120 XP</div>
         </div>
 
         <div class="card">

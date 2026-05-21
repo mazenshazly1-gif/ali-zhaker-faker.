@@ -1,12 +1,11 @@
-const CACHE_NAME = 'ali-zhaker-faker-v4';
+const CACHE_NAME = 'ali-zhaker-faker-v6';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './script.js',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  './1000066393.jpg' // اسم ملف النجمة الذهبية المرفوعة
 ];
 
 self.addEventListener('install', (event) => {
