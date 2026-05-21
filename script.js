@@ -20,6 +20,9 @@ function toggleInterface() {
         
         if(document.getElementById("analyticsTitle")) document.getElementById("analyticsTitle").style.color = "#10b981";
         if(document.getElementById("totalAzkarBox")) document.getElementById("totalAzkarBox").style.background = "rgba(16, 185, 129, 0.05)";
+        
+        // تحديث أذكار الواحة الدينية فوراً لمنع أي تعليق في العرض
+        updateZikrDisplay();
     } else {
         deenTab.style.display = 'none';
         studyTab.style.display = 'block';
@@ -31,6 +34,10 @@ function toggleInterface() {
         if(document.getElementById("analyticsTitle")) document.getElementById("analyticsTitle").style.color = "#f59e0b";
         if(document.getElementById("totalAzkarBox")) document.getElementById("totalAzkarBox").style.background = "rgba(139, 92, 246, 0.05)";
     }
+    
+    // إعادة تهيئة وتحديث أرقام التايمر والـ UI لضمان عدم تعليق العدادات أثناء التنقل
+    updateTimerDisplayUI();
+    checkNextPrayer();
 }
 
 function setMode(mode) {
@@ -81,8 +88,8 @@ const quotes = [
 const azkarData = {
     sabah: [
         "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
-        "اللّهُ لاَ إِلَـهَ إِلاَّ هُوَ الْحَيُّ الْقَيُّومُ (آية الكرسي)",
-        "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ",
+        "اللّهُ لاَ إِلَـهَ إِلاَّ هو الْحَيُّ الْقَيُّومُ (آية الكرسي)",
+        "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ",
         "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ أَصْلِحْ لِي شَأْنِي كُلَّهُ"
     ],
     maseh: [
@@ -151,6 +158,20 @@ function togglePrayerDone(prayerKey) {
     if (checkbox.checked) row.classList.add("completed-prayer"); else row.classList.remove("completed-prayer");
     updatePrayersAnalyticsUI();
 }
+
+// ربط الضغط على السطر بالكامل لتسهيل الاختيار في الشاشات والتأكيد
+document.querySelectorAll('.prayer-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+        if(e.target.type !== 'checkbox') {
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            if(checkbox && !checkbox.disabled) {
+                checkbox.checked = !checkbox.checked;
+                const prayerKey = checkbox.id.replace('check-', '');
+                togglePrayerDone(prayerKey);
+            }
+        }
+    });
+});
 
 function updatePrayerUI() {
     for (const [key, value] of Object.entries(prayerTimesData)) {
@@ -337,7 +358,6 @@ function generateQuranPlan() {
     }
 }
 
-// دالة توليد صوت (تن تن تن) الاحترافية بدون ملف خارجي
 function playBeepSound() {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const times = [0, 0.3, 0.6]; 
@@ -412,10 +432,8 @@ function handleTimerFinishedComplete() {
     const timerMessage = document.getElementById("timerMessage");
     if (timerMessage) timerMessage.innerText = "🎉 كفووو! خلصت الجلسة بنجاح، أنت بطل! خُد بريك.";
     
-    // تشغيل الصوت علطول لو المذاكر جوه الصفحة
     playBeepSound(); 
 
-    // إرسال الإشعار والـ vibration لو بره أو الشاشة مقفولة
     if (Notification.permission === "granted") { 
         new Notification("👑 إنجاز جديد ومميز!", { 
             body: `عاش يا بطل! انتهت جلسة التركيز بنجاح. خُد بريك سريِع وفوق كده.`,
@@ -558,7 +576,6 @@ function getNewQuote() {
 document.addEventListener("DOMContentLoaded", () => {
     updateThemeButtonUI(savedTheme); displayCurrentDate(); getNewQuote();
     
-    // طلب إذن الإشعارات تلقائياً أول ما الصفحة تفتح عشان نضمن إنها تشتغل بره التطبيق
     if ("Notification" in window && Notification.permission !== 'granted') {
         Notification.requestPermission();
     }
