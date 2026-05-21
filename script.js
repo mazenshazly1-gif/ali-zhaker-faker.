@@ -238,48 +238,130 @@ function initTimerSystem() {
 }
 
 // ==========================================
-// 6. مواقيت الصلاة والواحة الدينية
+// 6. مواقيت الصلاة والواحة الدينية (يدعم العمل بدون إنترنت Offline)
 // ==========================================
-let prayerTimesData = {};
+let prayerTimesData = JSON.parse(localStorage.getItem('cachedPrayerTimes')) || {};
 const prayerNamesArabic = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
 let completedPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || { Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false };
 
-function convertTo12HourFormat(timeStr) { if(!timeStr) return "--:--"; let [hours, minutes] = timeStr.split(':').map(Number); let ampm = hours >= 12 ? 'م' : 'ص'; hours = hours % 12 || 12; return `${hours}:${String(minutes).padStart(2, '0')} ${ampm}`; }
+function convertTo12HourFormat(timeStr) { 
+    if(!timeStr) return "--:--"; 
+    let [hours, minutes] = timeStr.split(':').map(Number); 
+    let ampm = hours >= 12 ? 'م' : 'ص'; 
+    hours = hours % 12 || 12; 
+    return `${hours}:${String(minutes).padStart(2, '0')} ${ampm}`; 
+}
+
 function updatePrayersAnalyticsUI() {
     for (const key in completedPrayers) {
-        const checkbox = document.getElementById(`check-${key}`); const row = document.getElementById(`p-${key}`);
-        if(checkbox && row) { checkbox.checked = completedPrayers[key]; if(completedPrayers[key]) row.classList.add("completed-prayer"); else row.classList.remove("completed-prayer"); }
+        const checkbox = document.getElementById(`check-${key}`); 
+        const row = document.getElementById(`p-${key}`);
+        if(checkbox && row) { 
+            checkbox.checked = completedPrayers[key]; 
+            if(completedPrayers[key]) row.classList.add("completed-prayer"); else row.classList.remove("completed-prayer"); 
+        }
     }
 }
+
 function togglePrayerDone(prayerKey) {
-    const checkbox = document.getElementById(`check-${prayerKey}`); if (!checkbox || checkbox.disabled) return;
-    completedPrayers[prayerKey] = checkbox.checked; localStorage.setItem('completedPrayers', JSON.stringify(completedPrayers));
-    updatePrayersAnalyticsUI(); saveCurrentDayToHistory();
+    const checkbox = document.getElementById(`check-${prayerKey}`); 
+    if (!checkbox || checkbox.disabled) return;
+    completedPrayers[prayerKey] = checkbox.checked; 
+    localStorage.setItem('completedPrayers', JSON.stringify(completedPrayers));
+    updatePrayersAnalyticsUI(); 
+    saveCurrentDayToHistory();
 }
+
 function checkNextPrayer() {
-    if (!prayerTimesData || Object.keys(prayerTimesData).length === 0) return;
-    const now = new Date(); let minDiff = Infinity; let nextPrayerKey = "";
-    document.querySelectorAll('.prayer-row').forEach(row => { if (!row.classList.contains('completed-prayer')) row.classList.remove('next-active', 'prayer-available'); });
+    if (!prayerTimesData || Object.keys(prayerTimesData).length === 0) {
+        if (document.getElementById("nextPrayerCountdown")) {
+            document.getElementById("nextPrayerCountdown").innerText = "برجاء الاتصال بالنت لمرة واحدة لتحديث المواقيت 🌐";
+        }
+        return;
+    }
+    
+    const now = new Date(); 
+    let minDiff = Infinity; 
+    let nextPrayerKey = "";
+    
+    document.querySelectorAll('.prayer-row').forEach(row => { 
+        if (!row.classList.contains('completed-prayer')) row.classList.remove('next-active', 'prayer-available'); 
+    });
+    
+    for (const [key, val] of Object.entries(prayerTimesData)) {
+        if(document.getElementById(`time-${key}`)) document.getElementById(`time-${key}`).innerText = convertTo12HourFormat(val);
+    }
     
     for (const [key, timeStr] of Object.entries(prayerTimesData)) {
-        const [hours, minutes] = timeStr.split(':').map(Number); const prayerTime = new Date(); prayerTime.setHours(hours, minutes, 0, 0);
-        let diff = prayerTime - now; const checkbox = document.getElementById(`check-${key}`); const row = document.getElementById(`p-${key}`);
-        if (now >= prayerTime) { if (checkbox) checkbox.disabled = false; if (row && !completedPrayers[key]) row.classList.add('prayer-available'); }
-        else { if (checkbox) { checkbox.disabled = true; checkbox.checked = false; } completedPrayers[key] = false; }
+        const [hours, minutes] = timeStr.split(':').map(Number); 
+        const prayerTime = new Date(); 
+        prayerTime.setHours(hours, minutes, 0, 0);
+        let diff = prayerTime - now; 
+        const checkbox = document.getElementById(`check-${key}`); 
+        const row = document.getElementById(`p-${key}`);
+        
+        if (now >= prayerTime) { 
+            if (checkbox) checkbox.disabled = false; 
+            if (row && !completedPrayers[key]) row.classList.add('prayer-available'); 
+        } else { 
+            if (checkbox) { checkbox.disabled = true; checkbox.checked = false; } 
+            completedPrayers[key] = false; 
+        }
+        
         if (diff > 0 && diff < minDiff) { minDiff = diff; nextPrayerKey = key; }
     }
-    updatePrayersAnalyticsUI();
-    if (nextPrayerKey === "") { nextPrayerKey = "Fajr"; const [hours, minutes] = prayerTimesData.Fajr.split(':').map(Number); const prayerTime = new Date(); prayerTime.setDate(prayerTime.getDate() + 1); prayerTime.setHours(hours, minutes, 0, 0); minDiff = prayerTime - now; }
-    const activeRow = document.getElementById(`p-${nextPrayerKey}`); if (activeRow && !completedPrayers[nextPrayerKey]) activeRow.classList.add('next-active');
     
-    let totalSeconds = Math.floor(minDiff / 1000); let h = Math.floor(totalSeconds / 3600); let m = Math.floor((totalSeconds % 3600) / 60);
+    updatePrayersAnalyticsUI();
+    
+    if (nextPrayerKey === "") { 
+        nextPrayerKey = "Fajr"; 
+        const [hours, minutes] = prayerTimesData.Fajr.split(':').map(Number); 
+        const prayerTime = new Date(); 
+        prayerTime.setDate(prayerTime.getDate() + 1); 
+        prayerTime.setHours(hours, minutes, 0, 0); 
+        minDiff = prayerTime - now; 
+    }
+    
+    const activeRow = document.getElementById(`p-${nextPrayerKey}`); 
+    if (activeRow && !completedPrayers[nextPrayerKey]) activeRow.classList.add('next-active');
+    
+    let totalSeconds = Math.floor(minDiff / 1000); 
+    let h = Math.floor(totalSeconds / 3600); 
+    let m = Math.floor((totalSeconds % 3600) / 60);
+    
     if (document.getElementById("nextPrayerCountdown")) document.getElementById("nextPrayerCountdown").innerText = `متبقي على ${prayerNamesArabic[nextPrayerKey]}: ${h}س و ${m}د`;
     if (document.getElementById("headerPrayerCountdown")) document.getElementById("headerPrayerCountdown").innerText = `🕋 ${prayerNamesArabic[nextPrayerKey]}: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
 }
+
 async function fetchPrayerTimes(city) {
-    try { const response = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Egypt&method=5`); const data = await response.json(); if (data.code === 200) { prayerTimesData = { Fajr: data.data.timings.Fajr, Dhuhr: data.data.timings.Dhuhr, Asr: data.data.timings.Asr, Maghrib: data.data.timings.Maghrib, Isha: data.data.timings.Isha }; for (const [key, val] of Object.entries(prayerTimesData)) { if(document.getElementById(`time-${key}`)) document.getElementById(`time-${key}`).innerText = convertTo12HourFormat(val); } checkNextPrayer(); } } catch (e) {}
+    const selectEl = document.getElementById("citySelect");
+    if(selectEl) selectEl.value = city;
+
+    try { 
+        const response = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Egypt&method=5`); 
+        const data = await response.json(); 
+        if (data.code === 200) { 
+            prayerTimesData = { 
+                Fajr: data.data.timings.Fajr, 
+                Dhuhr: data.data.timings.Dhuhr, 
+                Asr: data.data.timings.Asr, 
+                Maghrib: data.data.timings.Maghrib, 
+                Isha: data.data.timings.Isha 
+            }; 
+            localStorage.setItem('cachedPrayerTimes', JSON.stringify(prayerTimesData));
+            checkNextPrayer(); 
+        } 
+    } catch (e) {
+        console.log("تعذر الاتصال بالـ API، جاري العمل بالبيانات المحفوظة أوفلاين...");
+        checkNextPrayer();
+    }
 }
-function changeCity() { const city = document.getElementById("citySelect").value; localStorage.setItem("savedCity", city); fetchPrayerTimes(city); }
+
+function changeCity() { 
+    const city = document.getElementById("citySelect").value; 
+    localStorage.setItem("savedCity", city); 
+    fetchPrayerTimes(city); 
+}
 function requestNotificationPermission() { if ("Notification" in window) { Notification.requestPermission().then(perm => { if (perm === "granted") { const btn = document.getElementById("notifBtn"); if(btn) { btn.innerText = "تم تفعيل الإشعارات بنجاح 🟢"; btn.classList.add("activated"); } } }); } }
 
 // ==========================================
@@ -331,6 +413,9 @@ function toggleQuranDone() {
     saveCurrentDayToHistory();
 }
 
+// ==========================================
+// 9. إدارة المهام (To-Do List)
+// ==========================================
 function saveTodos() {
     const todos = []; completedTodosCount = 0;
     document.querySelectorAll('.todo-item').forEach(item => { const isDone = item.classList.contains('completed'); todos.push({ text: item.querySelector('.todo-text').innerText, completed: isDone }); if (isDone) completedTodosCount++; });
@@ -346,15 +431,47 @@ function createTodoElement(text, isCompleted) {
 function toggleTodo(btn) { const item = btn.parentElement.parentElement; const wasCompleted = item.classList.contains("completed"); item.classList.toggle("completed"); addXp(wasCompleted ? -10 : 10); btn.innerText = item.classList.contains("completed") ? "أنجزت 🎉" : "إنجاز ✓"; saveTodos(); }
 
 // ==========================================
-// 9. التهيئة الشاملة والأكواد العشوائية
+// 10. التهيئة الشاملة والأكواد العشوائية
 // ==========================================
-const quotes = ["«وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَىٰ».. اعمل اللي عليك وسيب الباقي على الله. ✨", "طلب العلم صراع نَفَس طويل وجَلد. عافر عشان فرحة النجاح! 👑", "«إِنَّا لَا نُضِيعُ أَجْرَ مَنْ أَحْسَنَ عَمَلًا».. كل ساعة سهر محسوبة. 📈"];
+const quotes = [
+    "«وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَىٰ».. اعمل اللي عليك وسيب الباقي على الله. ✨",
+    "طلب العلم صراع نَفَس طويل وجَلد. عافر عشان فرحة النجاح! 👑",
+    "«إِنَّا لَا نُضِيعُ أَجْرَ مَنْ أَحْسَنَ عَمَلًا».. كل ساعة سهر وتعب محسوبة ومكتوبة. 📈",
+    "الـ Code مش بيشتغل من أول مرة، وكذلك أحلامنا محتاجة Debugging ومحاولة تانية! 💻⚡",
+    "خطوة صغيرة كل يوم بتعمل إنجاز مرعب بعد فترة.. استمر يا بطل. 🚀",
+    "مفيش حلم بييجي بالساهل، اتعب النهاردة عشان ترتاح وتفرح بكرة. 🎓✨",
+    "افتكر دايماً إنت بدأت ليه.. ومتقفش في نص الطريق وأنت خلاص قربت! 🏁",
+    "الذكاء لوحده مش كفاية، الاستمرارية هي اللي بتصنع المهندسين المحترفين. 🛠️",
+    "كل سطر كود بتكتبه، وكل صفحة بتذاكرها هي طوبة في جدار مستقبلك الكبير. 🧱💡",
+    "ركز في ورقتك وفي هدفك، متقارنش نفسك بغيرك.. رحلتك ملكك لوحدك. 🌟",
+    "تعب السعي هيروح، بس شرف الوصول وفرحته هيفضلوا عايشين معاك العمر كله. 🔥",
+    "الخوف مش هيحميك من الفشل، بس السعي والتوكل هما السلاح اللي هيوصلك. ⚔️",
+    "امسح الـ Error وكمل.. مفيش مشكلة ملهاش حل، لا في البرمجة ولا في المذاكرة! 🛠️",
+    "الحلم اللي بتتمناه وبتدعي بيه يستاهل تضحي عشانه بنوم أو بـ تشتيت. 🕋👑",
+    "اليوم اللي بيعدي من غير إنجاز هو فرصة ضاعت.. املأ يومك بالبطولات. 🏆"
+];
+
 function displayCurrentDate() { if(document.getElementById("dateBar")) document.getElementById("dateBar").innerHTML = `اليوم: <span>${new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>`; }
 
 document.addEventListener("DOMContentLoaded", () => {
     displayCurrentDate(); if(document.getElementById("quoteDisplay")) document.getElementById("quoteDisplay").innerText = quotes[Math.floor(Math.random() * quotes.length)]; updateRankUI(); renderHistoryLog();
     document.querySelectorAll('.prayer-row').forEach(row => { row.addEventListener('click', (e) => { if(e.target.type !== 'checkbox') { const chk = row.querySelector('input[type="checkbox"]'); if(chk && !chk.disabled) { chk.checked = !chk.checked; togglePrayerDone(chk.id.replace('check-', '')); } } }); });
     
+    // ربط زرار كمل يا بطل الذكي لمنع تكرار نفس العبارة ورا بعض 🚀
+    document.getElementById("quoteBtn")?.addEventListener("click", () => {
+        const displayEl = document.getElementById("quoteDisplay");
+        if (displayEl) {
+            const currentQuote = displayEl.innerText;
+            let nextQuote = currentQuote;
+            
+            // حلقة تكرار تضمن عدم اختيار نفس العبارة الحالية مطلقاً
+            while (nextQuote === currentQuote) {
+                nextQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            }
+            displayEl.innerText = nextQuote;
+        }
+    });
+
     document.getElementById("startBtn")?.addEventListener("click", () => {
         if (localStorage.getItem('timer_isRunning') === 'true') return;
         if (localStorage.getItem('hardcoreModeActive') === 'true') { const de = document.documentElement; if (de.requestFullscreen) de.requestFullscreen(); else if (de.webkitRequestFullscreen) de.webkitRequestFullscreen(); }
@@ -385,16 +502,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("statTodos")) document.getElementById("statTodos").innerText = completedTodosCount;
     
     switchAzkarSection('sabah'); generateQuranPlan(); fetchPrayerTimes(localStorage.getItem("savedCity") || "Cairo"); initTimerSystem();
+    
+    setInterval(checkNextPrayer, 60000);
 });
 
-const savedTheme = localStorage.getItem('theme') || 'dark'; document.documentElement.setAttribute('data-theme', savedTheme);
-function toggleTheme() { let nt = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', nt); localStorage.setItem('theme', nt); document.getElementById('themeToggleBtn').innerHTML = nt === 'light' ? '☀️ المظهر الفاتح' : '🌙 المظهر الداكن'; updateStreakAndChartSystem(); }
+const savedTheme = localStorage.getItem('theme') || 'dark'; 
+document.documentElement.setAttribute('data-theme', savedTheme);
+const initialBtnText = savedTheme === 'light' ? '🌙 المظهر الداكن' : '☀️ المظهر الفاتح';
+if(document.getElementById('themeToggleBtn')) document.getElementById('themeToggleBtn').innerHTML = initialBtnText;
 
-// تسجيل الـ Service Worker لربطه كـ PWA
+function toggleTheme() { 
+    let currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    let newTheme = currentTheme === 'dark' ? 'light' : 'dark'; 
+    document.documentElement.setAttribute('data-theme', newTheme); 
+    localStorage.setItem('theme', newTheme); 
+    document.getElementById('themeToggleBtn').innerHTML = newTheme === 'light' ? '🌙 المظهر الداكن' : '☀️ المظهر الفاتح'; 
+    updateStreakAndChartSystem(); 
+}
+
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('Service Worker Registered بنجاح يا هندسة! 🚀', reg.scope))
+            .then(reg => console.log('Service Worker Registered بنجاح! 🚀', reg.scope))
             .catch(err => console.log('فشل تسجيل الـ SW:', err));
     });
 }
