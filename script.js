@@ -1,5 +1,5 @@
 // ==========================================
-// 🛠️ ملف اللوجيك والتحكم التفاعلي الكامل (script.js) - الّلي ذاكر فاكر V8
+// 🛠️ ملف اللوجيك والتحكم التفاعلي الكامل (script.js) - الّلي ذاكر فاكر V8.1
 // ==========================================
 
 // ==========================================
@@ -78,7 +78,7 @@ function checkAndResetNewDay() {
     const lastSavedDate = localStorage.getItem('last_visited_date');
 
     if (lastSavedDate && lastSavedDate !== todayDateStr) {
-        // 1. حساب تاريخ امبارح بدقة وحفظ الإنجاز في السجل والـ Chart قبل التصفير لحفظ الحقوق
+        // 1. حفظ الإنجاز في السجل والـ Chart قبل التصفير لحفظ الحقوق
         const yesterday = new Date(); 
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', weekday: 'short' });
@@ -177,7 +177,7 @@ function toggleTimer() {
                 elapsedFreeSeconds++;
                 updateTimerDisplay(elapsedFreeSeconds);
                 totalHoursStudied += (1 / 3600);
-                addXp(1 / 60); // زيادة الـ XP بمعدل متزن أثناء المذاكرة الحرّة
+                addXp(1 / 60); 
             } else {
                 if (timeLeft > 0) {
                     timeLeft--;
@@ -202,7 +202,7 @@ function toggleTimer() {
 window.addEventListener('blur', () => {
     const hardcoreChecked = document.getElementById("chkHardcore")?.checked;
     if (isTimerRunning && hardcoreChecked) {
-        addXp(-15); // خصم 15 XP فوري عقاباً على الهروب والتشتيت
+        addXp(-15); 
         alarmAudio.play();
         document.body.classList.add("hardcore-alarm-active");
         alert("🚨 قفشناااااك! بتهرب من المذاكرة وتروح لتابس تانية؟ تم خصم 15 XP وتشغيل صفارة الإنذار! ارجع ركز فوراً!");
@@ -275,7 +275,7 @@ function toggleTodoComplete(index) {
     localStorage.setItem('savedTodos', JSON.stringify(savedTodos));
     
     if (savedTodos[index].completed) {
-        completedTodosCount++; addXp(20); // مكافأة إنجاز مهمة
+        completedTodosCount++; addXp(20); 
     } else {
         completedTodosCount--; addXp(-20);
         if(completedTodosCount < 0) completedTodosCount = 0;
@@ -311,7 +311,6 @@ function handleTasbihClick() {
     if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = totalAzkarCount;
     localStorage.setItem('totalAzkarCount', totalAzkarCount);
     
-    // تفعيل اهتزاز الموبايل مع التسبيح لزيادة التفاعل والدقة
     if (navigator.vibrate) navigator.vibrate(40);
     if (tasbihCount % 33 === 0) { addXp(5); }
 }
@@ -324,7 +323,7 @@ function resetTasbihCounter() {
 function completeQuranWird() {
     const todayStr = new Date().toDateString();
     localStorage.setItem('quran_completed_date', todayStr);
-    addXp(40); // مكافأة قراءة الورد اليومي للقرآن
+    addXp(40); 
     alert("عاش يا بطل! تم تسجيل ورد القرآن الكريم اليوم بنجاح وأخذت +40 XP 🌸");
 }
 
@@ -379,7 +378,13 @@ function togglePrayerStatus(prayerKey) {
     
     if (window.completedPrayers[prayerKey]) addXp(15); else addXp(-15);
     
-    fetchPrayerTimes(); // إعادة التوجيه لتحديث الألوان والتنسيق الخاص بالكروت
+    // 🔥 تم الإصلاح هنا: نحدّث الـ UI والـ Analytics مباشرةً بدل إعادة طلب الـ API بالكامل لمنع الـ Infinite Loop
+    const cached = JSON.parse(localStorage.getItem('cachedPrayerTimes'));
+    if(cached) {
+        renderPrayerTimesUI(cached);
+    } else {
+        fetchPrayerTimes();
+    }
 }
 
 function updatePrayersAnalyticsUI() {
@@ -394,7 +399,6 @@ function updatePrayersAnalyticsUI() {
 function saveCurrentDayToHistory(overrideDateStr = null) {
     let historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
     
-    // لو باعتين تاريخ معين (تاريخ امبارح وقت التصفير) نستخدمه، غير كدا نستخدم النهاردة
     const dateToSave = overrideDateStr || new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', weekday: 'short' });
     
     let prayersCount = 0; 
@@ -454,7 +458,12 @@ function updateStreakAndChartSystem() {
     }
     if(document.getElementById("statStreak")) document.getElementById("statStreak").innerText = currentStreak;
     
-    // تحديث رسمة الـ Chart.js الأسبوعية
+    // 🔥 تم الإصلاح هنا: فحص أولاً إن كانت مكتبة Chart موجودة في الصفحة قبل الرسم لتجنب الـ Crash
+    if (typeof Chart === "undefined") {
+        console.warn("مكتبة Chart.js غير محملة بعد في الصفحة.");
+        return;
+    }
+
     const ctx = document.getElementById("weeklyStudyChart")?.getContext("2d");
     if (!ctx) return;
     
@@ -464,7 +473,6 @@ function updateStreakAndChartSystem() {
     
     if (studyChartInstance) studyChartInstance.destroy();
     
-    // بناء الشارت بشكل جمالي احترافي ومتناسق مع الألوان الداكنة والـ Neon
     studyChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -497,7 +505,6 @@ function updateStreakAndChartSystem() {
 // 9. تهيئة المكونات وتحميل الداتا عند الفتح (Initialization)
 // ==========================================
 function initAppComponents() {
-    // عرض الإحصائيات الفورية من الـ LocalStorage في الـ UI
     if (document.getElementById("statHours")) document.getElementById("statHours").innerText = totalHoursStudied.toFixed(2);
     if (document.getElementById("statTodos")) document.getElementById("statTodos").innerText = completedTodosCount;
     if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = totalAzkarCount;
@@ -509,7 +516,6 @@ function initAppComponents() {
     renderHistoryLog();
     updateStreakAndChartSystem();
     
-    // ربط ميكانيزم زرار الإنتر لإضافة المهام بسهولة
     document.getElementById("todoInput")?.addEventListener("keypress", (e) => {
         if(e.key === "Enter") addTodoItem();
     });
