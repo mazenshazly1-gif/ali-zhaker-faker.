@@ -1,77 +1,67 @@
 // ==========================================
-// 1. التحكم بالواجهات والـ Tabs
+// 🛠️ ملف اللوجيك والتحكم التفاعلي الكامل (script.js) - الّلي ذاكر فاكر V8
 // ==========================================
-let currentActiveInterface = 'study'; 
-const alarmAudio = new Audio('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg');
-alarmAudio.loop = true;
 
-function toggleInterface() {
-    if (localStorage.getItem('timer_isRunning') === 'true' && localStorage.getItem('hardcoreModeActive') === 'true') {
-        alert("🚨 قفشتك! وضع الـ Hardcore شغال.. ممنوع التنقل أو تشتيت نفسك لحد ما الجلسة تخلص!");
-        return;
-    }
-    const studyTab = document.getElementById('studyTab');
-    const deenTab = document.getElementById('deenTab');
-    const switchBtn = document.getElementById('tabSwitchBtn');
+// ==========================================
+// 1. الإعدادات العامة والـ DOM Elements
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+    // تشغيل نظام التصفير وفحص اليوم الجديد أول حاجة قبل أي لود للداتا
+    checkAndResetNewDay();
     
-    if (currentActiveInterface === 'study') {
-        studyTab.style.display = 'none'; deenTab.style.display = 'block'; currentActiveInterface = 'deen';
-        document.documentElement.setAttribute('data-interface', 'deen');
-        switchBtn.innerText = '📚 واجهة المذاكرة'; switchBtn.classList.add('study-mode-active');
-        updateZikrDisplay();
-    } else {
-        deenTab.style.display = 'none'; studyTab.style.display = 'block'; currentActiveInterface = 'study';
-        document.documentElement.removeAttribute('data-interface');
-        switchBtn.innerText = '🕋 الواحة الدينية'; switchBtn.classList.remove('study-mode-active');
-    }
-    updateTimerDisplayUI(); checkNextPrayer(); updateStreakAndChartSystem();
-}
+    // تهيئة باقي مكونات الصفحة والـ Event Listeners
+    displayCurrentDate();
+    initAppComponents();
+});
 
-function setMode(mode) {
-    if (localStorage.getItem('timer_isRunning') === 'true' && localStorage.getItem('hardcoreModeActive') === 'true') {
-        alert("🔥 إثبت مكانك! وضع الـ Hardcore متفعل.. مش هتعرف تغير المود دلوقتي!"); return;
-    }
-    clearInterval(timerInterval); localStorage.setItem('timer_isRunning', 'false');
-    currentMode = mode; localStorage.setItem('timer_currentMode', mode);
-    localStorage.removeItem('timer_pausedTimeLeft'); localStorage.setItem('timer_freePausedSeconds', '0');
-    
-    document.querySelectorAll('.btn-mode').forEach(btn => btn.classList.remove('active'));
-    const targetedBtn = document.getElementById(`mode-${mode}`); if(targetedBtn) targetedBtn.classList.add('active');
-    
-    if (mode === 'free') window.secondsElapsed = 0; else window.timeLeft = modeDurations[mode];
-    if (document.getElementById("timerMessage")) document.getElementById("timerMessage").innerText = modeMessages[mode]; 
-    updateTimerDisplayUI();
+function displayCurrentDate() {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const today = new Date().toLocaleDateString('ar-EG', options);
+    const dateEl = document.getElementById("currentDateText");
+    if (dateEl) dateEl.innerText = today;
 }
 
 // ==========================================
-// 2. المتغيرات ولوجيك الرتب والـ XP
+// 2. المتغيرات، الرتب، وبونص التصفير اليومي
 // ==========================================
 let timerInterval; 
 const modeDurations = { 'heroes': 4 * 60 * 60, 'focus': 2 * 60 * 60, 'pomodoro': 25 * 60, 'free': 0 };
 const modeMessages = {
-    'heroes': "جلسة الأبطال.. 4 ساعات تركيز وطحن! 🔥", 'focus': "ساعتين إنجاز على السريع.. ادخل سخن! ⚡",
-    'pomodoro': "25 دقيقة طحن وتركيز فائق. ⏱️", 'free': "العداد الحر شغال بيعد وراك تعبك.. 🔄"
+    'heroes': "جلسة الأبطال.. 4 ساعات تركيز وطحن! 🔥", 
+    'focus': "ساعتين إنجاز على السريع.. ادخل سخن! ⚡",
+    'pomodoro': "25 دقيقة طحن وتركيز فائق. ⏱️", 
+    'free': "العداد الحر شغال بيعد وراك تعبك.. 🔄"
 };
+
 let currentMode = localStorage.getItem('timer_currentMode') || 'heroes';
 let totalHoursStudied = parseFloat(localStorage.getItem('totalHoursStudied')) || 0.0;
 let completedTodosCount = parseInt(localStorage.getItem('completedTodosCount')) || 0;
 let totalAzkarCount = parseInt(localStorage.getItem('totalAzkarCount')) || 0;
 let userXp = parseFloat(localStorage.getItem('userXp')) || 0.0;
 
+// نظام الرتب الخمسة المعتمد يا كنج 🎯
 const RANKS = [
-    { name: "1. مبتدئ بيسخن 🥶⏳", minXp: 0, maxXp: 120 },
-    { name: "2. بطل المواجهة 🔥⚔️", minXp: 120, maxXp: 500 },
-    { name: "3. إنت كدا أيقونة 👑⭐", minXp: 500, maxXp: 999999 }
+    { name: "1. مبتدئ بيسخن 🥶⏳", minXp: 0, maxXp: 150 },
+    { name: "2. مقاتل ⚔️🔥", minXp: 150, maxXp: 400 },
+    { name: "3. انت كدا كنج 👑⭐", minXp: 400, maxXp: 800 },
+    { name: "4. ايقونه يبنى عاش 🏅🚀", minXp: 800, maxXp: 1500 },
+    { name: "5. لفل الوحش 🦁💀", minXp: 1500, maxXp: 999999 }
 ];
 
 function addXp(amount) {
-    userXp += amount; if(userXp < 0) userXp = 0;
-    localStorage.setItem('userXp', userXp.toFixed(1)); updateRankUI();
+    userXp += amount; 
+    if(userXp < 0) userXp = 0;
+    localStorage.setItem('userXp', userXp.toFixed(1)); 
+    updateRankUI();
 }
+
 function updateRankUI() {
     let currentRank = RANKS[0];
-    for (let i = 0; i < RANKS.length; i++) { if (userXp >= RANKS[i].minXp) currentRank = RANKS[i]; }
+    for (let i = 0; i < RANKS.length; i++) { 
+        if (userXp >= RANKS[i].minXp) currentRank = RANKS[i]; 
+    }
     if (document.getElementById("rankTitle")) document.getElementById("rankTitle").innerText = currentRank.name;
+    
     if (currentRank.maxXp === 999999) {
         if (document.getElementById("xpText")) document.getElementById("xpText").innerText = `${userXp.toFixed(0)} XP (قـفّلت اللعبة! 🛡️)`;
         if (document.getElementById("xpBarFill")) document.getElementById("xpBarFill").style.width = "100%";
@@ -82,448 +72,456 @@ function updateRankUI() {
     }
 }
 
-// ==========================================
-// 3. وضع الـ Hardcore وقفش الغش 🚫
-// ==========================================
-function toggleHardcoreMode() {
-    const checkbox = document.getElementById("hardcoreToggle"); if(!checkbox) return;
-    if (localStorage.getItem('timer_isRunning') === 'true') {
-        alert("❌ ميبقاش التايمر شغال وتيجي تعدل الوضع!"); checkbox.checked = !checkbox.checked; return;
-    }
-    localStorage.setItem('hardcoreModeActive', checkbox.checked ? 'true' : 'false'); updateHardcoreUI();
-}
+// سيستم التصفير التلقائي مع بداية اليوم الجديد (Midnight Reset التلقائي)
+function checkAndResetNewDay() {
+    const todayDateStr = new Date().toDateString();
+    const lastSavedDate = localStorage.getItem('last_visited_date');
 
-window.addEventListener('blur', () => {
-    const isRunning = localStorage.getItem('timer_isRunning') === 'true';
-    const isHardcore = localStorage.getItem('hardcoreModeActive') === 'true';
-    if (isRunning && isHardcore) {
-        addXp(-25); alarmAudio.volume = 1.0; alarmAudio.play().catch(e => {});
-        if (!document.getElementById('ultimateOverlay')) {
-            const overlay = document.createElement('div'); overlay.id = 'ultimateOverlay'; overlay.className = 'hardcore-emergency-ultimate';
-            overlay.innerHTML = `<div class="scare-shake" style="text-align:center;"><h1>🚨 قفشتك يا هربان! 🚨</h1><p>اتخصم منك 25 XP فوري.. والإنذار مش هيسكت غير لما ترجع!</p></div>`;
-            document.body.appendChild(overlay);
+    if (lastSavedDate && lastSavedDate !== todayDateStr) {
+        // 1. حساب تاريخ امبارح بدقة وحفظ الإنجاز في السجل والـ Chart قبل التصفير لحفظ الحقوق
+        const yesterday = new Date(); 
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', weekday: 'short' });
+        
+        saveCurrentDayToHistory(yesterdayStr);
+
+        // 💡 فكرة صندوق المكافأة: فحص لو الطالب قفل صلواته وورده وخلص مهمتين امبارح
+        let lastPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || {};
+        let prayerDoneCount = Object.values(lastPrayers).filter(Boolean).length;
+        let lastQuran = localStorage.getItem('quran_completed_date') === lastSavedDate;
+        
+        if (prayerDoneCount === 5 && lastQuran && completedTodosCount >= 2) {
+            alert("🎁 صندوق مكافأة الالتزام! بما إنك قفلت صلواتك ووردك ومهامك امبارح، ليك +100 XP بونص لبداية يومك الجديد! عاش يا بطل 👑");
+            userXp = 100.0; 
+        } else {
+            userXp = 0.0; 
         }
+
+        // 2. تصفير العدادات اليومية في الـ LocalStorage والداتا الحالية
+        totalAzkarCount = 0;
+        completedTodosCount = 0;
+        totalHoursStudied = 0.0; 
+        
+        localStorage.setItem('userXp', userXp.toFixed(1));
+        localStorage.setItem('totalAzkarCount', '0');
+        localStorage.setItem('completedTodosCount', '0');
+        localStorage.setItem('totalHoursStudied', '0');
+        localStorage.removeItem('savedTodos'); 
+        
+        // تصفير الصلوات
+        const freshPrayers = { Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false };
+        localStorage.setItem('completedPrayers', JSON.stringify(freshPrayers));
+        window.completedPrayers = freshPrayers;
+
+        // تحديث الـ UI ليعكس التصفير فوراً
+        if (document.getElementById("statHours")) document.getElementById("statHours").innerText = "0.00";
+        if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = "0";
+        if (document.getElementById("statTodos")) document.getElementById("statTodos").innerText = "0";
+        const todoList = document.getElementById("todoList"); if(todoList) todoList.innerHTML = "";
+        
+        updateRankUI();
+        if(typeof updatePrayersAnalyticsUI === "function") updatePrayersAnalyticsUI();
     }
-});
-
-window.addEventListener('focus', () => { alarmAudio.pause(); alarmAudio.currentTime = 0; const overlay = document.getElementById('ultimateOverlay'); if (overlay) overlay.remove(); });
-
-document.addEventListener('keydown', (e) => {
-    if (localStorage.getItem('timer_isRunning') === 'true' && localStorage.getItem('hardcoreModeActive') === 'true') {
-        if (e.key === 'F12' || e.key === 'Escape' || (e.ctrlKey && e.shiftKey && e.key === 'I')) { e.preventDefault(); alert("🔥 وضع الهاردكور قفل عليك الهروب!"); }
-    }
-});
-document.addEventListener('contextmenu', (e) => { if (localStorage.getItem('timer_isRunning') === 'true' && localStorage.getItem('hardcoreModeActive') === 'true') e.preventDefault(); });
-
-function updateHardcoreUI() {
-    const isHardcore = localStorage.getItem('hardcoreModeActive') === 'true';
-    const checkbox = document.getElementById("hardcoreToggle"); if(checkbox) checkbox.checked = isHardcore;
-    const pauseBtn = document.getElementById("pauseBtn"); const resetBtn = document.getElementById("resetBtn");
-    const isRunning = localStorage.getItem('timer_isRunning') === 'true';
     
-    if (isHardcore && isRunning) {
-        [pauseBtn, resetBtn].forEach(btn => { if(btn) { btn.disabled = true; btn.style.opacity = "0.2"; btn.style.cursor = "not-allowed"; btn.onclick = () => { btn.style.animation = 'none'; setTimeout(() => btn.style.animation = 'shakeDisabled 0.3s', 10); }; } });
+    localStorage.setItem('last_visited_date', todayDateStr);
+}
+
+// ==========================================
+// 3. نظام التايمر، جلسات المذاكرة والـ Hardcore Mode
+// ==========================================
+let timeLeft = 0;
+let isTimerRunning = false;
+let elapsedFreeSeconds = 0;
+const alarmAudio = new Audio('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg');
+alarmAudio.loop = true;
+
+function setupTimerMode(mode) {
+    if (isTimerRunning) return;
+    currentMode = mode;
+    localStorage.setItem('timer_currentMode', mode);
+    
+    const msgEl = document.getElementById("modeMessage");
+    if (msgEl) msgEl.innerText = modeMessages[mode];
+    
+    if (mode === 'free') {
+        elapsedFreeSeconds = 0;
+        updateTimerDisplay(0);
     } else {
-        if(pauseBtn) { btnResetOnclick(pauseBtn); } if(resetBtn) { btnResetOnclick(resetBtn); }
+        timeLeft = modeDurations[mode];
+        updateTimerDisplay(timeLeft);
     }
 }
-function btnResetOnclick(btn) { btn.disabled = false; btn.style.opacity = "1"; btn.style.cursor = "pointer"; btn.onclick = null; }
 
-// ==========================================
-// 4. الرسوم البيانية والـ Streak وسجل البطولات 📊
-// ==========================================
-let myChart = null;
-
-function toggleHistoryAccordion() { const content = document.getElementById("historyContent"); if(content) content.style.display = (content.style.display === "none") ? "block" : "none"; }
-
-function saveCurrentDayToHistory() {
-    let historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
-    const todayStr = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', weekday: 'short' });
-    let prayersCount = 0; const completedPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || {};
-    for(let key in completedPrayers) { if(completedPrayers[key]) prayersCount++; }
-
-    const existingIndex = historyLog.findIndex(item => item.date === todayStr);
-    const newRecord = { date: todayStr, hours: totalHoursStudied.toFixed(2), todos: completedTodosCount, azkar: totalAzkarCount, prayers: prayersCount };
-    if (existingIndex !== -1) historyLog[existingIndex] = newRecord; else historyLog.unshift(newRecord);
-
-    localStorage.setItem('studyHistoryLog', JSON.stringify(historyLog)); renderHistoryLog(); updateStreakAndChartSystem();
+function updateTimerDisplay(secondsInput) {
+    const hours = Math.floor(secondsInput / 3600);
+    const minutes = Math.floor((secondsInput % 3600) / 60);
+    const seconds = secondsInput % 60;
+    
+    const displayStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    if (document.getElementById("timerDisplay")) document.getElementById("timerDisplay").innerText = displayStr;
 }
 
-function renderHistoryLog() {
-    const container = document.getElementById("historyLogList"); if(!container) return;
-    const historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
-    if(historyLog.length === 0) { container.innerHTML = `<p style="text-align:center; color:var(--text-muted); font-size:13px; margin:15px 0;">السجل فاضي.. ابدأ التايمر وسيب الباقي علينا! 🚀</p>`; return; }
-    container.innerHTML = historyLog.map(item => `<div class="history-item"><span class="history-date">📅 ${item.date}</span><div class="history-stats"><span>📚 ${item.hours}س</span><span>✅ ${item.todos} مهام</span><span>📿 ${item.azkar} ذكر</span><span>🕋 ${item.prayers}/5 صلوات</span></div></div>`).join('');
+function toggleTimer() {
+    const btn = document.getElementById("btnToggleTimer");
+    if (isTimerRunning) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        if(btn) btn.innerHTML = "<span>ابدأ الجلسة</span> 🚀";
+        alarmAudio.pause(); alarmAudio.currentTime = 0;
+    } else {
+        isTimerRunning = true;
+        if(btn) btn.innerHTML = "<span>إيقاف مؤقت</span> ⏸️";
+        
+        timerInterval = setInterval(() => {
+            if (currentMode === 'free') {
+                elapsedFreeSeconds++;
+                updateTimerDisplay(elapsedFreeSeconds);
+                totalHoursStudied += (1 / 3600);
+                addXp(1 / 60); // زيادة الـ XP بمعدل متزن أثناء المذاكرة الحرّة
+            } else {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay(timeLeft);
+                    totalHoursStudied += (1 / 3600);
+                    addXp(1 / 60);
+                } else {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    if(btn) btn.innerHTML = "<span>ابدأ الجلسة</span> 🚀";
+                    alarmAudio.play();
+                    alert("عاش يا بطل! قفّلت الجلسة بنجاح وعملت اللي عليك 👑");
+                }
+            }
+            localStorage.setItem('totalHoursStudied', totalHoursStudied.toFixed(2));
+            if (document.getElementById("statHours")) document.getElementById("statHours").innerText = totalHoursStudied.toFixed(2);
+        }, 1000);
+    }
 }
 
-function clearHistoryLog() { if(confirm("هل أنت متأكد إنك عايز تمسح سجل البطولات بالكامل؟")) { localStorage.removeItem('studyHistoryLog'); renderHistoryLog(); updateStreakAndChartSystem(); } }
+// لوجيك الـ Hardcore قفش الهروب والتشتيت 🚨
+window.addEventListener('blur', () => {
+    const hardcoreChecked = document.getElementById("chkHardcore")?.checked;
+    if (isTimerRunning && hardcoreChecked) {
+        addXp(-15); // خصم 15 XP فوري عقاباً على الهروب والتشتيت
+        alarmAudio.play();
+        document.body.classList.add("hardcore-alarm-active");
+        alert("🚨 قفشناااااك! بتهرب من المذاكرة وتروح لتابس تانية؟ تم خصم 15 XP وتشغيل صفارة الإنذار! ارجع ركز فوراً!");
+    }
+});
 
-function updateStreakAndChartSystem() {
-    const historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
-    let streak = historyLog.length > 0 ? 1 : 0;
-    for (let i = 0; i < historyLog.length - 1; i++) { if (parseFloat(historyLog[i].hours) > 0 && parseFloat(historyLog[i+1].hours) > 0) streak++; else break; }
-    if(document.getElementById("statStreak")) document.getElementById("statStreak").innerText = `🔥 ${streak}`;
+window.addEventListener('focus', () => {
+    alarmAudio.pause();
+    document.body.classList.remove("hardcore-alarm-active");
+});
 
-    let labels = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
-    let dataHours = [0, 0, 0, 0, 0, 0, 0];
-    if (historyLog.length > 0) { const last7Days = historyLog.slice(0, 7).reverse(); labels = last7Days.map(item => item.date); dataHours = last7Days.map(item => parseFloat(item.hours)); }
+// ==========================================
+// 4. الـ UI Modes (التبديل بين المذاكرة والواحة الدينية)
+// ==========================================
+function switchAppMode(uiMode) {
+    const studySection = document.getElementById("studySection");
+    const deenSection = document.getElementById("deenSection");
+    const btnStudy = document.getElementById("btnModeStudy");
+    const btnDeen = document.getElementById("btnModeDeen");
+    
+    if (uiMode === 'deen') {
+        studySection?.classList.add("hidden-mode");
+        deenSection?.classList.remove("hidden-mode");
+        btnDeen?.classList.add("active-nav-btn");
+        btnStudy?.classList.remove("active-nav-btn");
+    } else {
+        deenSection?.classList.add("hidden-mode");
+        studySection?.classList.remove("hidden-mode");
+        btnStudy?.classList.add("active-nav-btn");
+        btnDeen?.classList.remove("active-nav-btn");
+    }
+}
 
-    const ctx = document.getElementById('weeklyChart'); if (!ctx) return;
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || !document.documentElement.getAttribute('data-theme');
-    const accentColor = document.documentElement.getAttribute('data-interface') === 'deen' ? '#10b981' : '#a855f7';
+// ==========================================
+// 5. الـ Todo List (قائمة المهام اليومية)
+// ==========================================
+function addTodoItem() {
+    const input = document.getElementById("todoInput");
+    if (!input || input.value.trim() === "") return;
+    
+    const todoText = input.value.trim();
+    let savedTodos = JSON.parse(localStorage.getItem('savedTodos')) || [];
+    savedTodos.push({ text: todoText, completed: false });
+    localStorage.setItem('savedTodos', JSON.stringify(savedTodos));
+    
+    input.value = "";
+    renderTodoList();
+}
 
-    if (myChart) { myChart.destroy(); }
-    myChart = new Chart(ctx, {
-        type: 'line',
-        data: { labels: labels, datasets: [{ data: dataHours, borderColor: accentColor, backgroundColor: 'rgba(168, 85, 247, 0.06)', borderWidth: 3, tension: 0.3, fill: true }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: isDark?'#1e293b':'#cbd5e1' }, ticks: { color: isDark?'#94a3b8':'#64748b' }, beginAtZero: true }, x: { grid: { display: false }, ticks: { color: isDark?'#94a3b8':'#64748b' } } } }
+function renderTodoList() {
+    const listEl = document.getElementById("todoList");
+    if (!listEl) return;
+    listEl.innerHTML = "";
+    
+    let savedTodos = JSON.parse(localStorage.getItem('savedTodos')) || [];
+    savedTodos.forEach((todo, index) => {
+        const li = document.createElement("li");
+        li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+        li.innerHTML = `
+            <span onclick="toggleTodoComplete(${index})">${todo.text}</span>
+            <button class="btn-delete-todo" onclick="deleteTodoItem(${index})">🗑️</button>
+        `;
+        listEl.appendChild(li);
     });
 }
 
-// ==========================================
-// 5. سيستم التايمر المطور والـ Loops
-// ==========================================
-function updateTimerDisplayUI() {
-    const timerDisplay = document.getElementById("timerDisplay"); if (!timerDisplay) return;
-    let currentSeconds = (currentMode === 'free') ? (window.secondsElapsed || 0) : (window.timeLeft || modeDurations[currentMode]);
-    let h = Math.floor(currentSeconds / 3600); let m = Math.floor((currentSeconds % 3600) / 60); let s = currentSeconds % 60;
-    timerDisplay.innerText = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    if(currentSeconds > 0 && currentSeconds % 60 === 0) { saveCurrentDayToHistory(); }
-}
-
-function handleTimerFinishedComplete() {
-    clearInterval(timerInterval); localStorage.setItem('timer_isRunning', 'false'); localStorage.removeItem('timer_pausedTimeLeft');
-    window.timeLeft = modeDurations[currentMode]; updateHardcoreUI(); updateTimerDisplayUI();
-    if (localStorage.getItem('hardcoreModeActive') === 'true') { addXp(50); alert("👑 عاااش! خلصت جلسة الـ Hardcore كاملة وأخدت +50 XP بونص!"); } else { addXp(20); }
-    document.body.style.transform = 'scale(1.02)'; setTimeout(() => document.body.style.transform = 'scale(1)', 500);
-    saveCurrentDayToHistory();
-    if (document.getElementById("timerMessage")) document.getElementById("timerMessage").innerText = "🎉 كفووو! خلصت الجلسة بنجاح، أنت بطل!";
-}
-
-function startCountdownLoop() {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        let remaining = parseInt(localStorage.getItem('timer_endTime')) - Math.floor(Date.now() / 1000);
-        if (remaining > 0) {
-            window.timeLeft = remaining; totalHoursStudied += (1 / 3600); localStorage.setItem('totalHoursStudied', totalHoursStudied.toString());
-            if (document.getElementById("statHours")) document.getElementById("statHours").innerText = totalHoursStudied.toFixed(2);
-            addXp(1 / 60); updateTimerDisplayUI();
-        } else { handleTimerFinishedComplete(); }
-    }, 1000);
-}
-
-function startFreeTimerLoop() {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        window.secondsElapsed = Math.floor(Date.now() / 1000) - parseInt(localStorage.getItem('timer_freeStartTime'));
-        totalHoursStudied += (1 / 3600); localStorage.setItem('totalHoursStudied', totalHoursStudied.toString());
-        if (document.getElementById("statHours")) document.getElementById("statHours").innerText = totalHoursStudied.toFixed(2);
-        addXp(1 / 60); updateTimerDisplayUI();
-    }, 1000);
-}
-
-function initTimerSystem() {
-    document.querySelectorAll('.btn-mode').forEach(btn => btn.classList.remove('active'));
-    const targetedBtn = document.getElementById(`mode-${currentMode}`); if(targetedBtn) targetedBtn.classList.add('active');
-    const isRunning = localStorage.getItem('timer_isRunning') === 'true';
-    if (isRunning) {
-        if (currentMode === 'free') { window.secondsElapsed = (Math.floor(Date.now() / 1000) - parseInt(localStorage.getItem('timer_freeStartTime'))); startFreeTimerLoop(); }
-        else { let remaining = parseInt(localStorage.getItem('timer_endTime')) - Math.floor(Date.now() / 1000); if (remaining > 0) { window.timeLeft = remaining; startCountdownLoop(); } else { handleTimerFinishedComplete(); } }
+function toggleTodoComplete(index) {
+    let savedTodos = JSON.parse(localStorage.getItem('savedTodos')) || [];
+    savedTodos[index].completed = !savedTodos[index].completed;
+    localStorage.setItem('savedTodos', JSON.stringify(savedTodos));
+    
+    if (savedTodos[index].completed) {
+        completedTodosCount++; addXp(20); // مكافأة إنجاز مهمة
     } else {
-        if (currentMode === 'free') { window.secondsElapsed = parseInt(localStorage.getItem('timer_freePausedSeconds')) || 0; }
-        else { const hasPausedTime = localStorage.getItem('timer_pausedTimeLeft'); window.timeLeft = hasPausedTime ? parseInt(hasPausedTime) : modeDurations[currentMode]; }
-        updateTimerDisplayUI();
+        completedTodosCount--; addXp(-20);
+        if(completedTodosCount < 0) completedTodosCount = 0;
     }
-    updateHardcoreUI();
+    localStorage.setItem('completedTodosCount', completedTodosCount);
+    if(document.getElementById("statTodos")) document.getElementById("statTodos").innerText = completedTodosCount;
+    
+    renderTodoList();
+}
+
+function deleteTodoItem(index) {
+    let savedTodos = JSON.parse(localStorage.getItem('savedTodos')) || [];
+    if(savedTodos[index].completed) {
+        completedTodosCount--;
+        if(completedTodosCount < 0) completedTodosCount = 0;
+        localStorage.setItem('completedTodosCount', completedTodosCount);
+        if(document.getElementById("statTodos")) document.getElementById("statTodos").innerText = completedTodosCount;
+    }
+    savedTodos.splice(index, 1);
+    localStorage.setItem('savedTodos', JSON.stringify(savedTodos));
+    renderTodoList();
 }
 
 // ==========================================
-// 6. مواقيت الصلاة والواحة الدينية (يدعم العمل بدون إنترنت Offline)
+// 6. الواحة الدينية (الأذكار، السبحة، وورد القرآن)
 // ==========================================
-let prayerTimesData = JSON.parse(localStorage.getItem('cachedPrayerTimes')) || {};
-const prayerNamesArabic = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
-let completedPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || { Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false };
+let tasbihCount = 0;
+function handleTasbihClick() {
+    tasbihCount++;
+    totalAzkarCount++;
+    
+    if (document.getElementById("tasbihCounter")) document.getElementById("tasbihCounter").innerText = tasbihCount;
+    if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = totalAzkarCount;
+    localStorage.setItem('totalAzkarCount', totalAzkarCount);
+    
+    // تفعيل اهتزاز الموبايل مع التسبيح لزيادة التفاعل والدقة
+    if (navigator.vibrate) navigator.vibrate(40);
+    if (tasbihCount % 33 === 0) { addXp(5); }
+}
 
-function convertTo12HourFormat(timeStr) { 
-    if(!timeStr) return "--:--"; 
-    let [hours, minutes] = timeStr.split(':').map(Number); 
-    let ampm = hours >= 12 ? 'م' : 'ص'; 
-    hours = hours % 12 || 12; 
-    return `${hours}:${String(minutes).padStart(2, '0')} ${ampm}`; 
+function resetTasbihCounter() {
+    tasbihCount = 0;
+    if (document.getElementById("tasbihCounter")) document.getElementById("tasbihCounter").innerText = "0";
+}
+
+function completeQuranWird() {
+    const todayStr = new Date().toDateString();
+    localStorage.setItem('quran_completed_date', todayStr);
+    addXp(40); // مكافأة قراءة الورد اليومي للقرآن
+    alert("عاش يا بطل! تم تسجيل ورد القرآن الكريم اليوم بنجاح وأخذت +40 XP 🌸");
+}
+
+// ==========================================
+// 7. الـ API ومواقيت الصلاة الفورية والأوفلاين
+// ==========================================
+window.completedPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || { Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false };
+
+async function fetchPrayerTimes() {
+    try {
+        const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt&method=5");
+        const data = await res.json();
+        if(data && data.data && data.data.timings) {
+            const t = data.data.timings;
+            const targetPrayers = { Fajr: t.Fajr, Dhuhr: t.Dhuhr, Asr: t.Asr, Maghrib: t.Maghrib, Isha: t.Isha };
+            localStorage.setItem('cachedPrayerTimes', JSON.stringify(targetPrayers));
+            renderPrayerTimesUI(targetPrayers);
+        }
+    } catch (err) {
+        console.log("الإنترنت غير متاح.. جاري تحميل مواقيت الصلاة من الكاش (Offline mode).");
+        const cached = JSON.parse(localStorage.getItem('cachedPrayerTimes'));
+        if(cached) renderPrayerTimesUI(cached);
+    }
+}
+
+function renderPrayerTimesUI(timings) {
+    const container = document.getElementById("prayerTimesContainer");
+    if (!container) return;
+    container.innerHTML = "";
+    
+    const arabicNames = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
+    
+    for (let key in timings) {
+        const isDone = window.completedPrayers[key];
+        const card = document.createElement("div");
+        card.className = `prayer-card ${isDone ? 'checked-prayer' : ''}`;
+        card.innerHTML = `
+            <div class="prayer-info">
+                <span class="prayer-name">${arabicNames[key]}</span>
+                <span class="prayer-time">${timings[key]}</span>
+            </div>
+            <input type="checkbox" class="prayer-checkbox" ${isDone ? 'checked' : ''} onchange="togglePrayerStatus('${key}')">
+        `;
+        container.appendChild(card);
+    }
+    updatePrayersAnalyticsUI();
+}
+
+function togglePrayerStatus(prayerKey) {
+    window.completedPrayers[prayerKey] = !window.completedPrayers[prayerKey];
+    localStorage.setItem('completedPrayers', JSON.stringify(window.completedPrayers));
+    
+    if (window.completedPrayers[prayerKey]) addXp(15); else addXp(-15);
+    
+    fetchPrayerTimes(); // إعادة التوجيه لتحديث الألوان والتنسيق الخاص بالكروت
 }
 
 function updatePrayersAnalyticsUI() {
-    for (const key in completedPrayers) {
-        const checkbox = document.getElementById(`check-${key}`); 
-        const row = document.getElementById(`p-${key}`);
-        if(checkbox && row) { 
-            checkbox.checked = completedPrayers[key]; 
-            if(completedPrayers[key]) row.classList.add("completed-prayer"); else row.classList.remove("completed-prayer"); 
-        }
-    }
+    let doneCount = 0;
+    for(let key in window.completedPrayers) { if(window.completedPrayers[key]) doneCount++; }
+    if(document.getElementById("prayerCompletedCount")) document.getElementById("prayerCompletedCount").innerText = doneCount;
 }
 
-function togglePrayerDone(prayerKey) {
-    const checkbox = document.getElementById(`check-${prayerKey}`); 
-    if (!checkbox || checkbox.disabled) return;
-    completedPrayers[prayerKey] = checkbox.checked; 
-    localStorage.setItem('completedPrayers', JSON.stringify(completedPrayers));
-    updatePrayersAnalyticsUI(); 
-    saveCurrentDayToHistory();
+// ==========================================
+// 8. سجل الإنجازات الأسبوعي ونظام الـ Chart والأيام (Streak)
+// ==========================================
+function saveCurrentDayToHistory(overrideDateStr = null) {
+    let historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
+    
+    // لو باعتين تاريخ معين (تاريخ امبارح وقت التصفير) نستخدمه، غير كدا نستخدم النهاردة
+    const dateToSave = overrideDateStr || new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', weekday: 'short' });
+    
+    let prayersCount = 0; 
+    const completedPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || {};
+    for(let key in completedPrayers) { if(completedPrayers[key]) prayersCount++; }
+
+    const existingIndex = historyLog.findIndex(item => item.date === dateToSave);
+    const newRecord = { 
+        date: dateToSave, 
+        hours: totalHoursStudied.toFixed(2), 
+        todos: completedTodosCount, 
+        azkar: totalAzkarCount, 
+        prayers: prayersCount 
+    };
+    
+    if (existingIndex !== -1) historyLog[existingIndex] = newRecord; 
+    else historyLog.unshift(newRecord);
+
+    localStorage.setItem('studyHistoryLog', JSON.stringify(historyLog)); 
+    renderHistoryLog(); 
+    updateStreakAndChartSystem();
 }
 
-function checkNextPrayer() {
-    if (!prayerTimesData || Object.keys(prayerTimesData).length === 0) {
-        if (document.getElementById("nextPrayerCountdown")) {
-            document.getElementById("nextPrayerCountdown").innerText = "برجاء الاتصال بالنت لمرة واحدة لتحديث المواقيت 🌐";
-        }
+function renderHistoryLog() {
+    const listEl = document.getElementById("historyLogList");
+    if (!listEl) return;
+    listEl.innerHTML = "";
+    
+    let historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
+    if(historyLog.length === 0) {
+        listEl.innerHTML = "<p style='text-align:center; color:#94a3b8;'>لا يوجد إنجازات مسجلة بعد، ابدأ المذاكرة الآن لتصنع تاريخك! ⚔️</p>";
         return;
     }
     
-    const now = new Date(); 
-    let minDiff = Infinity; 
-    let nextPrayerKey = "";
-    
-    document.querySelectorAll('.prayer-row').forEach(row => { 
-        if (!row.classList.contains('completed-prayer')) row.classList.remove('next-active', 'prayer-available'); 
+    historyLog.slice(0, 7).forEach(item => {
+        const div = document.createElement("div");
+        div.className = "history-log-item";
+        div.innerHTML = `
+            <span class="log-date">${item.date}</span>
+            <span class="log-stat">⏱️ ${item.hours} س</span>
+            <span class="log-stat">✅ ${item.todos} مهام</span>
+            <span class="log-stat">📿 ${item.azkar} ذكر</span>
+            <span class="log-stat">🕌 ${item.prayers}/5 صلاة</span>
+        `;
+        listEl.appendChild(div);
     });
+}
+
+let studyChartInstance = null;
+function updateStreakAndChartSystem() {
+    let historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
     
-    for (const [key, val] of Object.entries(prayerTimesData)) {
-        if(document.getElementById(`time-${key}`)) document.getElementById(`time-${key}`).innerText = convertTo12HourFormat(val);
+    // حساب الـ Streak الحالية
+    let currentStreak = 0;
+    for(let i=0; i<historyLog.length; i++) {
+        if(parseFloat(historyLog[i].hours) > 0) currentStreak++; else break;
     }
+    if(document.getElementById("statStreak")) document.getElementById("statStreak").innerText = currentStreak;
     
-    for (const [key, timeStr] of Object.entries(prayerTimesData)) {
-        const [hours, minutes] = timeStr.split(':').map(Number); 
-        const prayerTime = new Date(); 
-        prayerTime.setHours(hours, minutes, 0, 0);
-        let diff = prayerTime - now; 
-        const checkbox = document.getElementById(`check-${key}`); 
-        const row = document.getElementById(`p-${key}`);
-        
-        if (now >= prayerTime) { 
-            if (checkbox) checkbox.disabled = false; 
-            if (row && !completedPrayers[key]) row.classList.add('prayer-available'); 
-        } else { 
-            if (checkbox) { checkbox.disabled = true; checkbox.checked = false; } 
-            completedPrayers[key] = false; 
-        }
-        
-        if (diff > 0 && diff < minDiff) { minDiff = diff; nextPrayerKey = key; }
-    }
+    // تحديث رسمة الـ Chart.js الأسبوعية
+    const ctx = document.getElementById("weeklyStudyChart")?.getContext("2d");
+    if (!ctx) return;
     
-    updatePrayersAnalyticsUI();
+    const last7Days = historyLog.slice(0, 7).reverse();
+    const labels = last7Days.map(item => item.date);
+    const dataHours = last7Days.map(item => parseFloat(item.hours));
     
-    if (nextPrayerKey === "") { 
-        nextPrayerKey = "Fajr"; 
-        const [hours, minutes] = prayerTimesData.Fajr.split(':').map(Number); 
-        const prayerTime = new Date(); 
-        prayerTime.setDate(prayerTime.getDate() + 1); 
-        prayerTime.setHours(hours, minutes, 0, 0); 
-        minDiff = prayerTime - now; 
-    }
+    if (studyChartInstance) studyChartInstance.destroy();
     
-    const activeRow = document.getElementById(`p-${nextPrayerKey}`); 
-    if (activeRow && !completedPrayers[nextPrayerKey]) activeRow.classList.add('next-active');
-    
-    let totalSeconds = Math.floor(minDiff / 1000); 
-    let h = Math.floor(totalSeconds / 3600); 
-    let m = Math.floor((totalSeconds % 3600) / 60);
-    
-    if (document.getElementById("nextPrayerCountdown")) document.getElementById("nextPrayerCountdown").innerText = `متبقي على ${prayerNamesArabic[nextPrayerKey]}: ${h}س و ${m}د`;
-    if (document.getElementById("headerPrayerCountdown")) document.getElementById("headerPrayerCountdown").innerText = `🕋 ${prayerNamesArabic[nextPrayerKey]}: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-}
-
-async function fetchPrayerTimes(city) {
-    const selectEl = document.getElementById("citySelect");
-    if(selectEl) selectEl.value = city;
-
-    try { 
-        const response = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Egypt&method=5`); 
-        const data = await response.json(); 
-        if (data.code === 200) { 
-            prayerTimesData = { 
-                Fajr: data.data.timings.Fajr, 
-                Dhuhr: data.data.timings.Dhuhr, 
-                Asr: data.data.timings.Asr, 
-                Maghrib: data.data.timings.Maghrib, 
-                Isha: data.data.timings.Isha 
-            }; 
-            localStorage.setItem('cachedPrayerTimes', JSON.stringify(prayerTimesData));
-            checkNextPrayer(); 
-        } 
-    } catch (e) {
-        console.log("تعذر الاتصال بالـ API، جاري العمل بالبيانات المحفوظة أوفلاين...");
-        checkNextPrayer();
-    }
-}
-
-function changeCity() { 
-    const city = document.getElementById("citySelect").value; 
-    localStorage.setItem("savedCity", city); 
-    fetchPrayerTimes(city); 
-}
-function requestNotificationPermission() { if ("Notification" in window) { Notification.requestPermission().then(perm => { if (perm === "granted") { const btn = document.getElementById("notifBtn"); if(btn) { btn.innerText = "تم تفعيل الإشعارات بنجاح 🟢"; btn.classList.add("activated"); } } }); } }
-
-// ==========================================
-// 7. الأذكار والسبحة الإلكترونية
-// ==========================================
-let currentSection = 'sabah'; let currentZikrIndex = 0; let zikrCounter = 0; let currentRotation = 0;
-const azkarData = {
-    sabah: ["أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ", "اللّهُ لاَ إِلَـهَ إِلاَّ هو الْحَيُّ الْقَيُّومُ", "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ"],
-    maseh: ["أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ", "أَعُوذُ بِكَلِمَاتِ اللهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ", "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ"],
-    free: ["سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ", "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", "اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ", "لَا إِلَهَ إِلَّا اللَّه وَحْدَهُ لَا شَرِيكَ لَهُ"]
-};
-function switchAzkarSection(secName) {
-    currentSection = secName; currentZikrIndex = 0; zikrCounter = 0;
-    document.querySelectorAll('.btn-azkar-section').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(`sec-${secName}`); if(activeBtn) activeBtn.classList.add('active');
-    if(document.getElementById("freeZikrSelectorContainer")) document.getElementById("freeZikrSelectorContainer").style.display = secName === 'free' ? 'block' : 'none';
-    updateZikrDisplay();
-}
-function changeFreeZikr() { currentZikrIndex = parseInt(document.getElementById("freeZikrSelect").value); zikrCounter = 0; updateZikrDisplay(); }
-function countZikr() {
-    zikrCounter++; totalAzkarCount++; if(document.getElementById("zikrCounterBtn")) document.getElementById("zikrCounterBtn").innerText = zikrCounter;
-    localStorage.setItem('totalAzkarCount', totalAzkarCount); if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = totalAzkarCount;
-    addXp(0.5); saveCurrentDayToHistory();
-    const circle = document.getElementById("beadsCircle"); if(circle) { currentRotation += 25; circle.style.transform = `rotate(${currentRotation}deg)`; circle.classList.add("pulsing"); setTimeout(() => circle.classList.remove("pulsing"), 150); }
-    if ("vibrate" in navigator) { navigator.vibrate(40); }
-}
-function updateZikrDisplay() { if(document.getElementById("azkarDisplay")) document.getElementById("azkarDisplay").innerText = azkarData[currentSection][currentZikrIndex]; if(document.getElementById("zikrCounterBtn")) document.getElementById("zikrCounterBtn").innerText = zikrCounter; }
-function nextZikr() { currentZikrIndex = (currentZikrIndex + 1) % azkarData[currentSection].length; zikrCounter = 0; updateZikrDisplay(); }
-function resetZikrCounter() { zikrCounter = 0; if(document.getElementById("zikrCounterBtn")) document.getElementById("zikrCounterBtn").innerText = zikrCounter; }
-
-// ==========================================
-// 8. الورد القرآني اليومي وقائمة المهام
-// ==========================================
-let globalStartPage = 1;
-function generateQuranPlan() {
-    const targetPages = parseInt(document.getElementById("quranTargetSelect")?.value || 2); const dayOfMonth = new Date().getDate();
-    globalStartPage = ((dayOfMonth * 7) % 580) + 1; let endPage = globalStartPage + targetPages - 1;
-    if(document.getElementById("quranSuggestionBox")) document.getElementById("quranSuggestionBox").innerHTML = `<h3>وردك للنهاردة بركة يومك ✨</h3><p>قراءة من صفحة ${globalStartPage} إلى صفحة ${endPage}</p>`;
-    const btn = document.getElementById("btnCompleteQuran"); const card = document.querySelector(".quran-card");
-    if (localStorage.getItem('quran_completed_date') === new Date().toDateString()) { if(card) card.classList.add("completed"); if(btn) btn.innerText = "أنجزت ورد اليوم! 🟢"; }
-    else { if(card) card.classList.remove("completed"); if(btn) btn.innerText = "تم قراءة ورد اليوم بنجاح 🎉"; }
-}
-function openQuranModal() { const modal = document.getElementById("quranModal"); const iframe = document.getElementById("quranIframe"); if(modal && iframe) { iframe.src = `https://quran.com/page/${globalStartPage}`; modal.style.display = "flex"; } }
-function closeQuranModal() { if(document.getElementById("quranModal")) document.getElementById("quranModal").style.display = "none"; }
-function toggleQuranDone() {
-    const todayStr = new Date().toDateString(); const btn = document.getElementById("btnCompleteQuran"); const card = document.querySelector(".quran-card");
-    if (localStorage.getItem('quran_completed_date') !== todayStr) { localStorage.setItem('quran_completed_date', todayStr); card?.classList.add("completed"); if(btn) btn.innerText = "أنجزت ورد اليوم! 🟢"; addXp(30); }
-    else { localStorage.removeItem('quran_completed_date'); card?.classList.remove("completed"); if(btn) btn.innerText = "تم قراءة ورد اليوم بنجاح 🎉"; addXp(-30); }
-    saveCurrentDayToHistory();
-}
-
-// ==========================================
-// 9. إدارة المهام (To-Do List)
-// ==========================================
-function saveTodos() {
-    const todos = []; completedTodosCount = 0;
-    document.querySelectorAll('.todo-item').forEach(item => { const isDone = item.classList.contains('completed'); todos.push({ text: item.querySelector('.todo-text').innerText, completed: isDone }); if (isDone) completedTodosCount++; });
-    localStorage.setItem('savedTodos', JSON.stringify(todos)); localStorage.setItem('completedTodosCount', completedTodosCount);
-    if (document.getElementById("statTodos")) document.getElementById("statTodos").innerText = completedTodosCount;
-    saveCurrentDayToHistory();
-}
-function createTodoElement(text, isCompleted) {
-    const todoList = document.getElementById("todoList"); if (!todoList) return; const li = document.createElement("li"); li.className = `todo-item ${isCompleted ? 'completed' : ''}`;
-    li.innerHTML = `<span class="todo-text">${text}</span><div style="display:flex; gap:8px;"><button class="btn-done-todo" onclick="toggleTodo(this)">${isCompleted ? 'أنجزت 🎉' : 'إنجاز ✓'}</button><button onclick="this.parentElement.parentElement.remove(); saveTodos();" style="background:rgba(239,68,68,0.1); border:1px solid #ef4444; color:#ef4444; padding:8px 12px; border-radius:6px; cursor:pointer;">حذف 🗑️</button></div>`;
-    todoList.appendChild(li);
-}
-function toggleTodo(btn) { const item = btn.parentElement.parentElement; const wasCompleted = item.classList.contains("completed"); item.classList.toggle("completed"); addXp(wasCompleted ? -10 : 10); btn.innerText = item.classList.contains("completed") ? "أنجزت 🎉" : "إنجاز ✓"; saveTodos(); }
-
-// ==========================================
-// 10. التهيئة الشاملة والأكواد العشوائية
-// ==========================================
-const quotes = [
-    "«وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَىٰ».. اعمل اللي عليك وسيب الباقي على الله. ✨",
-    "طلب العلم صراع نَفَس طويل وجَلد. عافر عشان فرحة النجاح! 👑",
-    "«إِنَّا لَا نُضِيعُ أَجْرَ مَنْ أَحْسَنَ عَمَلًا».. كل ساعة سهر وتعب محسوبة ومكتوبة. 📈",
-    "الـ Code مش بيشتغل من أول مرة، وكذلك أحلامنا محتاجة Debugging ومحاولة تانية! 💻⚡",
-    "خطوة صغيرة كل يوم بتعمل إنجاز مرعب بعد فترة.. استمر يا بطل. 🚀",
-    "مفيش حلم بييجي بالساهل، اتعب النهاردة عشان ترتاح وتفرح بكرة. 🎓✨",
-    "افتكر دايماً إنت بدأت ليه.. ومتقفش في نص الطريق وأنت خلاص قربت! 🏁",
-    "الذكاء لوحده مش كفاية، الاستمرارية هي اللي بتصنع المهندسين المحترفين. 🛠️",
-    "كل سطر كود بتكتبه، وكل صفحة بتذاكرها هي طوبة في جدار مستقبلك الكبير. 🧱💡",
-    "ركز في ورقتك وفي هدفك، متقارنش نفسك بغيرك.. رحلتك ملكك لوحدك. 🌟",
-    "تعب السعي هيروح، بس شرف الوصول وفرحته هيفضلوا عايشين معاك العمر كله. 🔥",
-    "الخوف مش هيحميك من الفشل، بس السعي والتوكل هما السلاح اللي هيوصلك. ⚔️",
-    "امسح الـ Error وكمل.. مفيش مشكلة ملهاش حل، لا في البرمجة ولا في المذاكرة! 🛠️",
-    "الحلم اللي بتتمناه وبتدعي بيه يستاهل تضحي عشانه بنوم أو بـ تشتيت. 🕋👑",
-    "اليوم اللي بيعدي من غير إنجاز هو فرصة ضاعت.. املأ يومك بالبطولات. 🏆"
-];
-
-function displayCurrentDate() { if(document.getElementById("dateBar")) document.getElementById("dateBar").innerHTML = `اليوم: <span>${new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>`; }
-
-document.addEventListener("DOMContentLoaded", () => {
-    displayCurrentDate(); if(document.getElementById("quoteDisplay")) document.getElementById("quoteDisplay").innerText = quotes[Math.floor(Math.random() * quotes.length)]; updateRankUI(); renderHistoryLog();
-    document.querySelectorAll('.prayer-row').forEach(row => { row.addEventListener('click', (e) => { if(e.target.type !== 'checkbox') { const chk = row.querySelector('input[type="checkbox"]'); if(chk && !chk.disabled) { chk.checked = !chk.checked; togglePrayerDone(chk.id.replace('check-', '')); } } }); });
-    
-    // ربط زرار كمل يا بطل الذكي لمنع تكرار نفس العبارة ورا بعض 🚀
-    document.getElementById("quoteBtn")?.addEventListener("click", () => {
-        const displayEl = document.getElementById("quoteDisplay");
-        if (displayEl) {
-            const currentQuote = displayEl.innerText;
-            let nextQuote = currentQuote;
-            
-            // حلقة تكرار تضمن عدم اختيار نفس العبارة الحالية مطلقاً
-            while (nextQuote === currentQuote) {
-                nextQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    // بناء الشارت بشكل جمالي احترافي ومتناسق مع الألوان الداكنة والـ Neon
+    studyChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels.length > 0 ? labels : ["لم تبدأ بعد"],
+            datasets: [{
+                label: 'ساعات المذاكرة اليومية',
+                data: dataHours.length > 0 ? dataHours : [0],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                borderWidth: 3,
+                tension: 0.3,
+                fill: true,
+                pointBackgroundColor: '#60a5fa',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
             }
-            displayEl.innerText = nextQuote;
         }
     });
-
-    document.getElementById("startBtn")?.addEventListener("click", () => {
-        if (localStorage.getItem('timer_isRunning') === 'true') return;
-        if (localStorage.getItem('hardcoreModeActive') === 'true') { const de = document.documentElement; if (de.requestFullscreen) de.requestFullscreen(); else if (de.webkitRequestFullscreen) de.webkitRequestFullscreen(); }
-        localStorage.setItem('timer_isRunning', 'true'); const now = Math.floor(Date.now() / 1000);
-        if (currentMode === 'free') { localStorage.setItem('timer_freeStartTime', (now - (window.secondsElapsed || 0)).toString()); startFreeTimerLoop(); }
-        else { if (!window.timeLeft) window.timeLeft = modeDurations[currentMode]; localStorage.setItem('timer_endTime', (now + window.timeLeft).toString()); localStorage.removeItem('timer_pausedTimeLeft'); startCountdownLoop(); }
-        updateHardcoreUI();
-    });
-    
-    document.getElementById("pauseBtn")?.addEventListener("click", () => {
-        if (localStorage.getItem('timer_isRunning') !== 'true' || localStorage.getItem('hardcoreModeActive') === 'true') return;
-        clearInterval(timerInterval); localStorage.setItem('timer_isRunning', 'false');
-        if (currentMode === 'free') localStorage.setItem('timer_freePausedSeconds', window.secondsElapsed.toString()); else localStorage.setItem('timer_pausedTimeLeft', window.timeLeft.toString());
-    });
-    
-    document.getElementById("resetBtn")?.addEventListener("click", () => {
-        if (localStorage.getItem('timer_isRunning') === 'true' && localStorage.getItem('hardcoreModeActive') === 'true') return;
-        clearInterval(timerInterval); localStorage.setItem('timer_isRunning', 'false'); localStorage.removeItem('timer_pausedTimeLeft'); localStorage.setItem('timer_freePausedSeconds', '0');
-        if (currentMode === 'free') window.secondsElapsed = 0; else window.timeLeft = modeDurations[currentMode];
-        updateTimerDisplayUI();
-    });
-    
-    document.getElementById("todoBtn")?.addEventListener("click", () => { const inp = document.getElementById("todoInput"); if(inp && inp.value.trim() !== "") { createTodoElement(inp.value.trim(), false); inp.value = ""; saveTodos(); } });
-    
-    const saved = JSON.parse(localStorage.getItem('savedTodos')) || []; saved.forEach(t => createTodoElement(t.text, t.completed));
-    if (document.getElementById("statHours")) document.getElementById("statHours").innerText = totalHoursStudied.toFixed(2);
-    if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = totalAzkarCount;
-    if (document.getElementById("statTodos")) document.getElementById("statTodos").innerText = completedTodosCount;
-    
-    switchAzkarSection('sabah'); generateQuranPlan(); fetchPrayerTimes(localStorage.getItem("savedCity") || "Cairo"); initTimerSystem();
-    
-    setInterval(checkNextPrayer, 60000);
-});
-
-const savedTheme = localStorage.getItem('theme') || 'dark'; 
-document.documentElement.setAttribute('data-theme', savedTheme);
-const initialBtnText = savedTheme === 'light' ? '🌙 المظهر الداكن' : '☀️ المظهر الفاتح';
-if(document.getElementById('themeToggleBtn')) document.getElementById('themeToggleBtn').innerHTML = initialBtnText;
-
-function toggleTheme() { 
-    let currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-    let newTheme = currentTheme === 'dark' ? 'light' : 'dark'; 
-    document.documentElement.setAttribute('data-theme', newTheme); 
-    localStorage.setItem('theme', newTheme); 
-    document.getElementById('themeToggleBtn').innerHTML = newTheme === 'light' ? '🌙 المظهر الداكن' : '☀️ المظهر الفاتح'; 
-    updateStreakAndChartSystem(); 
 }
 
+// ==========================================
+// 9. تهيئة المكونات وتحميل الداتا عند الفتح (Initialization)
+// ==========================================
+function initAppComponents() {
+    // عرض الإحصائيات الفورية من الـ LocalStorage في الـ UI
+    if (document.getElementById("statHours")) document.getElementById("statHours").innerText = totalHoursStudied.toFixed(2);
+    if (document.getElementById("statTodos")) document.getElementById("statTodos").innerText = completedTodosCount;
+    if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = totalAzkarCount;
+    
+    updateRankUI();
+    setupTimerMode(currentMode);
+    renderTodoList();
+    fetchPrayerTimes();
+    renderHistoryLog();
+    updateStreakAndChartSystem();
+    
+    // ربط ميكانيزم زرار الإنتر لإضافة المهام بسهولة
+    document.getElementById("todoInput")?.addEventListener("keypress", (e) => {
+        if(e.key === "Enter") addTodoItem();
+    });
+}
+
+// ==========================================
+// 10. تسجيل الـ Service Worker لتفعيل الـ PWA والأوفلاين
+// ==========================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('Service Worker Registered بنجاح! 🚀', reg.scope))
-            .catch(err => console.log('فشل تسجيل الـ SW:', err));
+            .then(reg => console.log('تم تسجيل الـ Service Worker بنجاح والـ PWA جاهز للعمل أوفلاين! 🚀', reg.scope))
+            .catch(err => console.log('فشل تسجيل الـ Service Worker:', err));
     });
 }
