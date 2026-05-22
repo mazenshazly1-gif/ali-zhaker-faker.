@@ -1,10 +1,10 @@
 // ==========================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V8.1
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V9
 // ==========================================
 
-const CACHE_NAME = 'ali-zhaker-faker-v8.1'; // تحديث رقم الإصدار لضمان تنظيف الـ Cache القديم فوراً
+const CACHE_NAME = 'ali-zhaker-faker-v9'; // تحديث الإصدار لـ v9 لتطهير الكاش القديم فوراً
 
-// الملفات المحلية الأساسية فقط لضمان نجاح التثبيت بنسبة 100% بدون مشاكل الـ CORS
+// الملفات المحلية الثابتة الأساسية لضمان عمل الهيكل الأساسي للتطبيق
 const LOCAL_ASSETS = [
   './',
   './index.html',
@@ -15,26 +15,25 @@ const LOCAL_ASSETS = [
   './icon-512.png'
 ];
 
-// 1. تثبيت الـ Service Worker وحفظ الملفات في الكاش
+// 1. تثبيت الـ Service Worker وحفظ الملفات الأساسية في الكاش
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // استخدام آلية مرنة: لو ملف خارجي فشل، التطبيق الأساسي يتثبت برضه وميقفش
-      console.log('جاري تهيئة كاش تطبيق الّلي ذاكر فاكر...');
+      console.log('⏳ جاري تهيئة كاش تطبيق الّلي ذاكر فاكر V9...');
       return cache.addAll(LOCAL_ASSETS);
     })
   );
   self.skipWaiting(); 
 });
 
-// 2. تفعيل وتحديث الكاش القديم وتطهير الـ Storage
+// 2. تفعيل السيرفيس وركر وتطهير الـ Cache القديم تماماً فوراً
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log('تم حذف كاش قديم وغير مستخدم:', key);
+            console.log('🧹 تم حذف كاش قديم:', key);
             return caches.delete(key); 
           }
         })
@@ -43,46 +42,51 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. استراتيجية جلب البيانات الذكية (Network First للـ API / Cache First للملفات)
+// 3. استراتيجية الجلب الذكية (Network First للـ APIs ومواقيت الصلاة / Cache First للباقي)
 self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(event.request.url);
 
-  // 💡 استثناء مواقيت الصلاة والـ APIs: نحاول نجيبها من النت الأول عشان تكون دقيقة، لو مفيش نت يروح للكاش
+  // 🕌 استثناء مواقيت الصلاة وأي API (نحاول نت الأول، لو مفيش نرجع الكاش)
   if (requestUrl.hostname.includes('aladhan.com') || requestUrl.pathname.includes('/api/')) {
     event.respondWith(
       fetch(event.request)
+        .then((response) => {
+          // خزن نسخة حديثة من مواقيت الصلاة في الكاش عشان لو فصل نت تلاقيها
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+          }
+          return response;
+        })
         .catch(() => {
-          // لو أوفلاين تماماً، رجع أي كاش متخزن للرابط ده
-          return caches.match(event.request);
+          return caches.match(event.request); // لو أوفلاين، رجع أخر كاش متسجل
         })
     );
-    return; // اخرج من الـ event عشان ميطبقش الكاش العادي
+    return;
   }
 
-  // ⚡ للملفات الثابتة (الموقع، التنسيقات، الصور والـ سكريبت): Cache First لسرعة خارقة
+  // ⚡ للملفات الثابتة والمكتبات الخارجية (Chart.js / الأليرت): Cache First لسرعة خارقة
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        return cachedResponse; // لو موجود في الكاش رجعه فوراً
+        return cachedResponse; // لو الملف متكش، رجعه فوراً ووفر باقة ونقرة
       }
 
-      // لو مش في الكاش (زي الملفات الخارجية Chart.js أو صوت الإنذار)، هاتها من النت وخزن نسخة منها ديناميكياً
+      // لو مش متكش (زي أول مرة نفتح فيها مكتبة Chart.js أو الصوت الخارجي)
       return fetch(event.request).then((networkResponse) => {
-        // تأكد من صحة الاستجابة قبل تخزينها
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          // لو الاستجابة خارجية (CORS) بنرجعها للموقع بس مش بنخزنها عشان متعملش Error
+        // نكش الاستجابة لو ناجحة (كود 200) أو لو خارجية آمنة (كود 0 للـ opaque assets)
+        if (!networkResponse || (networkResponse.status !== 200 && networkResponse.status !== 0)) {
           return networkResponse;
         }
 
         const responseToCache = networkResponse.clone();
         caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
+          cache.put(event.request, responseToCache); // كش الملف ديناميكياً للزيارات الجاية
         });
 
         return networkResponse;
       }).catch(() => {
-        // لو مفيش نت نهائي والملف مش متكش، المتصفح هيتصرف طبيعي
-        console.log('فشل جلب الملف أوفلاين:', event.request.url);
+        console.log('❌ ملف غير متاح أوفلاين:', event.request.url);
       });
     })
   );

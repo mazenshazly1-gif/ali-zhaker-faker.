@@ -1,16 +1,21 @@
 // ==========================================
-// 🛠️ ملف اللوجيك والتحكم التفاعلي الكامل (script.js) - الّلي ذاكر فاكر V8.1
+// 🛠️ ملف اللوجيك المحمي ضد الأعطال (script.js) - V8.2
 // ==========================================
 
-// ==========================================
-// 1. الإعدادات العامة والـ DOM Elements
-// ==========================================
 document.addEventListener("DOMContentLoaded", () => {
-    // تشغيل نظام التصفير وفحص اليوم الجديد أول حاجة قبل أي لود للداتا
-    checkAndResetNewDay();
+    console.log("🚀 تم تحميل الصفحة، جاري تشغيل المكونات بأمان...");
     
-    // تهيئة باقي مكونات الصفحة والـ Event Listeners
-    displayCurrentDate();
+    // 1. تشغيل نظام التصفير أولاً
+    try {
+        checkAndResetNewDay();
+    } catch(e) { console.error("❌ خطأ في دالة التصفير اليومي:", e); }
+    
+    // 2. عرض التاريخ
+    try {
+        displayCurrentDate();
+    } catch(e) { console.error("❌ خطأ في عرض التاريخ:", e); }
+    
+    // 3. تهيئة المكونات
     initAppComponents();
 });
 
@@ -22,7 +27,7 @@ function displayCurrentDate() {
 }
 
 // ==========================================
-// 2. المتغيرات، الرتب، وبونص التصفير اليومي
+// المتغيرات والـ LocalStorage
 // ==========================================
 let timerInterval; 
 const modeDurations = { 'heroes': 4 * 60 * 60, 'focus': 2 * 60 * 60, 'pomodoro': 25 * 60, 'free': 0 };
@@ -39,7 +44,6 @@ let completedTodosCount = parseInt(localStorage.getItem('completedTodosCount')) 
 let totalAzkarCount = parseInt(localStorage.getItem('totalAzkarCount')) || 0;
 let userXp = parseFloat(localStorage.getItem('userXp')) || 0.0;
 
-// نظام الرتب الخمسة المعتمد يا كنج 🎯
 const RANKS = [
     { name: "1. مبتدئ بيسخن 🥶⏳", minXp: 0, maxXp: 150 },
     { name: "2. مقاتل ⚔️🔥", minXp: 150, maxXp: 400 },
@@ -72,32 +76,28 @@ function updateRankUI() {
     }
 }
 
-// سيستم التصفير التلقائي مع بداية اليوم الجديد (Midnight Reset التلقائي)
 function checkAndResetNewDay() {
     const todayDateStr = new Date().toDateString();
     const lastSavedDate = localStorage.getItem('last_visited_date');
 
     if (lastSavedDate && lastSavedDate !== todayDateStr) {
-        // 1. حفظ الإنجاز في السجل والـ Chart قبل التصفير لحفظ الحقوق
         const yesterday = new Date(); 
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', weekday: 'short' });
         
-        saveCurrentDayToHistory(yesterdayStr);
+        try { saveCurrentDayToHistory(yesterdayStr); } catch(e){}
 
-        // 💡 فكرة صندوق المكافأة: فحص لو الطالب قفل صلواته وورده وخلص مهمتين امبارح
         let lastPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || {};
         let prayerDoneCount = Object.values(lastPrayers).filter(Boolean).length;
         let lastQuran = localStorage.getItem('quran_completed_date') === lastSavedDate;
         
         if (prayerDoneCount === 5 && lastQuran && completedTodosCount >= 2) {
-            alert("🎁 صندوق مكافأة الالتزام! بما إنك قفلت صلواتك ووردك ومهامك امبارح، ليك +100 XP بونص لبداية يومك الجديد! عاش يا بطل 👑");
+            alert("🎁 صندوق مكافأة الالتزام! ليك +100 XP بونص! عاش يا بطل 👑");
             userXp = 100.0; 
         } else {
             userXp = 0.0; 
         }
 
-        // 2. تصفير العدادات اليومية في الـ LocalStorage والداتا الحالية
         totalAzkarCount = 0;
         completedTodosCount = 0;
         totalHoursStudied = 0.0; 
@@ -108,26 +108,21 @@ function checkAndResetNewDay() {
         localStorage.setItem('totalHoursStudied', '0');
         localStorage.removeItem('savedTodos'); 
         
-        // تصفير الصلوات
         const freshPrayers = { Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false };
         localStorage.setItem('completedPrayers', JSON.stringify(freshPrayers));
-        window.completedPrayers = freshPrayers;
 
-        // تحديث الـ UI ليعكس التصفير فوراً
         if (document.getElementById("statHours")) document.getElementById("statHours").innerText = "0.00";
         if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = "0";
         if (document.getElementById("statTodos")) document.getElementById("statTodos").innerText = "0";
         const todoList = document.getElementById("todoList"); if(todoList) todoList.innerHTML = "";
         
         updateRankUI();
-        if(typeof updatePrayersAnalyticsUI === "function") updatePrayersAnalyticsUI();
     }
-    
     localStorage.setItem('last_visited_date', todayDateStr);
 }
 
 // ==========================================
-// 3. نظام التايمر، جلسات المذاكرة والـ Hardcore Mode
+// نظام التايمر والـ Hardcore
 // ==========================================
 let timeLeft = 0;
 let isTimerRunning = false;
@@ -158,7 +153,8 @@ function updateTimerDisplay(secondsInput) {
     const seconds = secondsInput % 60;
     
     const displayStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    if (document.getElementById("timerDisplay")) document.getElementById("timerDisplay").innerText = displayStr;
+    const el = document.getElementById("timerDisplay");
+    if (el) el.innerText = displayStr;
 }
 
 function toggleTimer() {
@@ -188,7 +184,7 @@ function toggleTimer() {
                     clearInterval(timerInterval);
                     isTimerRunning = false;
                     if(btn) btn.innerHTML = "<span>ابدأ الجلسة</span> 🚀";
-                    alarmAudio.play();
+                    try { alarmAudio.play(); } catch(e){}
                     alert("عاش يا بطل! قفّلت الجلسة بنجاح وعملت اللي عليك 👑");
                 }
             }
@@ -198,25 +194,21 @@ function toggleTimer() {
     }
 }
 
-// لوجيك الـ Hardcore قفش الهروب والتشتيت 🚨
 window.addEventListener('blur', () => {
     const hardcoreChecked = document.getElementById("chkHardcore")?.checked;
     if (isTimerRunning && hardcoreChecked) {
         addXp(-15); 
-        alarmAudio.play();
+        try { alarmAudio.play(); } catch(e){}
         document.body.classList.add("hardcore-alarm-active");
-        alert("🚨 قفشناااااك! بتهرب من المذاكرة وتروح لتابس تانية؟ تم خصم 15 XP وتشغيل صفارة الإنذار! ارجع ركز فوراً!");
+        alert("🚨 قفشناااااك! تم خصم 15 XP! ارجع ركز فوراً!");
     }
 });
 
 window.addEventListener('focus', () => {
-    alarmAudio.pause();
+    try { alarmAudio.pause(); } catch(e){}
     document.body.classList.remove("hardcore-alarm-active");
 });
 
-// ==========================================
-// 4. الـ UI Modes (التبديل بين المذاكرة والواحة الدينية)
-// ==========================================
 function switchAppMode(uiMode) {
     const studySection = document.getElementById("studySection");
     const deenSection = document.getElementById("deenSection");
@@ -237,7 +229,7 @@ function switchAppMode(uiMode) {
 }
 
 // ==========================================
-// 5. الـ Todo List (قائمة المهام اليومية)
+// قائمة المهام
 // ==========================================
 function addTodoItem() {
     const input = document.getElementById("todoInput");
@@ -271,26 +263,23 @@ function renderTodoList() {
 
 function toggleTodoComplete(index) {
     let savedTodos = JSON.parse(localStorage.getItem('savedTodos')) || [];
+    if(!savedTodos[index]) return;
     savedTodos[index].completed = !savedTodos[index].completed;
     localStorage.setItem('savedTodos', JSON.stringify(savedTodos));
     
-    if (savedTodos[index].completed) {
-        completedTodosCount++; addXp(20); 
-    } else {
-        completedTodosCount--; addXp(-20);
-        if(completedTodosCount < 0) completedTodosCount = 0;
-    }
+    if (savedTodos[index].completed) { completedTodosCount++; addXp(20); } 
+    else { completedTodosCount--; addXp(-20); if(completedTodosCount < 0) completedTodosCount = 0; }
+    
     localStorage.setItem('completedTodosCount', completedTodosCount);
     if(document.getElementById("statTodos")) document.getElementById("statTodos").innerText = completedTodosCount;
-    
     renderTodoList();
 }
 
 function deleteTodoItem(index) {
     let savedTodos = JSON.parse(localStorage.getItem('savedTodos')) || [];
+    if(!savedTodos[index]) return;
     if(savedTodos[index].completed) {
-        completedTodosCount--;
-        if(completedTodosCount < 0) completedTodosCount = 0;
+        completedTodosCount--; if(completedTodosCount < 0) completedTodosCount = 0;
         localStorage.setItem('completedTodosCount', completedTodosCount);
         if(document.getElementById("statTodos")) document.getElementById("statTodos").innerText = completedTodosCount;
     }
@@ -300,17 +289,14 @@ function deleteTodoItem(index) {
 }
 
 // ==========================================
-// 6. الواحة الدينية (الأذكار، السبحة، وورد القرآن)
+// الواحة الدينية
 // ==========================================
 let tasbihCount = 0;
 function handleTasbihClick() {
-    tasbihCount++;
-    totalAzkarCount++;
-    
+    tasbihCount++; totalAzkarCount++;
     if (document.getElementById("tasbihCounter")) document.getElementById("tasbihCounter").innerText = tasbihCount;
     if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = totalAzkarCount;
     localStorage.setItem('totalAzkarCount', totalAzkarCount);
-    
     if (navigator.vibrate) navigator.vibrate(40);
     if (tasbihCount % 33 === 0) { addXp(5); }
 }
@@ -324,14 +310,12 @@ function completeQuranWird() {
     const todayStr = new Date().toDateString();
     localStorage.setItem('quran_completed_date', todayStr);
     addXp(40); 
-    alert("عاش يا بطل! تم تسجيل ورد القرآن الكريم اليوم بنجاح وأخذت +40 XP 🌸");
+    alert("عاش يا بطل! تم تسجيل ورد القرآن الكريم بنجاح وزدت +40 XP 🌸");
 }
 
 // ==========================================
-// 7. الـ API ومواقيت الصلاة الفورية والأوفلاين
+// مواقيت الصلاة الفورية
 // ==========================================
-window.completedPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || { Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false };
-
 async function fetchPrayerTimes() {
     try {
         const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt&method=5");
@@ -343,7 +327,6 @@ async function fetchPrayerTimes() {
             renderPrayerTimesUI(targetPrayers);
         }
     } catch (err) {
-        console.log("الإنترنت غير متاح.. جاري تحميل مواقيت الصلاة من الكاش (Offline mode).");
         const cached = JSON.parse(localStorage.getItem('cachedPrayerTimes'));
         if(cached) renderPrayerTimesUI(cached);
     }
@@ -355,9 +338,10 @@ function renderPrayerTimesUI(timings) {
     container.innerHTML = "";
     
     const arabicNames = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
-    
+    const completedPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || { Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false };
+
     for (let key in timings) {
-        const isDone = window.completedPrayers[key];
+        const isDone = completedPrayers[key];
         const card = document.createElement("div");
         card.className = `prayer-card ${isDone ? 'checked-prayer' : ''}`;
         card.innerHTML = `
@@ -373,32 +357,28 @@ function renderPrayerTimesUI(timings) {
 }
 
 function togglePrayerStatus(prayerKey) {
-    window.completedPrayers[prayerKey] = !window.completedPrayers[prayerKey];
-    localStorage.setItem('completedPrayers', JSON.stringify(window.completedPrayers));
+    let completedPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || { Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false };
+    completedPrayers[prayerKey] = !completedPrayers[prayerKey];
+    localStorage.setItem('completedPrayers', JSON.stringify(completedPrayers));
     
-    if (window.completedPrayers[prayerKey]) addXp(15); else addXp(-15);
+    if (completedPrayers[prayerKey]) addXp(15); else addXp(-15);
     
-    // 🔥 تم الإصلاح هنا: نحدّث الـ UI والـ Analytics مباشرةً بدل إعادة طلب الـ API بالكامل لمنع الـ Infinite Loop
     const cached = JSON.parse(localStorage.getItem('cachedPrayerTimes'));
-    if(cached) {
-        renderPrayerTimesUI(cached);
-    } else {
-        fetchPrayerTimes();
-    }
+    if(cached) renderPrayerTimesUI(cached);
 }
 
 function updatePrayersAnalyticsUI() {
+    let completedPrayers = JSON.parse(localStorage.getItem('completedPrayers')) || { Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false };
     let doneCount = 0;
-    for(let key in window.completedPrayers) { if(window.completedPrayers[key]) doneCount++; }
+    for(let key in completedPrayers) { if(completedPrayers[key]) doneCount++; }
     if(document.getElementById("prayerCompletedCount")) document.getElementById("prayerCompletedCount").innerText = doneCount;
 }
 
 // ==========================================
-// 8. سجل الإنجازات الأسبوعي ونظام الـ Chart والأيام (Streak)
+// السجل التاريخي والشارت
 // ==========================================
 function saveCurrentDayToHistory(overrideDateStr = null) {
     let historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
-    
     const dateToSave = overrideDateStr || new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', weekday: 'short' });
     
     let prayersCount = 0; 
@@ -429,7 +409,7 @@ function renderHistoryLog() {
     
     let historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
     if(historyLog.length === 0) {
-        listEl.innerHTML = "<p style='text-align:center; color:#94a3b8;'>لا يوجد إنجازات مسجلة بعد، ابدأ المذاكرة الآن لتصنع تاريخك! ⚔️</p>";
+        listEl.innerHTML = "<p style='text-align:center; color:#94a3b8;'>لا يوجد إنجازات مسجلة بعد ⚔️</p>";
         return;
     }
     
@@ -451,18 +431,13 @@ let studyChartInstance = null;
 function updateStreakAndChartSystem() {
     let historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
     
-    // حساب الـ Streak الحالية
     let currentStreak = 0;
     for(let i=0; i<historyLog.length; i++) {
         if(parseFloat(historyLog[i].hours) > 0) currentStreak++; else break;
     }
     if(document.getElementById("statStreak")) document.getElementById("statStreak").innerText = currentStreak;
     
-    // 🔥 تم الإصلاح هنا: فحص أولاً إن كانت مكتبة Chart موجودة في الصفحة قبل الرسم لتجنب الـ Crash
-    if (typeof Chart === "undefined") {
-        console.warn("مكتبة Chart.js غير محملة بعد في الصفحة.");
-        return;
-    }
+    if (typeof Chart === "undefined") return;
 
     const ctx = document.getElementById("weeklyStudyChart")?.getContext("2d");
     if (!ctx) return;
@@ -502,32 +477,26 @@ function updateStreakAndChartSystem() {
 }
 
 // ==========================================
-// 9. تهيئة المكونات وتحميل الداتا عند الفتح (Initialization)
+// التهيئة الآمنة الكاملة
 // ==========================================
 function initAppComponents() {
     if (document.getElementById("statHours")) document.getElementById("statHours").innerText = totalHoursStudied.toFixed(2);
     if (document.getElementById("statTodos")) document.getElementById("statTodos").innerText = completedTodosCount;
     if (document.getElementById("statAzkar")) document.getElementById("statAzkar").innerText = totalAzkarCount;
     
-    updateRankUI();
-    setupTimerMode(currentMode);
-    renderTodoList();
-    fetchPrayerTimes();
-    renderHistoryLog();
-    updateStreakAndChartSystem();
+    try { updateRankUI(); } catch(e) { console.error("Error Rank:", e); }
+    try { setupTimerMode(currentMode); } catch(e) { console.error("Error Timer:", e); }
+    try { renderTodoList(); } catch(e) { console.error("Error Todo:", e); }
+    try { fetchPrayerTimes(); } catch(e) { console.error("Error Prayers:", e); }
+    try { renderHistoryLog(); } catch(e) { console.error("Error Log:", e); }
+    try { updateStreakAndChartSystem(); } catch(e) { console.error("Error Chart:", e); }
     
-    document.getElementById("todoInput")?.addEventListener("keypress", (e) => {
-        if(e.key === "Enter") addTodoItem();
-    });
-}
-
-// ==========================================
-// 10. تسجيل الـ Service Worker لتفعيل الـ PWA والأوفلاين
-// ==========================================
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('تم تسجيل الـ Service Worker بنجاح والـ PWA جاهز للعمل أوفلاين! 🚀', reg.scope))
-            .catch(err => console.log('فشل تسجيل الـ Service Worker:', err));
-    });
+    const todoInputEl = document.getElementById("todoInput");
+    if(todoInputEl) {
+        todoInputEl.addEventListener("keypress", (e) => {
+            if(e.key === "Enter") addTodoItem();
+        });
+    } else {
+        console.warn("⚠️ تحذير: عنصر الـ HTML ذو الـ ID 'todoInput' غير موجود بالصفحة!");
+    }
 }
