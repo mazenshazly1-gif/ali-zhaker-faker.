@@ -13,9 +13,6 @@
     <link rel="apple-touch-icon" href="./icon-192.png">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Vercel Web Analytics -->
-    <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
 </head>
 <body>
 
@@ -276,6 +273,40 @@
     </div>
 </footer>
 
+<!-- 🎈 زينة العيد -->
+<div class="eid-balloons">
+  <span>🎈</span>
+  <span>🎈</span>
+  <span>🎈</span>
+  <span>🎈</span>
+  <span>🎈</span>
+  <span>🎈</span>
+  <span>🎈</span>
+</div>
+
+<!-- 🐑 خروف العيد -->
+<div class="eid-sheep" onclick="playSheepSound()">
+  🐑
+</div>
+
+<!-- 💬 رسالة العيد -->
+<div id="eid-toast" class="eid-toast">
+  🎉 كل سنة وانت طيب وعيد سعيد يا بطل 🤍
+</div>
+
+<!-- 🔊 الصوت -->
+<audio id="sheepSound">
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c8c8e1b84d.mp3" type="audio/mpeg">
+</audio>
+
 <script src="./script.js"></script>
+  <div id="eidiyaModal" class="eidiya-modal">
+  <div class="eidiya-content">
+    <div class="eidiya-icon">🎁✨</div>
+    <h2>عيدية سحرية يا بطل!</h2>
+    <p id="eidiyaMessage">برجاء الضغط على الخروف مجدداً</p>
+    <button class="eidiya-btn" onclick="closeEidiyaModal()">حبيبي تسلم 🤍</button>
+  </div>
+</div>
 </body>
 </html>

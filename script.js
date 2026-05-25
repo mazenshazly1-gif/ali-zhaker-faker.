@@ -63,7 +63,6 @@ const RANKS = [
     { name: "2. بطل المواجهة 🔥⚔️", minXp: 120, maxXp: 500 },
     { name: "3. إنت كدا أيقونة 👑⭐", minXp: 500, maxXp: 999999 }
 ];
-
 function addXp(amount) {
     userXp += amount; if(userXp < 0) userXp = 0;
     localStorage.setItem('userXp', userXp.toFixed(1)); updateRankUI();
@@ -135,7 +134,6 @@ function btnResetOnclick(btn) { btn.disabled = false; btn.style.opacity = "1"; b
 let myChart = null;
 
 function toggleHistoryAccordion() { const content = document.getElementById("historyContent"); if(content) content.style.display = (content.style.display === "none") ? "block" : "none"; }
-
 function saveCurrentDayToHistory() {
     let historyLog = JSON.parse(localStorage.getItem('studyHistoryLog')) || [];
     const todayStr = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', weekday: 'short' });
@@ -211,7 +209,6 @@ function startCountdownLoop() {
         } else { handleTimerFinishedComplete(); }
     }, 1000);
 }
-
 function startFreeTimerLoop() {
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
@@ -238,7 +235,7 @@ function initTimerSystem() {
 }
 
 // ==========================================
-// 6. مواقيت الصلاة والواحة الدينية (يدعم العمل بدون إنترنت Offline)
+// 6. مواقيت الصلاة والواحة الدينية (Offline)
 // ==========================================
 let prayerTimesData = JSON.parse(localStorage.getItem('cachedPrayerTimes')) || {};
 const prayerNamesArabic = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
@@ -457,14 +454,11 @@ document.addEventListener("DOMContentLoaded", () => {
     displayCurrentDate(); if(document.getElementById("quoteDisplay")) document.getElementById("quoteDisplay").innerText = quotes[Math.floor(Math.random() * quotes.length)]; updateRankUI(); renderHistoryLog();
     document.querySelectorAll('.prayer-row').forEach(row => { row.addEventListener('click', (e) => { if(e.target.type !== 'checkbox') { const chk = row.querySelector('input[type="checkbox"]'); if(chk && !chk.disabled) { chk.checked = !chk.checked; togglePrayerDone(chk.id.replace('check-', '')); } } }); });
     
-    // ربط زرار كمل يا بطل الذكي لمنع تكرار نفس العبارة ورا بعض 🚀
     document.getElementById("quoteBtn")?.addEventListener("click", () => {
         const displayEl = document.getElementById("quoteDisplay");
         if (displayEl) {
             const currentQuote = displayEl.innerText;
             let nextQuote = currentQuote;
-            
-            // حلقة تكرار تضمن عدم اختيار نفس العبارة الحالية مطلقاً
             while (nextQuote === currentQuote) {
                 nextQuote = quotes[Math.floor(Math.random() * quotes.length)];
             }
@@ -527,3 +521,114 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.log('فشل تسجيل الـ SW:', err));
     });
 }
+
+// ==========================================
+// 11. مود عيد الأضحى المبارك 🐑🎈
+// ==========================================
+let sheepClickCount = 0;
+const eidiyaList = [
+  "بقيمة 200 جنيه كاش طازة من البنك! 💸 ادخل اطلب دليفري وروق على حالك.",
+  "بقيمة 50 جنيه لسه ببرقتها.. انزل هات بيها كنز وشيبسي وعيش العيد! 🥤🍟",
+  "عبارة عن (ربع جنيه مخروم) وشبشب العيد الجديد.. متصرفهمش كلهم في أول يوم! 🩴😂",
+  "بقيمة 100 جنيه.. بس مامتك هتيجي تاخدها تشيلها معاها عشان متضيعش! 👩‍👦 مش هتشوفها تاني خلاص.",
+  "بقيمة 500 جنيه (عيدية الملوك والأبطال)! 👑🔥 أنت كدا مقفل اللعبة وجاهز تطحن مذاكرة.",
+  "عبارة عن كاندي وسكاكر على شكل خروف العيد.. امبوووه! 🍬🐑"
+];
+
+function playSheepSound() {
+  const sound = document.getElementById("sheepSound");
+  const toast = document.getElementById("eid-toast");
+  const sheep = document.querySelector(".eid-sheep");
+  const modal = document.getElementById("eidiyaModal");
+  const modalMessage = document.getElementById("eidiyaMessage");
+
+  if (sound) {
+    sound.currentTime = 0;
+    sound.play().catch(e => console.log("الصوت محتاج تفاعل"));
+  }
+
+  if (sheep) {
+    const ripple = document.createElement("div");
+    ripple.className = "sheep-ripple";
+    document.body.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  }
+
+  sheepClickCount++;
+
+  // 🎁 لو وصل لـ 5 ضغطات، افتح الصندوق الكبير والغي الـ toast
+  if (sheepClickCount >= 5) {
+    if (modal && modalMessage) {
+      const randomEidiya = eidiyaList[Math.floor(Math.random() * eidiyaList.length)];
+      modalMessage.innerHTML = randomEidiya;
+      modal.classList.add("show"); // إظهار النافذة الكبيرة
+    }
+    sheepClickCount = 0; // تصفير العداد
+  } else {
+    // الرسالة الصغيرة العادية تظهر في الضغطات من 1 لـ 4 وتختفي عادي
+    if (toast) {
+      toast.classList.add("show");
+      const emojis = ["🐑🎉", "🎈✨", "🥩🔥", "👑🤍"];
+      const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+      toast.innerHTML = `🎉 كل سنة وانت طيب وعيد سعيد يا بطل ${randomEmoji}`;
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
+  }
+}
+
+// فانكشن إغلاق صندوق العيدية لما يدوس على الزرار
+function closeEidiyaModal() {
+  const modal = document.getElementById("eidiyaModal");
+  if (modal) {
+    modal.classList.remove("show");
+  }
+}
+// 🎉 فانكشن احتفالية فتح الصفحة (مطر البلالين)
+function launchEidBalloonsShower() {
+  const balloonEmojis = ["🎈", "✨", "🎉"];
+  const totalBalloons = 20; // عدد البلالين اللي هتنزل
+
+  for (let i = 0; i < totalBalloons; i++) {
+    setTimeout(() => {
+      const balloon = document.createElement("div");
+      balloon.className = "pop-balloon";
+      
+      // اختيار إيموجي عشوائي ومكان أفقي عشوائي
+      balloon.innerText = balloonEmojis[Math.floor(Math.random() * balloonEmojis.length)];
+      balloon.style.left = Math.random() * 90 + 5 + "vw"; 
+      
+      // حجم عشوائي وسرعة طيران عشوائية عشان الإحساس الطبيعي
+      const randomSize = Math.random() * 20 + 25; // بين 25px و 45px
+      balloon.style.fontSize = randomSize + "px";
+      
+      const randomDuration = Math.random() * 2 + 3; // بين 3 و 5 ثواني
+      balloon.style.animationDuration = randomDuration + "s";
+      
+      // بهار زيادة: ألوان مختلفة للبلالين
+      balloon.style.filter = `hue-rotate(${Math.random() * 360}deg)`;
+
+      // لو المستخدم حب يفرقعها بالماوس وهي طايرة
+      balloon.addEventListener("click", () => {
+        balloon.classList.add("popped");
+        setTimeout(() => balloon.remove(), 200);
+      });
+
+      document.body.appendChild(balloon);
+
+      // تنظيف الـ DOM بعد ما الأنيماشين يخلص عشان ميثقلش الموقع
+      setTimeout(() => {
+        if (balloon.parentElement) balloon.remove();
+      }, randomDuration * 1000);
+
+    }, i * 150); // تأخير بسيط بين كل بالونة والتانية عشان ينزلوا ورا بعض كشاور
+  }
+}
+
+// تشغيل الفانكشن تلقائي أول ما الصفحة تفتح بالكامل
+window.addEventListener("DOMContentLoaded", () => {
+  // تفعيل الشاور بعد ثانية واحدة من فتح الموقع عشان يبان الانبهار
+  setTimeout(launchEidBalloonsShower, 1000);
+});

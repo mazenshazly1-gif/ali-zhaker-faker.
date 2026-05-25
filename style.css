@@ -238,3 +238,224 @@ footer { margin-top: 40px; text-align: center; font-size: 14px; font-weight: 700
     .developer-signature { position: static; margin-top: 5px; }
 }
 @keyframes pulse { 0% { text-shadow: 0 0 5px var(--logo-shadow); } 100% { text-shadow: 0 0 15px var(--logo-shadow); } }
+
+/* ===================================================
+   🎁 إضافات مود عيد الأضحى المبارك (أول تعديل)
+   =================================================== */
+
+/* 🎈 زينة العيد */
+.eid-balloons {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  padding-top: 10px;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+.eid-balloons span {
+  font-size: 42px;
+  animation: balloonFloat 3s ease-in-out infinite;
+}
+
+.eid-balloons span:nth-child(odd) {
+  margin-top: 15px;
+}
+
+.eid-balloons span:nth-child(even) {
+  animation-delay: 1s;
+}
+
+@keyframes balloonFloat {
+  0%,100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+  }
+}
+
+/* 🐑 الخروف */
+.eid-sheep {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 70px;
+  cursor: pointer;
+  z-index: 99999;
+  transition: 0.3s ease;
+  user-select: none;
+}
+
+.eid-sheep:hover {
+  transform: scale(1.1) rotate(-8deg);
+}
+
+/* 💬 رسالة العيد */
+.eid-toast {
+  position: fixed;
+  bottom: 110px;
+  right: 20px;
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: bold;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 0.4s ease;
+  z-index: 99999;
+}
+
+.eid-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* 🎈 تأثير فرقعة زينة الافتتاح */
+.pop-balloon {
+  position: fixed;
+  bottom: -60px; /* تبدأ من تحت الشاشة وتطلع لفوق */
+  font-size: 35px;
+  user-select: none;
+  z-index: 999999;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: floatUpAndFade 4s linear forwards;
+}
+
+@keyframes floatUpAndFade {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-105vh) rotate(360deg); /* تطلع بره الشاشة فوق خالص */
+    opacity: 0;
+  }
+}
+
+/* تأثير الفرقعة لما المستخدم يلمس البالونة وهي طايرة */
+.pop-balloon.popped {
+  animation: balloonPopAnimation 0.2s ease-out forwards;
+}
+
+@keyframes balloonPopAnimation {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+/* 💫 تأثير الانفجار الدائري وراء الخروف */
+.sheep-ripple {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 70px;
+  height: 70px;
+  background: rgba(168, 85, 247, 0.4); /* لون بنفسجي شفاف */
+  border-radius: 50%;
+  z-index: 99998; /* تحت الخروف بالظبط */
+  pointer-events: none;
+  animation: rippleExplode 0.6s ease-out forwards;
+}
+
+@keyframes rippleExplode {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+/* 🎁 نافذة العيدية الكبيرة */
+.eidiya-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7); /* خلفية مضلمة ورا الصندوق */
+  backdrop-filter: blur(5px); /* تأثير زجاجي ضبابي رايق */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999; /* أعلى من كل حاجة في الموقع */
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.4s ease;
+}
+
+/* لما تتوفر كلاس show تظهر النافذة */
+.eidiya-modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* صندوق العيدية نفسه */
+.eidiya-content {
+  background: linear-gradient(135deg, #1e1b4b, #311042); /* ألوان كحلي وبنفسجي غامق فخمة */
+  border: 2px solid #a855f7;
+  padding: 30px 40px;
+  border-radius: 24px;
+  text-align: center;
+  max-width: 400px;
+  width: 85%;
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+  transform: scale(0.7);
+  transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* أنيميشن بوب أب مطاطي صايع */
+}
+
+.eidiya-modal.show .eidiya-content {
+  transform: scale(1);
+}
+
+.eidiya-icon {
+  font-size: 60px;
+  animation: giftBounce 1s infinite alternate;
+}
+
+@keyframes giftBounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+.eidiya-content h2 {
+  font-size: 24px;
+  margin: 15px 0 10px 0;
+  color: #c084fc;
+}
+
+.eidiya-content p {
+  font-size: 17px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  color: #e2e8f0;
+}
+
+/* زرار القفل */
+.eidiya-btn {
+  background: #a855f7;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.eidiya-btn:hover {
+  background: #c084fc;
+  transform: translateY(-2px);
+}
