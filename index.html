@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الّلي ذاكر فاكر ⚡</title>
     
-    <link rel="stylesheet" href="./style.css">
+    <link class="rtl" rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./notes.css">
     
     <link rel="manifest" href="./manifest.json">
@@ -292,23 +292,42 @@
                     <button class="btn-editor-back" onclick="backToPicassoGallery()">↩ المعرض</button>
                     <input type="text" id="picassoTitleInput" class="picasso-title-field" placeholder="عنوان اللوحة الملحمية...">
                 </div>
+                
+                <div class="picasso-history-arrows">
+                    <button class="btn-arrow" onclick="undoPicassoAction()" title="تراجع خطوة">↩️</button>
+                    <button class="btn-arrow" onclick="redoPicassoAction()" title="تقدم خطوة">↪️</button>
+                </div>
+
                 <div class="panel-header-actions">
                     <button class="btn-panel-save" onclick="savePicassoNote()">حفظ اللوحة ✅</button>
                     <button class="btn-panel-delete" id="deletePicassoBtn" onclick="deletePicassoNote()" style="background:#ef4444;">حذف 🗑️</button>
                 </div>
             </div>
 
-            <div class="picasso-workspace-container">
-                <textarea id="picassoTextArea" class="picasso-text-layer" placeholder="اكتب هنا ملاحظاتك النصية بالكيبورد عادي جداً، وتقدر ترسم فوقيها في أي مكان... 📝"></textarea>
-                
+            <div class="picasso-workspace-container" id="picassoWorkspace">
+                <div class="picasso-underlay-layer" id="picassoUnderlay">
+                    <textarea id="picassoTextArea" class="picasso-text-layer" placeholder="اضغط على زر اليد 🖐️ لتفعيل وضع القراءة والكتابة، واكتب هنا براحتك... 📝"></textarea>
+                </div>
                 <canvas id="picassoDrawingCanvas"></canvas>
             </div>
 
             <div class="picasso-bottom-toolbar">
+                <button class="toolbar-tool-btn" id="tool-picasso-hand" onclick="activatePicassoTool('hand')" title="وضع اليد: تصفح وتحرك واكتب">🖐️ تصفح وتكست</button>
                 <button class="toolbar-tool-btn active" id="tool-picasso-draw" onclick="activatePicassoTool('draw')">✏️ قلم</button>
                 <button class="toolbar-tool-btn" id="tool-picasso-highlighter" onclick="activatePicassoTool('highlighter')">🖍️ هايلايت</button>
                 <button class="toolbar-tool-btn" id="tool-picasso-eraser" onclick="activatePicassoTool('eraser')">🧽 ممحاة</button>
                 
+                <div class="picasso-sliders-group">
+                    <div class="slider-item">
+                        <span>السمك:</span>
+                        <input type="range" id="picassoSizeSlider" min="2" max="50" value="4" onchange="updatePicassoBrushSettings()">
+                    </div>
+                    <div class="slider-item">
+                        <span>الشفافية:</span>
+                        <input type="range" id="picassoAlphaSlider" min="10" max="100" value="100" onchange="updatePicassoBrushSettings()">
+                    </div>
+                </div>
+
                 <div class="upload-btn-wrapper">
                     <button class="toolbar-tool-btn style-upload">➕ ميديا / PDF</button>
                     <input type="file" id="picassoAttachmentInput" accept="image/*,application/pdf" onchange="handlePicassoAttachment(event)">
