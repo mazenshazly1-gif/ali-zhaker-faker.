@@ -1,13 +1,15 @@
 // ==========================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V8
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V9
 // ==========================================
 
-const CACHE_NAME = 'ali-zhaker-faker-v8'; // رفعنا الإصدار لـ v8 عشان يطير أي كاش قديم متهنج
+const CACHE_NAME = 'ali-zhaker-faker-v9'; // رفعنا الإصدار لـ v9 عشان يجبر المتصفح يكيّش الملاحظات الجديدة
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './script.js',
+  './notes.css',        // 📝 إضافة ملف تنسيقات الملاحظات الذكية
+  './notes.js',         // 📝 إضافة ملف لوجيك الملاحظات والرسم
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -19,7 +21,7 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري حلب الملفات وتحديث الكاش لـ V8...');
+      console.log('📌 جاري حلب الملفات وتحديث الكاش لـ V9 مضافاً إليها الملاحظات...');
       return cache.addAll(ASSETS);
     })
   );
@@ -46,7 +48,7 @@ self.addEventListener('activate', (event) => {
 
 // 3. استراتيجية (Stale-While-Revalidate) السرعة القصوى + التحديث الفوري
 self.addEventListener('fetch', (event) => {
-  // ميزتشيكش غير على ملفات موقعنا والـ CDN الأساسية
+  // مبيشيكش غير على ملفات موقعنا والـ CDN الأساسية
   if (event.request.method !== 'GET') return;
 
   event.respondWith(

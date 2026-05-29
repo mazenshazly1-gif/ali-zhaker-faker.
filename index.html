@@ -6,6 +6,7 @@
     <title>الّلي ذاكر فاكر ⚡</title>
     
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./notes.css">
     
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#3b82f6">
@@ -265,6 +266,76 @@
     </div>
 </div>
 
+<button class="samsung-notes-fab" id="notesFabBtn" onclick="openNotesModal()" title="ملاحظات سامسونج الذكية">
+    <span class="fab-icon">📝✏️</span>
+</button>
+
+<div id="notesModalOverlay" class="notes-modal-overlay" onclick="if(event.target == this) closeNotesModal();">
+    <div class="notes-modal-wrapper">
+        
+        <div id="notesGalleryView" class="notes-view-panel">
+            <div class="notes-panel-header">
+                <div class="panel-header-title">📋 مفكرة سامسونج الذكية</div>
+                <div class="panel-header-actions">
+                    <button class="btn-panel-action" onclick="createNewNote()" title="ملاحظة جديدة">+</button>
+                    <button class="btn-panel-close" onclick="closeNotesModal()">✖</button>
+                </div>
+            </div>
+            <div class="notes-gallery-grid" id="notesGalleryGrid">
+                <div class="empty-gallery-msg">لا توجد ملاحظات حالياً، اضغط على (+) وابدأ التلخيص! 🚀</div>
+            </div>
+        </div>
+
+        <div id="notesEditorView" class="notes-view-panel" style="display: none;">
+            <div class="notes-panel-header">
+                <div class="panel-header-right">
+                    <button class="btn-editor-back" onclick="backToGallery()">↩ المعرض</button>
+                    <input type="text" id="noteTitleInput" class="note-title-field" placeholder="عنوان الملاحظة...">
+                </div>
+                <div class="panel-header-actions">
+                    <button class="btn-panel-save" onclick="saveCurrentNote()">حفظ ✅</button>
+                    <button class="btn-panel-delete" id="deleteNoteBtn" onclick="deleteCurrentNote()" style="background:#ef4444;">حذف 🗑️</button>
+                </div>
+            </div>
+
+            <div class="notes-canvas-container">
+                <canvas id="samsungNotesCanvas"></canvas>
+                <div id="brushSettingsPanel" class="brush-settings-popover" style="display: none;">
+                    <div class="brush-types">
+                        <button class="btn-brush-type active" id="brush-pen" onclick="setBrushType('pen')">✏️ قلم</button>
+                        <button class="btn-brush-type" id="brush-highlighter" onclick="setBrushType('highlighter')">🖍️ هايلايت</button>
+                    </div>
+                    <div class="setting-row">
+                        <label>الحجم: </label>
+                        <input type="range" id="brushSizeSlider" min="2" max="40" value="5">
+                    </div>
+                    <div class="setting-row" id="opacitySettingRow">
+                        <label>الشفافية: </label>
+                        <input type="range" id="brushOpacitySlider" min="10" max="100" value="100">
+                    </div>
+                    <div class="color-palette">
+                        <div class="color-dot active" style="background: #000000;" onclick="selectBrushColor('#000000', this)"></div>
+                        <div class="color-dot" style="background: #ef4444;" onclick="selectBrushColor('#ef4444', this)"></div>
+                        <div class="color-dot" style="background: #3b82f6;" onclick="selectBrushColor('#3b82f6', this)"></div>
+                        <div class="color-dot" style="background: #10b981;" onclick="selectBrushColor('#10b981', this)"></div>
+                        <div class="color-dot" style="background: #f59e0b;" onclick="selectBrushColor('#f59e0b', this)"></div>
+                        <div class="color-dot" style="background: #ffff00;" onclick="selectBrushColor('#ffff00', this)"></div>
+                        <input type="color" id="customColorPicker" onchange="selectBrushColor(this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="notes-bottom-toolbar">
+                <button class="toolbar-tool-btn active" id="tool-draw" onclick="activateTool('draw')">✏️ رسم وحر</button>
+                <button class="toolbar-tool-btn" id="tool-eraser" onclick="activateTool('eraser')">🧽 ممحاة</button>
+                <button class="toolbar-tool-btn" onclick="toggleBrushSettings()" title="إعدادات القلم والألوان">⚙️ القلم والألوان</button>
+                <button class="toolbar-tool-btn" onclick="clearCanvasSurface()" style="color: #ef4444;">🗑️ مسح اللوحة</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <footer>
     <div class="footer-text">صُنع بكل حب لدعم أبطال الثانوية العامة ⚡ الّلي ذاكر فاكر © 2026</div>
     <div class="developer-signature">
@@ -273,40 +344,7 @@
     </div>
 </footer>
 
-<!-- 🎈 زينة العيد -->
-<div class="eid-balloons">
-  <span>🎈</span>
-  <span>🎈</span>
-  <span>🎈</span>
-  <span>🎈</span>
-  <span>🎈</span>
-  <span>🎈</span>
-  <span>🎈</span>
-</div>
-
-<!-- 🐑 خروف العيد -->
-<div class="eid-sheep" onclick="playSheepSound()">
-  🐑
-</div>
-
-<!-- 💬 رسالة العيد -->
-<div id="eid-toast" class="eid-toast">
-  🎉 كل سنة وانت طيب وعيد سعيد يا بطل 🤍
-</div>
-
-<!-- 🔊 الصوت -->
-<audio id="sheepSound">
-  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_c8c8e1b84d.mp3" type="audio/mpeg">
-</audio>
-
 <script src="./script.js"></script>
-  <div id="eidiyaModal" class="eidiya-modal">
-  <div class="eidiya-content">
-    <div class="eidiya-icon">🎁✨</div>
-    <h2>عيدية سحرية يا بطل!</h2>
-    <p id="eidiyaMessage">برجاء الضغط على الخروف مجدداً</p>
-    <button class="eidiya-btn" onclick="closeEidiyaModal()">حبيبي تسلم 🤍</button>
-  </div>
-</div>
+<script src="./notes.js"></script>
 </body>
 </html>
