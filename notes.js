@@ -1,321 +1,245 @@
 // ===================================================
-// 📝 SAMSUNG NOTES LOGIC - الّلي ذاكر فاكر © 2026 📝
+// 🎨 LOGIC MODULE: طلّع بيكاسو اللي جواك V2 🎨
 // ===================================================
 
-let notesList = JSON.parse(localStorage.getItem('samsung_notes_list')) || [];
-let currentNoteId = null;
+let picassoNotesList = JSON.parse(localStorage.getItem('picasso_master_list')) || [];
+let activePicassoId = null;
 
-// متغيرات لوحة الرسم والأدوات
-const canvas = document.getElementById('samsungNotesCanvas');
-let ctx = null;
-let isDrawing = false;
-let currentTool = 'draw'; // draw | eraser
-let brushType = 'pen';   // pen | highlighter
-let brushColor = '#000000';
-let brushSize = 5;
-let brushOpacity = 100;
+const pCanvas = document.getElementById('picassoDrawingCanvas');
+const pTextArea = document.getElementById('picassoTextArea');
+let pCtx = null;
 
-// إحداثيات الرسم الأخيرة
-let lastX = 0;
-let lastY = 0;
+let isPicassoDrawing = false;
+let picassoTool = 'draw'; // draw, highlighter, eraser
+let picassoColor = '#000000';
+let picassoSize = 4;
+let picassoAlpha = 1.0;
 
-// ==========================================
-// 1. التحكم في النوافذ والتبديل (Modals)
-// ==========================================
-function openNotesModal() {
-    document.getElementById('notesModalOverlay').style.display = 'flex';
-    backToGallery(); // دائماً افتح على المعرض أولاً
+// إحداثيات الرسم السلس (قائمة النقاط لمنع التكسير)
+let picassoPoints = [];
+
+function openPicassoModal() {
+    document.getElementById('picassoModalOverlay').style.display = 'flex';
+    backToPicassoGallery();
 }
 
-function closeNotesModal() {
-    document.getElementById('notesModalOverlay').style.display = 'none';
+function closePicassoModal() {
+    document.getElementById('picassoModalOverlay').style.display = 'none';
 }
 
-function backToGallery() {
-    document.getElementById('notesEditorView').style.display = 'none';
-    document.getElementById('notesGalleryView').style.display = 'flex';
-    currentNoteId = null;
-    renderNotesGallery();
+function backToPicassoGallery() {
+    document.getElementById('picassoEditorView').style.display = 'none';
+    document.getElementById('picassoGalleryView').style.display = 'flex';
+    activePicassoId = null;
+    renderPicassoGallery();
 }
 
-// ==========================================
-// 2. إدارة معرض الملاحظات (Gallery System)
-// ==========================================
-function renderNotesGallery() {
-    const galleryGrid = document.getElementById('notesGalleryGrid');
-    if (!galleryGrid) return;
-
-    if (notesList.length === 0) {
-        galleryGrid.innerHTML = `<div class="empty-gallery-msg">لا توجد ملاحظات حالياً، اضغط على (+) وابدأ التلخيص! 🚀</div>`;
+function renderPicassoGallery() {
+    const grid = document.getElementById('picassoGalleryGrid');
+    if (!grid) return;
+    if (picassoNotesList.length === 0) {
+        grid.innerHTML = `<div class="empty-gallery-msg">لا توجد لوحات حالياً، اضغط على (+) وطلّع بيكاسو اللي جواك! 🎨🚀</div>`;
         return;
     }
-
-    galleryGrid.innerHTML = notesList.map(note => {
-        return `
-            <div class="note-card" onclick="loadNoteToEditor('${note.id}')">
-                <div class="note-card-title">${note.title || 'ملاحظة بدون عنوان'}</div>
-                <div class="note-card-date">📅 ${note.date}</div>
-            </div>
-        `;
-    }).join('');
+    grid.innerHTML = picassoNotesList.map(note => `
+        <div class="picasso-card" onclick="loadPicassoNote('${note.id}')">
+            <div class="picasso-card-title">${note.title || 'لوحة بدون عنوان 🎨'}</div>
+            <div class="picasso-card-date">📅 ${note.date}</div>
+        </div>
+    `).join('');
 }
 
-// ==========================================
-// 3. إنشاء وتحميل وحفظ الملاحظات (CRUD)
-// ==========================================
-function createNewNote() {
-    const newId = 'note_' + Date.now();
-    const todayStr = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
+function createNewPicassoNote() {
+    const id = 'picasso_' + Date.now();
+    const dateStr = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
+    const newNote = { id: id, title: '', textContent: '', canvasDrawing: '', date: dateStr };
     
-    const newNote = {
-        id: newId,
-        title: '',
-        canvasData: null, // سنحفظ الرسم هنا كـ DataURL
-        date: todayStr
-    };
-
-    notesList.unshift(newNote);
-    localStorage.setItem('samsung_notes_list', JSON.stringify(notesList));
-    
-    loadNoteToEditor(newId);
+    picassoNotesList.unshift(newNote);
+    localStorage.setItem('picasso_master_list', JSON.stringify(picassoNotesList));
+    loadPicassoNote(id);
 }
 
-function loadNoteToEditor(noteId) {
-    currentNoteId = noteId;
-    const note = notesList.find(n => n.id === noteId);
+function loadPicassoNote(id) {
+    activePicassoId = id;
+    const note = picassoNotesList.find(n => n.id === id);
     if (!note) return;
 
-    // تبديل الواجهات
-    document.getElementById('notesGalleryView').style.display = 'none';
-    document.getElementById('notesEditorView').style.display = 'flex';
+    document.getElementById('picassoGalleryView').style.display = 'none';
+    document.getElementById('picassoEditorView').style.display = 'flex';
+    document.getElementById('picassoTitleInput').value = note.title;
+    pTextArea.value = note.textContent || '';
 
-    // تعيين العنوان
-    document.getElementById('noteTitleInput').value = note.title;
+    initPicassoCanvasElement();
 
-    // تهيئة اللوحة وضبط الحجم
-    initCanvasElement();
-
-    // تحميل الرسم إن وجد
-    if (note.canvasData) {
+    if (note.canvasDrawing) {
         const img = new Image();
-        img.src = note.canvasData;
+        img.src = note.canvasDrawing;
         img.onload = function() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+            pCtx.drawImage(img, 0, 0);
         };
     } else {
-        clearCanvasSurface();
+        clearPicassoCanvasSurface();
     }
 }
 
-function saveCurrentNote() {
-    if (!currentNoteId) return;
-
-    const noteIndex = notesList.findIndex(n => n.id === currentNoteId);
-    if (noteIndex === -1) return;
-
-    // تحديث البيانات
-    notesList[noteIndex].title = document.getElementById('noteTitleInput').value.trim() || 'ملاحظة بدون عنوان';
-    notesList[noteIndex].canvasData = canvas.toDataURL();
-
-    // الحفظ في LocalStorage
-    localStorage.setItem('samsung_notes_list', JSON.stringify(notesList));
+function initPicassoCanvasElement() {
+    if (!pCanvas) return;
+    pCtx = pCanvas.getContext('2d');
+    const container = pCanvas.parentElement;
     
-    // مكافأة XP رمزية عند الحفظ والتلخيص لدعم سيستم الألعاب الخاص بك
-    if (typeof addXp === 'function') {
-        addXp(5);
+    pCanvas.width = container.clientWidth;
+    pCanvas.height = container.clientHeight;
+    
+    pCtx.lineCap = 'round';
+    pCtx.lineJoin = 'round';
+    activatePicassoTool(picassoTool);
+}
+
+// حساب الإحداثيات الدقيقة للموس والتاتش لضمان الاستجابة على الحواف
+function getPicassoCoords(e) {
+    const rect = pCanvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+// خوارزمية الرسم السلس بالمنحنيات ودعم النقاط المستقلة (Click Dots)
+function startPicassoDrawing(e) {
+    isPicassoDrawing = true;
+    const coords = getPicassoCoords(e);
+    picassoPoints = [coords];
+
+    // رسم نقطة فورية في مكان الضغط إذا لم يتحرك القلم (لحل مشكلة عدم الاستجابة للنقاط)
+    pCtx.beginPath();
+    pCtx.arc(coords.x, coords.y, picassoSize / 2, 0, Math.PI * 2);
+    pCtx.fillStyle = picassoTool === 'eraser' ? 'rgba(0,0,0,1)' : picassoColor;
+    pCtx.globalCompositeOperation = picassoTool === 'eraser' ? 'destination-out' : 'source-over';
+    pCtx.globalAlpha = picassoTool === 'highlighter' ? 0.4 : picassoAlpha;
+    pCtx.fill();
+}
+
+function drawPicassoLoop(e) {
+    if (!isPicassoDrawing || !pCtx) return;
+    e.preventDefault();
+    const coords = getPicassoCoords(e);
+    picassoPoints.push(coords);
+
+    pCtx.beginPath();
+    pCtx.globalCompositeOperation = picassoTool === 'eraser' ? 'destination-out' : 'source-over';
+    pCtx.strokeStyle = picassoColor;
+    pCtx.lineWidth = picassoTool === 'highlighter' ? 24 : (picassoTool === 'eraser' ? 30 : picassoSize);
+    pCtx.globalAlpha = picassoTool === 'highlighter' ? 0.4 : 1.0;
+
+    // استخدام الـ Quadratic Curves لمنع التكسير وجعل الخط انسيابي
+    pCtx.moveTo(picassoPoints[0].x, picassoPoints[0].y);
+    let i;
+    for (i = 1; i < picassoPoints.length - 1; i++) {
+        const xc = (picassoPoints[i].x + picassoPoints[i + 1].x) / 2;
+        const yc = (picassoPoints[i].y + picassoPoints[i + 1].y) / 2;
+        pCtx.quadraticCurveTo(picassoPoints[i].x, picassoPoints[i].y, xc, yc);
     }
-
-    alert('تم حفظ الملاحظة بنجاح! 💾');
-    backToGallery();
+    pCtx.stroke();
+    
+    // تقليص المصفوفة للحفاظ على سرعة المتصفح
+    if (picassoPoints.length > 10) { picassoPoints.shift(); }
 }
 
-function deleteCurrentNote() {
-    if (!currentNoteId) return;
-
-    if (confirm('هل أنت متأكد من حذف هذه الملاحظة نهائياً؟ 🗑️')) {
-        notesList = notesList.filter(n => n.id !== currentNoteId);
-        localStorage.setItem('samsung_notes_list', JSON.stringify(notesList));
-        backToGallery();
-    }
+function stopPicassoDrawing() {
+    isPicassoDrawing = false;
+    picassoPoints = [];
 }
 
-// ==========================================
-// 4. لوحة ومحرك الرسم (Canvas Engine)
-// ==========================================
-function initCanvasElement() {
-    if (!canvas) return;
-    ctx = canvas.getContext('2d');
-
-    // تحديد أبعاد حقيقية للـ Canvas تتطابق مع حاويتها المرئية
-    const container = canvas.parentElement;
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-
-    // إعدادات خط الرسم الافتراضية للـ Canvas
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    // إعادة تفعيل الأدوات بناءً على الحالة الحالية
-    activateTool(currentTool);
-}
-
-// الحصول على إحداثيات دقيقة تتناسب مع الماوس أو اللمس
-function getCoordinates(e) {
-    const rect = canvas.getBoundingClientRect();
-    if (e.touches && e.touches.length > 0) {
-        return {
-            x: e.touches[0].clientX - rect.left,
-            y: e.touches[0].clientY - rect.top
-        };
-    } else {
-        return {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top
-        };
-    }
-}
-
-function startDrawing(e) {
-    isDrawing = true;
-    const coords = getCoordinates(e);
-    lastX = coords.x;
-    lastY = coords.y;
-}
-
-function drawLoop(e) {
-    if (!isDrawing || !ctx) return;
-    e.preventDefault(); // منع السحب الافتراضي على الشاشات الذكية
-
-    const coords = getCoordinates(e);
-
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(coords.x, coords.y);
-
-    if (currentTool === 'eraser') {
-        // نمط الممحاة: يمسح ما تحته ويعيده للون الخلفية الأبيض لسامسونج نوتس
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.lineWidth = brushSize * 2; // الممحاة أعرض قليلاً لسهولة المسح
-        ctx.stroke();
-    } else {
-        // نمط الرسم العادي أو الهايلايتر
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.strokeStyle = brushColor;
-        ctx.lineWidth = brushSize;
-        
-        if (brushType === 'highlighter') {
-            ctx.globalAlpha = brushOpacity / 100; // شفافية للتظليل دون حجب النص
-        } else {
-            ctx.globalAlpha = 1.0; // القلم العادي معتم بالكامل
-        }
-        ctx.stroke();
-    }
-
-    lastX = coords.x;
-    lastY = coords.y;
-}
-
-function stopDrawing() {
-    isDrawing = false;
-    if (ctx) ctx.beginPath(); // إنهاء المسار الحالي لتجنب ترابط الخطوط العشوائية
-}
-
-function clearCanvasSurface() {
-    if (!ctx || !canvas) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-// ==========================================
-// 5. أدوات التخصيص والألوان (Toolbar Actions)
-// ==========================================
-function activateTool(tool) {
-    currentTool = tool;
+function activatePicassoTool(tool) {
+    picassoTool = tool;
     document.querySelectorAll('.toolbar-tool-btn').forEach(btn => btn.classList.remove('active'));
     
-    if (tool === 'draw') {
-        document.getElementById('tool-draw').classList.add('active');
-    } else if (tool === 'eraser') {
-        document.getElementById('tool-eraser').classList.add('active');
-    }
+    if (tool === 'draw') document.getElementById('tool-picasso-draw').classList.add('active');
+    else if (tool === 'highlighter') document.getElementById('tool-picasso-highlighter').classList.add('active');
+    else if (tool === 'eraser') document.getElementById('tool-picasso-eraser').classList.add('active');
 }
 
-function toggleBrushSettings() {
-    const panel = document.getElementById('brushSettingsPanel');
-    if (panel) {
-        panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'flex' : 'none';
-    }
-}
-
-function setBrushType(type) {
-    brushType = type;
-    document.querySelectorAll('.btn-brush-type').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`brush-${type}`).classList.add('active');
-
-    const opacityRow = document.getElementById('opacitySettingRow');
-    const sizeSlider = document.getElementById('brushSizeSlider');
-    const opacitySlider = document.getElementById('brushOpacitySlider');
-
-    if (type === 'highlighter') {
-        opacityRow.style.display = 'flex';
-        brushSize = 25; // حجم افتراضي عريض للهايلايت
-        brushOpacity = 40; // شفافية مثالية للهايلايت الأصفر والملون
-    } else {
-        opacityRow.style.display = 'none';
-        brushSize = 5;  // حجم افتراضي مناسب للقلم
-        brushOpacity = 100;
-    }
-
-    if (sizeSlider) sizeSlider.value = brushSize;
-    if (opacitySlider) opacitySlider.value = brushOpacity;
-}
-
-function selectBrushColor(color, element) {
-    brushColor = color;
+function setPicassoColor(color, element) {
+    picassoColor = color;
     if (element) {
         document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
         element.classList.add('active');
     }
 }
 
-// ==========================================
-// 6. أحداث التنصت عند تحميل الصفحة (Event Listeners)
-// ==========================================
+function clearPicassoCanvasSurface() {
+    if (!pCtx || !pCanvas) return;
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+}
+
+// ميزة قراءة الميديا والـ PDFs الملحمية فرونت إند بالكامل
+function handlePicassoAttachment(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    
+    if (file.type.includes('image')) {
+        reader.onload = function(e) {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = function() {
+                pCtx.drawImage(img, 0, 0, pCanvas.width, pCanvas.height);
+            }
+        };
+        reader.readAsDataURL(file);
+    } 
+    else if (file.type === 'application/pdf') {
+        reader.onload = function(e) {
+            const typedarray = new Uint8Array(e.target.result);
+            pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                // قراءة الصفحة الأولى من الملخص أو المذكرة المرفوعة وعرضها بالخلفية
+                pdf.getPage(1).then(function(page) {
+                    const viewport = page.getViewport({ scale: 1.2 });
+                    const renderContext = { canvasContext: pCtx, viewport: viewport };
+                    page.render(renderContext);
+                });
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+}
+
+function savePicassoNote() {
+    if (!activePicassoId) return;
+    const index = picassoNotesList.findIndex(n => n.id === activePicassoId);
+    if (index === -1) return;
+
+    picassoNotesList[index].title = document.getElementById('picassoTitleInput').value.trim() || 'لوحة بيكاسو بدون عنوان';
+    picassoNotesList[index].textContent = pTextArea.value;
+    picassoNotesList[index].canvasDrawing = pCanvas.toDataURL(); // حفظ الرسم كـ Base64 مدمج
+
+    localStorage.setItem('picasso_master_list', JSON.stringify(picassoNotesList));
+    if (typeof addXp === 'function') { addXp(10); } // مكافأة الـ XP لبيكاسو المبدع!
+    
+    alert('تم حفظ اللوحة والملاحظات بنجاح في خزنتك! 💾🎨');
+    backToPicassoGallery();
+}
+
+function deletePicassoNote() {
+    if (!activePicassoId) return;
+    if (confirm('هل تريد مسح هذه اللوحة وملاحظاتها نهائياً؟ 🗑️')) {
+        picassoNotesList = picassoNotesList.filter(n => n.id !== activePicassoId);
+        localStorage.setItem('picasso_master_list', JSON.stringify(picassoNotesList));
+        backToPicassoGallery();
+    }
+}
+
+// ربط الأحداث الموحدة للموس والتش عالي الاستجابة
 document.addEventListener('DOMContentLoaded', () => {
-    // ربط مخرجات الـ Sliders بالمتغيرات
-    document.getElementById('brushSizeSlider')?.addEventListener('input', (e) => {
-        brushSize = parseInt(e.target.value);
-    });
-
-    document.getElementById('brushOpacitySlider')?.addEventListener('input', (e) => {
-        brushOpacity = parseInt(e.target.value);
-    });
-
-    // ربط أحداث الفأرة (Mouse Events) على اللوحة
-    if (canvas) {
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', drawLoop);
-        canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseleave', stopDrawing);
-
-        // ربط أحداث اللمس لشاشات الموبايل والتابلت (Touch Events)
-        canvas.addEventListener('touchstart', startDrawing);
-        canvas.addEventListener('touchmove', drawLoop);
-        canvas.addEventListener('touchend', stopDrawing);
+    if (pCanvas) {
+        pCanvas.addEventListener('mousedown', startPicassoDrawing);
+        pCanvas.addEventListener('mousemove', drawPicassoLoop);
+        pCanvas.addEventListener('mouseup', stopPicassoDrawing);
+        
+        pCanvas.addEventListener('touchstart', startPicassoDrawing, { passive: false });
+        pCanvas.addEventListener('touchmove', drawPicassoLoop, { passive: false });
+        pCanvas.addEventListener('touchend', stopPicassoDrawing);
     }
-
-    // تهيئة معرض الملاحظات فور تحميل الصفحة
-    renderNotesGallery();
-});
-
-// التعامل مع تغيير حجم الشاشة للحفاظ على أبعاد اللوحة مستقرة دون تشويه الرسوم
-window.addEventListener('resize', () => {
-    if (currentNoteId && canvas) {
-        // نأخذ نسخة احتياطية من الرسم الحالي قبل تغيير الحجم
-        const tempCanvasData = canvas.toDataURL();
-        initCanvasElement();
-        const img = new Image();
-        img.src = tempCanvasData;
-        img.onload = () => ctx.drawImage(img, 0, 0);
-    }
+    renderPicassoGallery();
 });

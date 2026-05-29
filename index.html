@@ -266,70 +266,63 @@
     </div>
 </div>
 
-<button class="samsung-notes-fab" id="notesFabBtn" onclick="openNotesModal()" title="ملاحظات سامسونج الذكية">
-    <span class="fab-icon">📝✏️</span>
+<button class="picasso-notes-fab" id="notesFabBtn" onclick="openPicassoModal()" title="طلّع بيكاسو اللي جواك">
+    <span class="fab-icon">🎨</span>
 </button>
 
-<div id="notesModalOverlay" class="notes-modal-overlay" onclick="if(event.target == this) closeNotesModal();">
-    <div class="notes-modal-wrapper">
+<div id="picassoModalOverlay" class="picasso-modal-overlay" onclick="if(event.target == this) closePicassoModal();">
+    <div class="picasso-modal-wrapper">
         
-        <div id="notesGalleryView" class="notes-view-panel">
-            <div class="notes-panel-header">
-                <div class="panel-header-title">📋 مفكرة سامسونج الذكية</div>
+        <div id="picassoGalleryView" class="picasso-view-panel">
+            <div class="picasso-panel-header">
+                <div class="panel-header-title">🎨 طلّع بيكاسو اللي جواك</div>
                 <div class="panel-header-actions">
-                    <button class="btn-panel-action" onclick="createNewNote()" title="ملاحظة جديدة">+</button>
-                    <button class="btn-panel-close" onclick="closeNotesModal()">✖</button>
+                    <button class="btn-panel-action" onclick="createNewPicassoNote()" title="ملاحظة جديدة">+</button>
+                    <button class="btn-panel-close" onclick="closePicassoModal()">✖</button>
                 </div>
             </div>
-            <div class="notes-gallery-grid" id="notesGalleryGrid">
-                <div class="empty-gallery-msg">لا توجد ملاحظات حالياً، اضغط على (+) وابدأ التلخيص! 🚀</div>
-            </div>
+            <div class="picasso-gallery-subtitle">لخّص، ارسم، واشحن طاقتك النهاردة! 🚀</div>
+            <div class="picasso-gallery-grid" id="picassoGalleryGrid">
+                </div>
         </div>
 
-        <div id="notesEditorView" class="notes-view-panel" style="display: none;">
-            <div class="notes-panel-header">
+        <div id="picassoEditorView" class="picasso-view-panel" style="display: none;">
+            <div class="picasso-panel-header">
                 <div class="panel-header-right">
-                    <button class="btn-editor-back" onclick="backToGallery()">↩ المعرض</button>
-                    <input type="text" id="noteTitleInput" class="note-title-field" placeholder="عنوان الملاحظة...">
+                    <button class="btn-editor-back" onclick="backToPicassoGallery()">↩ المعرض</button>
+                    <input type="text" id="picassoTitleInput" class="picasso-title-field" placeholder="عنوان اللوحة الملحمية...">
                 </div>
                 <div class="panel-header-actions">
-                    <button class="btn-panel-save" onclick="saveCurrentNote()">حفظ ✅</button>
-                    <button class="btn-panel-delete" id="deleteNoteBtn" onclick="deleteCurrentNote()" style="background:#ef4444;">حذف 🗑️</button>
+                    <button class="btn-panel-save" onclick="savePicassoNote()">حفظ اللوحة ✅</button>
+                    <button class="btn-panel-delete" id="deletePicassoBtn" onclick="deletePicassoNote()" style="background:#ef4444;">حذف 🗑️</button>
                 </div>
             </div>
 
-            <div class="notes-canvas-container">
-                <canvas id="samsungNotesCanvas"></canvas>
-                <div id="brushSettingsPanel" class="brush-settings-popover" style="display: none;">
-                    <div class="brush-types">
-                        <button class="btn-brush-type active" id="brush-pen" onclick="setBrushType('pen')">✏️ قلم</button>
-                        <button class="btn-brush-type" id="brush-highlighter" onclick="setBrushType('highlighter')">🖍️ هايلايت</button>
-                    </div>
-                    <div class="setting-row">
-                        <label>الحجم: </label>
-                        <input type="range" id="brushSizeSlider" min="2" max="40" value="5">
-                    </div>
-                    <div class="setting-row" id="opacitySettingRow">
-                        <label>الشفافية: </label>
-                        <input type="range" id="brushOpacitySlider" min="10" max="100" value="100">
-                    </div>
-                    <div class="color-palette">
-                        <div class="color-dot active" style="background: #000000;" onclick="selectBrushColor('#000000', this)"></div>
-                        <div class="color-dot" style="background: #ef4444;" onclick="selectBrushColor('#ef4444', this)"></div>
-                        <div class="color-dot" style="background: #3b82f6;" onclick="selectBrushColor('#3b82f6', this)"></div>
-                        <div class="color-dot" style="background: #10b981;" onclick="selectBrushColor('#10b981', this)"></div>
-                        <div class="color-dot" style="background: #f59e0b;" onclick="selectBrushColor('#f59e0b', this)"></div>
-                        <div class="color-dot" style="background: #ffff00;" onclick="selectBrushColor('#ffff00', this)"></div>
-                        <input type="color" id="customColorPicker" onchange="selectBrushColor(this.value)">
-                    </div>
-                </div>
+            <div class="picasso-workspace-container">
+                <textarea id="picassoTextArea" class="picasso-text-layer" placeholder="اكتب هنا ملاحظاتك النصية بالكيبورد عادي جداً، وتقدر ترسم فوقيها في أي مكان... 📝"></textarea>
+                
+                <canvas id="picassoDrawingCanvas"></canvas>
             </div>
 
-            <div class="notes-bottom-toolbar">
-                <button class="toolbar-tool-btn active" id="tool-draw" onclick="activateTool('draw')">✏️ رسم وحر</button>
-                <button class="toolbar-tool-btn" id="tool-eraser" onclick="activateTool('eraser')">🧽 ممحاة</button>
-                <button class="toolbar-tool-btn" onclick="toggleBrushSettings()" title="إعدادات القلم والألوان">⚙️ القلم والألوان</button>
-                <button class="toolbar-tool-btn" onclick="clearCanvasSurface()" style="color: #ef4444;">🗑️ مسح اللوحة</button>
+            <div class="picasso-bottom-toolbar">
+                <button class="toolbar-tool-btn active" id="tool-picasso-draw" onclick="activatePicassoTool('draw')">✏️ قلم</button>
+                <button class="toolbar-tool-btn" id="tool-picasso-highlighter" onclick="activatePicassoTool('highlighter')">🖍️ هايلايت</button>
+                <button class="toolbar-tool-btn" id="tool-picasso-eraser" onclick="activatePicassoTool('eraser')">🧽 ممحاة</button>
+                
+                <div class="upload-btn-wrapper">
+                    <button class="toolbar-tool-btn style-upload">➕ ميديا / PDF</button>
+                    <input type="file" id="picassoAttachmentInput" accept="image/*,application/pdf" onchange="handlePicassoAttachment(event)">
+                </div>
+
+                <div class="picasso-mini-palette">
+                    <div class="color-dot active" style="background: #000000;" onclick="setPicassoColor('#000000', this)"></div>
+                    <div class="color-dot" style="background: #ef4444;" onclick="setPicassoColor('#ef4444', this)"></div>
+                    <div class="color-dot" style="background: #3b82f6;" onclick="setPicassoColor('#3b82f6', this)"></div>
+                    <div class="color-dot" style="background: #10b981;" onclick="setPicassoColor('#10b981', this)"></div>
+                    <div class="color-dot" style="background: #f59e0b;" onclick="setPicassoColor('#f59e0b', this)"></div>
+                </div>
+                
+                <button class="toolbar-tool-btn btn-clear-all" onclick="clearPicassoCanvasSurface()">🗑️ مسح الرسم</button>
             </div>
         </div>
 
@@ -343,6 +336,11 @@
         <a href="https://t.me/MaZeN_VlP" target="_blank">👑 Mazen</a>
     </div>
 </footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+</script>
 
 <script src="./script.js"></script>
 <script src="./notes.js"></script>

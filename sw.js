@@ -1,8 +1,8 @@
 // ==========================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V9
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V10
 // ==========================================
 
-const CACHE_NAME = 'ali-zhaker-faker-v9'; // رفعنا الإصدار لـ v9 عشان يجبر المتصفح يكيّش الملاحظات الجديدة
+const CACHE_NAME = 'ali-zhaker-faker-v10'; // رفعنا لـ v10 عشان نضمن تشغيل مكتبة الـ PDF والواجهة المزدوجة فوراً بدون تهنيج
 const ASSETS = [
   './',
   './index.html',
@@ -21,7 +21,7 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري حلب الملفات وتحديث الكاش لـ V9 مضافاً إليها الملاحظات...');
+      console.log('📌 جاري حلب الملفات وتحديث الكاش لـ V10 مضافاً إليها الملاحظات...');
       return cache.addAll(ASSETS);
     })
   );
