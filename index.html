@@ -250,24 +250,6 @@
                     <button class="btn-primary" id="btnCompleteQuran" style="background: #10b981;" onclick="toggleQuranDone()">تم قراءة ورد اليوم بنجاح 🎉</button>
                 </div>
             </div>
-
-            <div class="card radio-card" style="grid-column: span 2; margin-top: 15px;">
-                <div class="azkar-title" style="color: #3b82f6;">📻 راديو إذاعة القرآن الكريم بث مباشر</div>
-                
-                <audio id="radio-player" src="https://stream.zeno.fm/f8v9v969v0duv"></audio>
-                
-                <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
-                    <select id="radioStationSelect" style="background: var(--btn-mode-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 8px; font-weight: bold; font-family: inherit;">
-                        <option value="https://stream.zeno.fm/f8v9v969v0duv">إذاعة القرآن الكريم من القاهرة 🇪🇬</option>
-                        <option value="https://backup.quran.com.kw:8443/asw">إذاعة المصحف المرتل (كبار القراء) 🎙️</option>
-                        <option value="https://stream.zeno.fm/062b918m0duv">إذاعة الأذكار وتكبيرات العيد 📿</option>
-                    </select>
-                    
-                    <button class="btn-primary" id="btnPlayRadio" style="background: #10b981; min-width: 120px;">▶️ تشغيل</button>
-                    <button class="btn-primary" id="btnMuteRadio" style="background: #6b7280; padding: 10px 15px;">🔊 كتم</button>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>
@@ -379,8 +361,7 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 </script>
 
-<script src="./js/notes.js"></script>
-<script src="./js/script.js"></script>
-<script src="./js/deen.js"></script>
+<script src="./script.js"></script>
+<script src="./notes.js"></script>
 </body>
 </html>
