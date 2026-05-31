@@ -28,18 +28,18 @@
     box-shadow: 0 6px 24px rgba(168, 85, 247, 0.6);
 }
 
-/* الشاشة الجانبية للشات */
+/* الشاشة الجانبية للشات - تم تكبيرها لراحة العين وقراءة الأكواد والمسائل */
 .bot-sidebar {
     position: fixed;
     top: 0;
-    left: -400px; /* مخفي بره الشاشة تماماً في البداية */
-    width: 380px;
+    left: -520px; /* مخفي بره الشاشة تماماً بناءً على العرض الجديد لمنع أي تعليق */
+    width: 500px; /* تم التكبير من 380px لـ 500px مساحة طحن وعظمة */
     height: 100%;
-    background: rgba(11, 15, 25, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(11, 15, 25, 0.92); /* تعميق الخلفية سنة عشان وضوح الخط مع المساحة الكبيرة */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 5px 0 35px rgba(0, 0, 0, 0.6);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -189,8 +189,13 @@
     40% { transform: scale(1.0); }
 }
 
-/* حماية الشاشات الصغيرة للموبايل */
-@media (max-width: 480px) {
-    .bot-sidebar { width: 100%; left: -100%; }
-    .bot-sidebar.active { left: 0; }
+/* التوافق التام مع الموبايل والتابلت لمنع خروج الشات عن الحدود */
+@media (max-width: 768px) {
+    .bot-sidebar { 
+        width: 100%; 
+        left: -100%; 
+    }
+    .bot-sidebar.active { 
+        left: 0; 
+    }
 }
