@@ -7,8 +7,6 @@
     
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./notes.css">
-    <!-- 🤖 ربط مظهر البوت المساعد الذكي -->
-    <link rel="stylesheet" href="./bot.css">
     
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#3b82f6">
@@ -268,10 +266,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- 🎨 تحديث كشكول بيكاسو بالكامل (Samsung Notes Style) -->
-<!-- ========================================== -->
-
 <button class="picasso-notes-fab" id="notesFabBtn" onclick="openPicassoModal()" title="افتح كشكول المذاكرة الذكي">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
 </button>
@@ -279,7 +273,6 @@
 <div id="picassoModalOverlay" class="picasso-modal-overlay" onclick="if(event.target == this) closePicassoModal();">
     <div class="picasso-modal-wrapper full-screen-mode">
         
-        <!-- شاشة المعرض (Gallery View) المحدثة بالبحث -->
         <div id="picassoGalleryView" class="picasso-view-panel">
             <div class="picasso-panel-header">
                 <div class="panel-header-right-side">
@@ -305,7 +298,6 @@
             <div class="picasso-gallery-grid" id="picassoGalleryGrid"></div>
         </div>
 
-        <!-- شاشة المحرر الذكي (Editor View) المحدثة بالكامل -->
         <div id="picassoEditorView" class="picasso-view-panel" style="display: none;">
             <div class="picasso-panel-header">
                 <div class="panel-header-right">
@@ -316,7 +308,6 @@
                     <input type="text" id="picassoTitleInput" class="picasso-title-field" placeholder="عنوان الدرس أو الملخص...">
                 </div>
                 
-                <!-- أزرار تقليب صفحات الـ PDF والتحكم الكامل -->
                 <div class="pdf-page-controls" id="pdfPageControls" style="display: none;">
                     <button class="btn-page-nav" onclick="prevPdfPage()" title="الصفحة السابقة">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
@@ -343,7 +334,6 @@
                 </div>
             </div>
 
-            <!-- شريط أدوات الـ Word الاحترافي للتحكم في النص -->
             <div class="text-format-toolbar">
                 <select id="fontStyleSelect" onchange="formatText('formatBlock', this.value)" class="format-selector">
                     <option value="p">نص عادي</option>
@@ -377,16 +367,13 @@
                 </button>
             </div>
 
-            <!-- مساحة العمل المتوازنة 100% عريضة ومحبوكة البادينج -->
             <div class="picasso-workspace-container" id="picassoWorkspace">
                 <div class="picasso-underlay-layer" id="picassoUnderlay">
-                    <!-- محرر وورد حقيقي مبني بـ ContentEditable بدل الـ Textarea لمنع الاختفاء والتقطيع -->
                     <div id="picassoTextArea" class="picasso-text-layer" contenteditable="true" data-placeholder="اكتب ولخّص دروسك هنا بحرية... واستخدم أدوات الـ Word بالأعلى لتنسيق خطك 📝"></div>
                 </div>
                 <canvas id="picassoDrawingCanvas"></canvas>
             </div>
 
-            <!-- شريط الأدوات السفلي العائم المطور بأيقونات الـ SVG والـ Color Picker -->
             <div class="picasso-bottom-toolbar">
                 <button class="toolbar-tool-btn" id="tool-picasso-hand" onclick="activatePicassoTool('hand')" title="وضع اليد والكتابة">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4.5"/><path d="M6 10V8a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v10.5a8.5 8.5 0 0 0 8.5 8.5h.25a8.5 8.5 0 0 0 8.5-8.5V11"/></svg>
@@ -412,7 +399,7 @@
                 </div>
 
                 <div class="picasso-mini-palette">
-                    <div class="color-dot" style="background: #1e293b;" onclick="setPicassoColor('#1e293b', this)"></div>
+                    <div class="color-dot active" style="background: #1e293b;" onclick="setPicassoColor('#1e293b', this)"></div>
                     <div class="color-dot" style="background: #ef4444;" onclick="setPicassoColor('#ef4444', this)"></div>
                     <div class="color-dot" style="background: #2563eb;" onclick="setPicassoColor('#2563eb', this)"></div>
                     <div class="color-dot" style="background: #10b981;" onclick="setPicassoColor('#10b981', this)"></div>
@@ -437,27 +424,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- 🤖 لوحة المساعد الذكي والمحفز (الّلي ذاكر فاكر) -->
-<!-- ========================================== -->
-<button class="picasso-bot-fab" id="botFabBtn" onclick="toggleBotSidebar()" title="تحدث مع مساعدك الذكي">🤖</button>
-
-<div id="botSidebar" class="bot-sidebar">
-    <div class="bot-header">
-        <div class="bot-header-title">
-            <span>🤖 مساعدك الذكي (الّلي ذاكر فاكر)</span>
-        </div>
-        <button class="btn-bot-close" onclick="toggleBotSidebar()">✖</button>
-    </div>
-    <div class="bot-chat-container" id="botChatContainer">
-        <div class="msg msg-bot">يا مرحب بالباشمهندس! أنا معاك في غرفة التحكم.. لو وراك طحن مذاكرة، مسألة صعبة واقفة قدامك، أو كود مهنج، ارميه هنا وتعال نفرمه سوا! 🚀⚡</div>
-    </div>
-    <div class="bot-input-group">
-        <input type="text" id="botInput" class="bot-input-field" placeholder="اسألني عن أي مسألة، أو فضفض لو مخنوق..." onkeypress="if(event.key === 'Enter') sendBotMessage()">
-        <button class="btn-bot-send" onclick="sendBotMessage()">فرَم ⚡</button>
-    </div>
-</div>
-
 <footer>
     <div class="footer-text">صُنع بكل حب لدعم أبطال الثانوية العامة ⚡ الّلي ذاكر فاكر © 2026</div>
     <div class="developer-signature">
@@ -473,7 +439,10 @@
 
 <script src="./script.js"></script>
 <script src="./notes.js"></script>
-<!-- 🤖 ربط لوجيك الذكاء الاصطناعي المفكر للبوت -->
-<script src="./bot.js"></script>
+
+<script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="RdqJtHOJbN00vp1wO5vsa";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+
 </body>
 </html>

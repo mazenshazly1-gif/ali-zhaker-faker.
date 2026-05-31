@@ -1,9 +1,9 @@
 // ===================================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V12.1 المطور والذكي
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V12.2 المطور والذكي
 // ===================================================
 
-// الترقية لـ V12.1 لضمان تحديث الكاش فوراً بعد التعديلات الأخيرة
-const CACHE_NAME = 'ali-zhaker-faker-v12.1'; 
+// الترقية لـ V12.2 لضمان تحديث الكاش فوراً بعد التعديلات الأخيرة
+const CACHE_NAME = 'ali-zhaker-faker-v12.2'; 
 
 const ASSETS = [
   './',
@@ -12,8 +12,6 @@ const ASSETS = [
   './script.js',
   './notes.css',
   './notes.js',
-  './bot.css',
-  './bot.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -27,7 +25,7 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري تحديث الكاش لـ V12.1...');
+      console.log('📌 جاري تحديث الكاش لـ V12.2...');
       return cache.addAll(ASSETS);
     })
   );
@@ -56,8 +54,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // 🤖 استثناء الـ API والـ Proxy عشان يفضل الكلام حي ومباشر
-  if (event.request.url.includes('openrouter.ai') || event.request.url.includes('corsproxy.io')) {
+  // 🤖 استثناء سيرفرات Chatbase (البوت الجديد) عشان يفضل شغال لايف وبدون مشاكل
+  if (event.request.url.includes('chatbase.co')) {
     return; 
   }
 
