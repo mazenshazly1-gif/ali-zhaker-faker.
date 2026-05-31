@@ -1,0 +1,196 @@
+/* ===================================================
+   🤖 Bot Sidebar Styles - المساعد الذكي "الّلي ذاكر فاكر"
+   =================================================== */
+
+/* زرار البوت العائم العاكس لـ بيكاسو */
+.picasso-bot-fab {
+    position: fixed;
+    bottom: 100px; /* فوق زرار بيكاسو بشوية عشان ميتغطاش */
+    left: 20px;    /* في الجانب المقابل لسهولة الوصول */
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    z-index: 999;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.picasso-bot-fab:hover {
+    transform: scale(1.1) rotate(15deg);
+    box-shadow: 0 6px 24px rgba(168, 85, 247, 0.6);
+}
+
+/* الشاشة الجانبية للشات */
+.bot-sidebar {
+    position: fixed;
+    top: 0;
+    left: -400px; /* مخفي بره الشاشة تماماً في البداية */
+    width: 380px;
+    height: 100%;
+    background: rgba(11, 15, 25, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* لما البوت يفتح */
+.bot-sidebar.active {
+    left: 0;
+}
+
+/* الهيدر الخاص بالبوت */
+.bot-header {
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(99, 66, 241, 0.2));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bot-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    color: #fff;
+    font-size: 16px;
+}
+
+.btn-bot-close {
+    background: none;
+    border: none;
+    color: var(--text-muted, #94a3b8);
+    cursor: pointer;
+    font-size: 18px;
+    transition: color 0.2s;
+}
+
+.btn-bot-close:hover {
+    color: #ef4444;
+}
+
+/* حاوية الرسائل */
+.bot-chat-container {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    scroll-behavior: smooth;
+}
+
+/* فقاعات الشات */
+.msg {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    animation: fadeInMsg 0.3s ease-out forwards;
+}
+
+.msg-bot {
+    background: rgba(168, 85, 247, 0.15);
+    color: #f1f5f9;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.msg-user {
+    background: #3b82f6;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+/* الـ Loading الخفيف */
+.bot-loading {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px;
+    align-self: flex-start;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: #a855f7;
+    border-radius: 50%;
+    animation: pulseDot 1.4s infinite ease-in-out both;
+}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* منطقة الإدخال السفلي */
+.bot-input-group {
+    padding: 15px;
+    background: rgba(15, 23, 42, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    gap: 10px;
+}
+
+.bot-input-field {
+    flex: 1;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    border-radius: 10px;
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.bot-input-field:focus {
+    border-color: #a855f7;
+}
+
+.btn-bot-send {
+    background: #a855f7;
+    color: white;
+    border: none;
+    padding: 0 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.btn-bot-send:hover {
+    background: #9333ea;
+}
+
+@keyframes fadeInMsg {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseDot {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+}
+
+/* حماية الشاشات الصغيرة للموبايل */
+@media (max-width: 480px) {
+    .bot-sidebar { width: 100%; left: -100%; }
+    .bot-sidebar.active { left: 0; }
+}

@@ -1,9 +1,9 @@
 // ===================================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V11.1 المطور
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V12.0 المطور والذكي
 // ===================================================
 
-// الترقية الفورية لإصدار v11.1 لإجبار المتصفحات على سحب كشكول بيكاسو وميزات الـ PDF الجديدة
-const CACHE_NAME = 'ali-zhaker-faker-v11.1'; 
+// الترقية الفورية لإصدار v12.0 لسحب ملفات الشات بوت والمخ الذكي الحي
+const CACHE_NAME = 'ali-zhaker-faker-v12.0'; 
 
 const ASSETS = [
   './',
@@ -12,6 +12,8 @@ const ASSETS = [
   './script.js',
   './notes.css',        // 📝 ملف تنسيقات الملاحظات وبيكاسو
   './notes.js',         // 📝 ملف لوجيك الملاحظات، اليد، والـ Undo/Redo
+  './bot.css',          // 🤖 ملف تنسيقات البوت الذكي الجديد
+  './bot.js',           // 🤖 ملف لوجيك الشات بوت والمحرك الحي
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -25,7 +27,7 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري حلب الملفات وتحديث الكاش لـ V11.1 (أوفلاين مستقر وسريع)...');
+      console.log('📌 جاري حلب الملفات وتحديث الكاش لـ V12.0 (دماغ ذكية + أوفلاين طلقة)...');
       return cache.addAll(ASSETS);
     })
   );
@@ -39,7 +41,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log('🗑️ كاش قديم اتمسح وخسع:', key);
+            console.log('🗑️ كاش قديم اتمسح وخسع وجبنا الجديد للأسد:', key);
             return caches.delete(key); 
           }
         })
@@ -52,15 +54,20 @@ self.addEventListener('activate', (event) => {
 
 // 3. استراتيجية (Stale-While-Revalidate) السرعة القصوى + التحديث الفوري
 self.addEventListener('fetch', (event) => {
-  // تخطي الطلبات التي ليست من نوع GET (مثل POST أو الأقسام الخاصة برفع الملفات)
+  // تخطي الطلبات التي ليست من نوع GET (مثل الـ POST الخاصة برفع الملفات)
   if (event.request.method !== 'GET') return;
+
+  // 🤖 فلتر صايع: استثناء طلبات سيرفر الذكاء الاصطناعي عشان يفضل حي وميهنجش
+  if (event.request.url.includes('openrouter.ai')) {
+    return; 
+  }
 
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.match(event.request).then((cachedResponse) => {
         
         const fetchPromise = fetch(event.request).then((networkResponse) => {
-          // تحديث الكاش في الخلفية فقط إذا كانت الاستجابة صالحة (status 200 أو استجابة opaque من الـ CDNs)
+          // تحديث الكاش في الخلفية فقط إذا كانت الاستجابة صالحة
           if (networkResponse.status === 200 || networkResponse.type === 'opaque') {
             cache.put(event.request, networkResponse.clone());
           }

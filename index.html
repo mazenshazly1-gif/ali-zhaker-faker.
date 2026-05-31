@@ -7,6 +7,8 @@
     
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./notes.css">
+    <!-- 🤖 ربط مظهر البوت المساعد الذكي -->
+    <link rel="stylesheet" href="./bot.css">
     
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#3b82f6">
@@ -410,7 +412,7 @@
                 </div>
 
                 <div class="picasso-mini-palette">
-                    <div class="color-dot active" style="background: #1e293b;" onclick="setPicassoColor('#1e293b', this)"></div>
+                    <div class="color-dot" style="background: #1e293b;" onclick="setPicassoColor('#1e293b', this)"></div>
                     <div class="color-dot" style="background: #ef4444;" onclick="setPicassoColor('#ef4444', this)"></div>
                     <div class="color-dot" style="background: #2563eb;" onclick="setPicassoColor('#2563eb', this)"></div>
                     <div class="color-dot" style="background: #10b981;" onclick="setPicassoColor('#10b981', this)"></div>
@@ -435,6 +437,27 @@
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- 🤖 لوحة المساعد الذكي والمحفز (الّلي ذاكر فاكر) -->
+<!-- ========================================== -->
+<button class="picasso-bot-fab" id="botFabBtn" onclick="toggleBotSidebar()" title="تحدث مع مساعدك الذكي">🤖</button>
+
+<div id="botSidebar" class="bot-sidebar">
+    <div class="bot-header">
+        <div class="bot-header-title">
+            <span>🤖 مساعدك الذكي (الّلي ذاكر فاكر)</span>
+        </div>
+        <button class="btn-bot-close" onclick="toggleBotSidebar()">✖</button>
+    </div>
+    <div class="bot-chat-container" id="botChatContainer">
+        <div class="msg msg-bot">يا مرحب بالباشمهندس! أنا معاك في غرفة التحكم.. لو وراك طحن مذاكرة، مسألة صعبة واقفة قدامك، أو كود مهنج، ارميه هنا وتعال نفرمه سوا! 🚀⚡</div>
+    </div>
+    <div class="bot-input-group">
+        <input type="text" id="botInput" class="bot-input-field" placeholder="اسألني عن أي مسألة، أو فضفض لو مخنوق..." onkeypress="if(event.key === 'Enter') sendBotMessage()">
+        <button class="btn-bot-send" onclick="sendBotMessage()">فرَم ⚡</button>
+    </div>
+</div>
+
 <footer>
     <div class="footer-text">صُنع بكل حب لدعم أبطال الثانوية العامة ⚡ الّلي ذاكر فاكر © 2026</div>
     <div class="developer-signature">
@@ -450,5 +473,7 @@
 
 <script src="./script.js"></script>
 <script src="./notes.js"></script>
+<!-- 🤖 ربط لوجيك الذكاء الاصطناعي المفكر للبوت -->
+<script src="./bot.js"></script>
 </body>
 </html>
