@@ -1,8 +1,7 @@
 // ===================================================
-// 🤖 Smart AI Bot Module - محرك الذكاء الاصطناعي الحي والمفكر (نسخة V12.0 الخبيثة)
+// 🤖 Smart AI Bot Module - محرك الذكاء الاصطناعي الحي (النهائي V13.0)
 // ===================================================
 
-// فتح وقفل السايد بار الخاص بالبوت
 function toggleBotSidebar() {
     const sidebar = document.getElementById('botSidebar');
     if (sidebar) {
@@ -13,7 +12,6 @@ function toggleBotSidebar() {
     }
 }
 
-// إرسال الرسالة ومعالجتها بالذكاء الاصطناعي فوراً
 async function sendBotMessage() {
     const input = document.getElementById('botInput');
     const container = document.getElementById('botChatContainer');
@@ -33,49 +31,42 @@ async function sendBotMessage() {
         appendMessage(responseText, 'bot');
     } catch (error) {
         removeLoading(loadingId);
-        appendMessage('معلش يا هندسة، السيرفر هنج مني ثانية.. اسألني تاني كدا عشان دماغي تجمع!', 'bot');
+        appendMessage('معلش يا هندسة، السيرفر هنج.. جرب تسألني سؤال تاني بأسلوب مختلف!', 'bot');
     }
 
     container.scrollTop = container.scrollHeight;
 }
 
-// المحرك الرئيسي للذكاء الاصطناعي (مع إضافة الـ Proxy لتجاوز الحظر)
+// المحرك النهائي (بدون تعقيدات الـ Proxy اللي بتبوظ الـ Headers)
 async function fetchLiveAIResponse(prompt) {
-    const proxyUrl = "https://corsproxy.io/?";
-    const targetUrl = "https://openrouter.ai/api/v1/chat/completions";
-
     const part1 = "sk-or-v1-d6144862d5f2d9e71375e35f";
     const part2 = "ee1ffd8a1b754e427ab33ac5033070e042942f87";
     const fullKey = part1 + part2; 
 
-    const systemPrompt = `أنت مساعد ذكي ومحفز اسمك 'الّلي ذاكر فاكر'. أنت لست آلة جامدة بل تفكر وتحلل بعمق. تتحدث باللهجة المصرية العامية الودودة جداً، بأسلوب "أولاد البلد" والمطورين. مهمتك: التحفيز، حل المسائل العلمية (فيزياء، كيمياء، رياضة)، ومراجعة الأكواد البرمجية. اجعل ردودك دائماً مبهجة، ذكية، وعملية.`;
+    // الحل الخبيث: هنستخدم خدمة وسيطة بتسمح بالـ Headers مباشرة
+    const response = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://openrouter.ai/api/v1/chat/completions"), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${fullKey}`
+        },
+        body: JSON.stringify({
+            model: 'google/gemini-2.0-flash-exp',
+            messages: [
+                { role: 'system', content: 'أنت مساعد ذكي ومحفز اسمك الّلي ذاكر فاكر، تتحدث بالعامية المصرية.' },
+                { role: 'user', content: prompt }
+            ]
+        })
+    });
 
-    try {
-        const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${fullKey}`
-            },
-            body: JSON.stringify({
-                model: 'google/gemini-2.0-flash-exp', 
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: prompt }
-                ],
-                temperature: 0.7
-            })
-        });
-
-        const data = await response.json();
-        if (data.choices && data.choices[0].message) {
-            return data.choices[0].message.content;
-        }
-        return 'بص يا هندسة، الإشارة قطعت في دماغي ثانية، قول تاني كدا؟';
-    } catch (error) {
-        console.error('AI Fetch Error:', error);
-        return 'الظاهر إنك أوفلاين يا بطل.. ركز في اللي في إيدك وراجع قوانينك!';
+    const data = await response.json();
+    // الرد بيجي جوه contents كـ String
+    const result = JSON.parse(data.contents);
+    
+    if (result.choices && result.choices[0].message) {
+        return result.choices[0].message.content;
     }
+    throw new Error('فشل الاستجابة');
 }
 
 function appendMessage(text, sender) {
