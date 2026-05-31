@@ -1,5 +1,5 @@
 /* =================================================== */
-/* 🎨 DESIGN SYSTEM: كشكول بيكاسو الذكي V10 🎨         */
+/* 🎨 DESIGN SYSTEM: كشكول بيكاسو الذكي V10.1 المطور   */
 /* =================================================== */
 
 /* زر الفاب العائم الرئيسي للموقع */
@@ -219,11 +219,11 @@
 .btn-panel-save { background: #10b981; color: white; border: none; padding: 8px 18px; border-radius: 50px; font-family: inherit; font-weight: bold; cursor: pointer; }
 .btn-panel-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-/* هندسة مساحة العمل المزدوجة المتوازنة */
+/* هندسة مساحة العمل المزدوجة المتوازنة - مثبتة أوف وايت حقيقي للـ Sketches */
 .picasso-workspace-container {
     flex-grow: 1;
     position: relative;
-    background: var(--card-bg, #ffffff);
+    background: #f7f4eb !important; /* تثبيت لون أوف وايت كريمي مريح جداً للعين 🎨 */
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -246,7 +246,7 @@
     z-index: 2;
 }
 
-/* كشكول بيكاسو: محرر الورد الحقيقي */
+/* كشكول بيكاسو: محرر الورد الحقيقي - مع تأمين ألوان الخط */
 .picasso-text-layer {
     width: 100%; 
     min-height: 100%;
@@ -256,14 +256,14 @@
     font-size: 17px; 
     line-height: 2;
     font-family: inherit; 
-    color: var(--text-main, #1e293b);
+    color: #1e293b !important; /* تثبيت لون خط قاتم ومقروء تماماً فوق الأوف وايت */
     background: transparent;
-    transition: background 0.3s;
+    transition: none !important; /* منع أي تداخل أو اهتزاز في الألوان مع المودات */
 }
 
-/* 📝 خيار الكشكول المسطّر الفني (يتم تفعيله برمجياً بإضافة كلاس .ruled-paper) */
+/* 📝 خيار الكشكول المسطّر الفني - تم تعديل ألوان السطور لتناسب الأوف وايت */
 .picasso-text-layer.ruled-paper {
-    background-image: linear-gradient(var(--border-color, #e5e7eb) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(168, 85, 247, 0.15) 1px, transparent 1px); /* سطور بنفسجية خفيفة وراقية متناسقة مع الهوية */
     background-size: 100% 2rem;
     background-attachment: local;
 }
@@ -271,17 +271,18 @@
 /* كود الـ Placeholder للـ ContentEditable */
 .picasso-text-layer:empty::before {
     content: attr(data-placeholder);
-    color: var(--text-muted, #94a3b8);
+    color: #94a3b8 !important;
     pointer-events: none;
     display: block;
 }
 
-/* طبقة الرسم العلوية */
+/* طبقة الرسم العلوية - شفافة تماماً ليظهر الأوف وايت والسطور من تحتها */
 #picassoDrawingCanvas {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     z-index: 3;
     cursor: crosshair;
+    background: transparent !important;
 }
 
 /* 📌 الفكرة العبقرية: الدبوس الذكي والقائمة العائمة لمنع الكبسة */
