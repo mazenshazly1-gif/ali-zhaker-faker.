@@ -65,7 +65,8 @@ async function fetchLiveAIResponse(prompt) {
                 'Authorization': `Bearer ${fullKey}`
             },
             body: JSON.stringify({
-                model: 'google/gemini-2.5-flash',
+                // تم تعديل الموديل هنا لموديل مستقر ومتاح حالياً
+                model: 'google/gemini-2.0-flash-exp', 
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: prompt }
