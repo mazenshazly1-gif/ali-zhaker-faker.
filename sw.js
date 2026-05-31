@@ -1,8 +1,10 @@
 // ===================================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V11 المطور
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V11.1 المطور
 // ===================================================
 
-const CACHE_NAME = 'ali-zhaker-faker-v11'; // رفعنا لـ v11 عشان نجبر المتصفح يكيّش أداة اليد والأسهم والـ Sliders الجديدة فوراً
+// الترقية الفورية لإصدار v11.1 لإجبار المتصفحات على سحب كشكول بيكاسو وميزات الـ PDF الجديدة
+const CACHE_NAME = 'ali-zhaker-faker-v11.1'; 
+
 const ASSETS = [
   './',
   './index.html',
@@ -23,7 +25,7 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري حلب الملفات وتحديث الكاش لـ V11 (ميزة بيكاسو بدون عك)...');
+      console.log('📌 جاري حلب الملفات وتحديث الكاش لـ V11.1 (أوفلاين مستقر وسريع)...');
       return cache.addAll(ASSETS);
     })
   );
@@ -50,22 +52,24 @@ self.addEventListener('activate', (event) => {
 
 // 3. استراتيجية (Stale-While-Revalidate) السرعة القصوى + التحديث الفوري
 self.addEventListener('fetch', (event) => {
+  // تخطي الطلبات التي ليست من نوع GET (مثل POST أو الأقسام الخاصة برفع الملفات)
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.match(event.request).then((cachedResponse) => {
-        // لو الملف في الكاش رجعه فوراً في ثانية (أوفلاين أو أونلاين)
+        
         const fetchPromise = fetch(event.request).then((networkResponse) => {
-          // وفي الخلفية لو أونلاين وجاب نسخة جديدة، حدّث الكاش فوراً للتطوير الجاي
-          if (networkResponse.status === 200) {
+          // تحديث الكاش في الخلفية فقط إذا كانت الاستجابة صالحة (status 200 أو استجابة opaque من الـ CDNs)
+          if (networkResponse.status === 200 || networkResponse.type === 'opaque') {
             cache.put(event.request, networkResponse.clone());
           }
           return networkResponse;
         }).catch(() => {
-          // لو فصل نت خالص، الكاش القديم يفضل حامي ظهرنا
+          // في حالة عدم وجود إنترنت، الكاش يحمي ظهرنا صامتًا
         });
 
+        // رجّع النسخة المتكاشة فوراً لسرعة البرق، ولو مش موجودة انتظر كود الشبكة
         return cachedResponse || fetchPromise;
       });
     })
