@@ -13,6 +13,7 @@ const ASSETS = [
   './notes.css',
   './notes.js',
   './manifest.json',
+  './1000069604.png',
   './icon-192.png',
   './icon-512.png',
   'https://cdn.jsdelivr.net/npm/chart.js',
