@@ -1,9 +1,9 @@
 // ==========================================================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.0 (منظومة SyncFlow الذكية)
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.1 (منظومة SyncFlow الذكية)
 // ==========================================================================
 
-// الترقية لـ V13.0 لضمان دمج المحرك الجديد وتنظيف كاش V12.2 تلقائياً
-const CACHE_NAME = 'ali-zhaker-faker-v13.0'; 
+// الترقية لـ V13.1 لإضافة أيقونة بيكاسو للكاش وتنظيف الإصدارات السابقة
+const CACHE_NAME = 'ali-zhaker-faker-v13.1'; 
 
 const ASSETS = [
   './',
@@ -17,6 +17,7 @@ const ASSETS = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
+  './1000069604.png', // 🐧 إضافة أيقونة بيكاسو (البطريق الأسطوري) ليعمل أوفلاين بدون مشاكل!
   'https://cdn.jsdelivr.net/npm/chart.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js',
@@ -27,14 +28,14 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.0...');
+      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.1...');
       return cache.addAll(ASSETS);
     })
   );
   self.skipWaiting(); // إجبار الـ SW الجديد على التنشيط فوراً
 });
 
-// 2. تفعيل الـ SW وتنظيف كاش V12.2 وأي كاش قديم لتجنب التضارب
+// 2. تفعيل الـ SW وتنظيف كاش V13.0 وأي كاش قديم لتجنب التضارب
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
