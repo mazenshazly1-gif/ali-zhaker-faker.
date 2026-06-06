@@ -76,7 +76,7 @@
             </div>
             <div id="sfRecallView" style="display: none;">
                 <div class="sf-alert-title" style="color: var(--accent-deen, #10b981);">🧠 شحن الذاكرة طويلة المدى (Active Recall)</div>
-                <p class="sf-alert-desc" id="sfRecallQuestion">ما هي الخلاصة أو الحل الذي وصلت إليه أثناء مسيرك للمسجد؟</p>
+                <p class="sf-alert-desc" id="sfRecallQuestion">ما هي الخلاصة أو الحل الذي وصلت إليه أثناء مسيرك للمسجد?</p>
                 <div class="sf-recall-input-group">
                     <input type="text" id="sfRecallInput" class="sf-input" placeholder="اكتب الخلاصة في سطر واحد لتثبيتها وكسب الـ XP...">
                     <button class="sf-btn-submit-recall" onclick="submitActiveRecall()">تثبيت 🎯</button>
@@ -302,8 +302,9 @@
     </div>
 </div>
 
-<button class="picasso-notes-fab" id="notesFabBtn" onclick="openPicassoModal()" title="افتح كشكول المذاكرة الذكي">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+<!-- 🐧 زر كشكول بيكاسو العائم محقون فيه البطريق الأسطوري لوحده صافي وممسوح منه القلم تماماً -->
+<button class="picasso-notes-fab" id="notesFabBtn" onclick="openPicassoModal()" title="افتح كشكول المذاكرة الذكي" style="display: flex; align-items: center; justify-content: center; padding: 0; overflow: hidden; border-radius: 50%; width: 56px; height: 56px; background: #a855f7; border: none; box-shadow: 0 4px 14px rgba(168, 85, 247, 0.4);">
+    <img src="./1000069604_2.png" alt="بيكاسو" style="width: 100%; height: 100%; object-fit: cover;">
 </button>
 
 <div id="picassoModalOverlay" class="picasso-modal-overlay" onclick="if(event.target == this) closePicassoModal();">
@@ -311,14 +312,12 @@
         
         <div id="picassoGalleryView" class="picasso-view-panel">
             <div class="picasso-panel-header">
-                <div class="panel-header-right-side">
-                    <div class="panel-header-title">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2.5"><path d="m12 3-1.912 5.886H3.894l4.948 3.596L6.93 18.368 12 14.772l5.07 3.596-1.912-5.886 4.948-3.596h-6.194Z"/></svg>
-                        <span>كشكول بيكاسو الذكي</span>
-                    </div>
-                    <div class="search-wrapper">
-                        <input type="text" id="picassoSearchInput" class="picasso-search-field" placeholder="ابحث في العناوين والملخصات..." oninput="renderPicassoGallery()">
-                    </div>
+                <div class="panel-header-title">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2.5"><path d="m12 3-1.912 5.886H3.894l4.948 3.596L6.93 18.368 12 14.772l5.07 3.596-1.912-5.886 4.948-3.596h-6.194Z"/></svg>
+                    <span>كشكول بيكاسو الذكي</span>
+                </div>
+                <div class="search-wrapper">
+                    <input type="text" id="picassoSearchInput" class="picasso-search-field" placeholder="ابحث في العناوين والملخصات..." oninput="renderPicassoGallery()">
                 </div>
                 <div class="panel-header-actions">
                     <button class="btn-panel-action-add" onclick="createNewPicassoNote()" title="ملاحظة جديدة">
@@ -363,7 +362,7 @@
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 7v6h6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
                         </button>
                     </div>
-                    <button class="btn-panel-save" onclick="savePicassoNote()">حفظ التعديلات</button>
+                    <button class="btn-panel-save" onclick="savePicassoNote()">حفظ Tعديلات</button>
                     <button class="btn-panel-delete" id="deletePicassoBtn" onclick="deletePicassoNote()" title="حذف نهائي">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                     </button>
