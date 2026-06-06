@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SyncFlow Engine Logic - الّلي ذاكر فاكر © 2026
+   SyncFlow Engine Logic - الّلي ذاكر فاكر © 2026 (تحديث الاستقرار V13.2)
    ========================================================================== */
 
 // تكوين افتراضي للمحرك في حال عدم توفر بيانات المواقيت فوراً
@@ -19,16 +19,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const calibrateBtn = document.getElementById("sfCalibrateBtn");
     const postponeBtn = document.getElementById("sfPostponeBtn");
     const startBtn = document.getElementById("startBtn");
-    const submitRecallBtn = document.getElementById("sfSubmitRecallBtn"); // ربط زر الـ Active Recall
+    const submitRecallBtn = document.getElementById("sfSubmitRecallBtn"); 
 
     if (calibrateBtn) calibrateBtn.addEventListener("click", sfCalibrateTimer);
     if (postponeBtn) postponeBtn.addEventListener("click", sfPostponeSession);
     if (submitRecallBtn) submitRecallBtn.addEventListener("click", submitActiveRecall);
     
-    // مراقبة زر بدء التايمر القديم الخاص بك لعمل فحص ديناميكي ما قبل الإقلاع
+    // مراقبة زر بدء التايمر القديم لعمل فحص ديناميكي ما قبل الإقلاع الدراسي
     if (startBtn) {
         startBtn.addEventListener("click", () => {
-            // ننتظر لمحة بسيطة للتأكد من أن التايمر بدأ ثم نفحص التعارض
             setTimeout(sfCheckSessionConflict, 200);
         });
     }
@@ -123,7 +122,7 @@ function sfUpdateRoadmapView() {
     roadmapCard.style.display = "block";
 
     if (!nextPrayerName) {
-        roadmapText.innerHTML = `🎯 أتممت صلوات اليوم بنجاح يا باشمهندس! وقت مثالي لمراجعة كشكول <b>بيكاسو</b> وتثبيت ملخصاتك قبل النوم. 🌙`;
+        roadmapText.innerHTML = `🎯 أتممت صلوات اليوم بنجاح! وقت مثالي لمراجعة كشكول <b>بيكاسو</b> وتثبيت ملخصاتك قبل النوم. 🌙`;
         return;
     }
 
@@ -132,7 +131,7 @@ function sfUpdateRoadmapView() {
     let timeLeftStr = hoursLeft > 0 ? `${hoursLeft} ساعة و ${minsLeft} دقيقة` : `${minsLeft} دقيقة`;
 
     if (minDistance > 120) {
-        roadmapText.innerHTML = `⏳ متبقي ${timeLeftStr} على صلاة <b>${pNameAr}</b>. قدامك نافذة ذهبية واسعة! أنسب وقت لتشغيل <b>🧠 جلسة الأبطال (4س)</b> أو إنجاز درس فيزياء/كيمياء تقيل.`;
+        roadmapText.innerHTML = `⏳ متبقي ${timeLeftStr} على صلاة <b>${pNameAr}</b>. قدامك نافذة ذهبية واسعة! أنسب وقت لتشغيل <b>🧠 جلسة الأبطال (4س)</b> أو إنجاز درس تقيل ونظيف.`;
     } else if (minDistance >= 60) {
         roadmapText.innerHTML = `⏱️ متبقي ${timeLeftStr} على صلاة <b>${pNameAr}</b>. وقت ممتاز لـ <b>⚡ جلسة الإنجاز (2س)</b> الموائمة تلقائياً، أو حل شيت تطبيق سريع ولطيف.`;
     } else {
@@ -141,7 +140,7 @@ function sfUpdateRoadmapView() {
 }
 
 /**
- * 2. فحص التعارض والتحقق من اقتراب الصلاة مع تذكر قرار المستخدم عند الريفريش
+ * 2. فحص التعارض والتحقق من اقتراب الصلاة مع تذكر قرار المستخدم عند الريفريش لمنع الاهتزاز
  */
 function sfCheckSessionConflict() {
     const warningCard = document.getElementById("sfWarningCard");
@@ -170,17 +169,15 @@ function sfCheckSessionConflict() {
         }
     }
 
-    // 🌟 فحص الذاكرة: هل قام المستخدم بحل تعارض هذه الصلاة مسبقاً؟
+    // فحص الذاكرة لمنع عودة الكارت عند التحديث
     const lastDecision = localStorage.getItem("sfLastDecision");
     const lastDecisionPrayer = localStorage.getItem("sfLastDecisionPrayer");
 
     if (lastDecisionPrayer === targetPrayer && lastDecision) {
-        // إذا كان القرار تأجيلاً وواجهة الاستدعاء النشط معروضة، حافظ عليها
         if (lastDecision === 'postponed' && recallView && recallView.style.display === "block") {
             warningCard.style.display = "block";
             return;
         }
-        // عدا ذلك، تم حل التعارض بنجاح؛ لا تظهر الرسالة مجدداً بعد عمل ريفريش
         warningCard.style.display = "none";
         return;
     }
@@ -231,7 +228,7 @@ function sfCalibrateTimer() {
         const timerMsg = document.getElementById("timerMessage");
         if (timerMsg) timerMsg.innerText = `🚀 تم تفعيل الجلسة المتوافقة! التايمر هيفصل مع الأذان بالظبط. دوس ابدأ وانطلق!`;
         
-        // 🌟 تخزين القرار لمنع رجوع الكارت عند التحديث
+        // تخزين القرار لمنع تكرار التحذير لنفس الصلاة
         localStorage.setItem("sfLastDecision", "calibrated");
         localStorage.setItem("sfLastDecisionPrayer", targetPrayer);
 
@@ -262,7 +259,6 @@ function sfPostponeSession() {
     const timerMsg = document.getElementById("timerMessage");
     if (timerMsg) timerMsg.innerText = `صناعة العظماء تبدأ من المسجد! 🕋 اذهب للصلاة، والمحرك بانتظارك.`;
 
-    // 🌟 تخزين قرار الإرجاء للمحافظة على واجهة الاستدعاء عند عمل ريفريش
     localStorage.setItem("sfLastDecision", "postponed");
     localStorage.setItem("sfLastDecisionPrayer", targetPrayer);
 
@@ -280,7 +276,7 @@ function sfPostponeSession() {
 }
 
 /**
- * حفظ جلسة الاستدعاء النشط (Active Recall)، تنظيف قرارات الصلاة الحالية لتستعد للقادمة
+ * حفظ جلسة الاستدعاء النشط (Active Recall)، وتنظيف قرارات الصلاة الحالية لتستعد للقادمة
  */
 function submitActiveRecall() {
     const recallInput = document.getElementById("sfRecallInput");
@@ -304,13 +300,13 @@ function submitActiveRecall() {
     localStorage.setItem("sfPrayerStreak", streak);
     sfUpdatePrayerStreakUI();
 
-    // 🌟 تفريغ سجل القرارات لتجهيز المحرك بشكل كامل للصلاة التالية
+    // تفريغ سجل القرارات لتجهيز المحرك بشكل كامل للصلاة التالية
     localStorage.removeItem("sfLastDecision");
     localStorage.removeItem("sfLastDecisionPrayer");
 
-    alert(`بطل يا باشمهندس مازن! 🧠 تم تثبيت المعلومة بنجاح في الذاكرة طويلة المدى، وكسبت +25 XP مكافأة التثبيت النشط.`);
+    alert(`عاش يا بطل! 🧠 تم تثبيت المعلومة بنجاح في الذاكرة طويلة المدى، وكسبت +25 XP مكافأة التثبيت النشط.`);
     
-    // 🛠️ تصحيح الإخفاء البرمجي للكروت لتلافي أي أخطاء ثانوية
+    // تصحيح خطأ الحفظ المطبعي القاتل (.style.style)
     document.getElementById("sfWarningCard").style.display = "none";
     document.getElementById("sfRecallView").style.display = "none";
 }

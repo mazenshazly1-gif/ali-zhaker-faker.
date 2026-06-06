@@ -1,9 +1,9 @@
 // ==========================================================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.2 (منظومة SyncFlow الذكية)
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.3 (منظومة SyncFlow الذكية)
 // ==========================================================================
 
-// الترقية لـ V13.2 لتحديث اسم أيقونة بيكاسو للكاش وتنظيف الإصدارات السابقة
-const CACHE_NAME = 'ali-zhaker-faker-v13.2'; 
+// الترقية لـ V13.3 لتنشيط التحديثات الجديدة وضمان استقرار الكاش أوفلاين
+const CACHE_NAME = 'ali-zhaker-faker-v13.3'; 
 
 const ASSETS = [
   './',
@@ -28,14 +28,14 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.2...');
+      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.3...');
       return cache.addAll(ASSETS);
     })
   );
   self.skipWaiting(); // إجبار الـ SW الجديد على التنشيط فوراً
 });
 
-// 2. تفعيل الـ SW وتنظيف كاش V13.1 وأي كاش قديم لتجنب التضارب
+// 2. تفعيل الـ SW وتنظيف كاش V13.2 وأي كاش قديم لتجنب التضارب
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
