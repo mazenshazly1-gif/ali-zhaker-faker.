@@ -1,9 +1,9 @@
-// ===================================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V12.2 المطور والذكي
-// ===================================================
+// ==========================================================================
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.0 (منظومة SyncFlow الذكية)
+// ==========================================================================
 
-// الترقية لـ V12.2 لضمان تحديث الكاش فوراً بعد التعديلات الأخيرة
-const CACHE_NAME = 'ali-zhaker-faker-v12.2'; 
+// الترقية لـ V13.0 لضمان دمج المحرك الجديد وتنظيف كاش V12.2 تلقائياً
+const CACHE_NAME = 'ali-zhaker-faker-v13.0'; 
 
 const ASSETS = [
   './',
@@ -12,8 +12,9 @@ const ASSETS = [
   './script.js',
   './notes.css',
   './notes.js',
+  './syncflow.css', // 🌟 دمج ملف التصميم للمحرك الجديد
+  './syncflow.js',  // 🌟 دمج ملف اللوجيك للمحرك الجديد
   './manifest.json',
-  './1000069604.png',
   './icon-192.png',
   './icon-512.png',
   'https://cdn.jsdelivr.net/npm/chart.js',
@@ -22,18 +23,18 @@ const ASSETS = [
   'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg'
 ];
 
-// 1. تثبيت الـ Service Worker
+// 1. تثبيت الـ Service Worker وضخ الملفات الجديدة في الكاش
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري تحديث الكاش لـ V12.2...');
+      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.0...');
       return cache.addAll(ASSETS);
     })
   );
-  self.skipWaiting();
+  self.skipWaiting(); // إجبار الـ SW الجديد على التنشيط فوراً
 });
 
-// 2. تفعيل الـ SW وتنظيف القديم
+// 2. تفعيل الـ SW وتنظيف كاش V12.2 وأي كاش قديم لتجنب التضارب
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -46,16 +47,16 @@ self.addEventListener('activate', (event) => {
         })
       );
     }).then(() => {
-      return self.clients.claim();
+      return self.clients.claim(); // السيطرة على كل الصفحات المفتوحة فوراً
     })
   );
 });
 
-// 3. استراتيجية السرعة القصوى مع استثناء الـ API
+// 3. استراتيجية الكاش (السرعة القصوى والاستدعاء السلس مع استثناء الـ APIs)
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // 🤖 استثناء سيرفرات Chatbase (البوت الجديد) عشان يفضل شغال لايف وبدون مشاكل
+  // 🤖 استثناء سيرفرات Chatbase (البوت) عشان يفضل شغال لايف وبدون مشاكل
   if (event.request.url.includes('chatbase.co')) {
     return; 
   }
@@ -68,7 +69,9 @@ self.addEventListener('fetch', (event) => {
             cache.put(event.request, networkResponse.clone());
           }
           return networkResponse;
-        }).catch(() => {});
+        }).catch(() => {
+          // في حال انقطاع الشبكة تماماً، الـ Cache المسترجع هيقوم بالواجب
+        });
 
         return cachedResponse || fetchPromise;
       });

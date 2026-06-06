@@ -7,6 +7,8 @@
     
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./notes.css">
+    <!-- ربط محرك الـ SyncFlow الذكي الجديد بشكل مستقل -->
+    <link rel="stylesheet" href="./syncflow.css">
     
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#3b82f6">
@@ -32,6 +34,18 @@
 <div class="main-content">
     
     <div id="studyTab" class="tab-content">
+        
+        <!-- ========================================== -->
+        <!-- [SyncFlow] كارت خارطة الطريق وفحص ما قبل الإقلاع -->
+        <!-- ========================================== -->
+        <div class="card sf-roadmap-card" id="sfRoadmapCard" style="display: none;">
+            <div class="sf-card-header">
+                <span class="sf-badge">📊 مخطط اليوم الذكي</span>
+                <span class="sf-streak-badge" id="sfPrayerStreakDisplay">🔥 صلوات متتالية: 0</span>
+            </div>
+            <p class="sf-roadmap-text" id="sfRoadmapText">جاري تحليل مواقيت الصلاة لتوليد خارطة طريقك... 🎯</p>
+        </div>
+
         <div class="card card-quote-full">
             <div class="quote-text" id="quoteDisplay">جاري تحميل عبارتك الملهمة...</div>
             <button class="btn-primary" id="quoteBtn">كمّل يا بطل 🚀</button>
@@ -46,6 +60,28 @@
                 <div class="xp-bar-fill" id="xpBarFill"></div>
             </div>
             <div class="xp-text" id="xpText">0 / 120 XP</div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- [SyncFlow] كارت اعتراض التعارض وجلسات الطوارئ والاستدعاء النشط -->
+        <!-- ========================================== -->
+        <div class="card sf-warning-card" id="sfWarningCard" style="display: none;">
+            <div id="sfConflictView">
+                <div class="sf-alert-title">⚠️ تعارض في التدفق الدراسي!</div>
+                <p class="sf-alert-desc" id="sfWarningMessage">الصلوات قريبة من نافذة جلستك الحالية.</p>
+                <div class="sf-action-buttons">
+                    <button class="sf-btn-action sf-btn-calibrate" id="sfCalibrateBtn">⏱️ تفعيل الجلسة المتوافقة</button>
+                    <button class="sf-btn-action sf-btn-postpone" id="sfPostponeBtn">⏳ إرجاء الجلسة (الصلاة أولاً)</button>
+                </div>
+            </div>
+            <div id="sfRecallView" style="display: none;">
+                <div class="sf-alert-title" style="color: var(--accent-deen, #10b981);">🧠 شحن الذاكرة طويلة المدى (Active Recall)</div>
+                <p class="sf-alert-desc" id="sfRecallQuestion">ما هي الخلاصة أو الحل الذي وصلت إليه أثناء مسيرك للمسجد؟</p>
+                <div class="sf-recall-input-group">
+                    <input type="text" id="sfRecallInput" class="sf-input" placeholder="اكتب الخلاصة في سطر واحد لتثبيتها وكسب الـ XP...">
+                    <button class="sf-btn-submit-recall" onclick="submitActiveRecall()">تثبيت 🎯</button>
+                </div>
+            </div>
         </div>
 
         <div class="card">
@@ -267,7 +303,7 @@
 </div>
 
 <button class="picasso-notes-fab" id="notesFabBtn" onclick="openPicassoModal()" title="افتح كشكول المذاكرة الذكي">
-    <img src="./1000069604.png" alt="Picasso Notes" class="fab-custom-icon">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
 </button>
 
 <div id="picassoModalOverlay" class="picasso-modal-overlay" onclick="if(event.target == this) closePicassoModal();">
@@ -439,9 +475,11 @@
 
 <script src="./script.js"></script>
 <script src="./notes.js"></script>
+<!-- ربط ميكانيكا محرك الـ SyncFlow المستقل -->
+<script src="./syncflow.js"></script>
 
 <script>
-(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)}}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="RdqJtHOJbN00vp1wO5vsa";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="RdqJtHOJbN00vp1wO5vsa";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
 </script>
 
 </body>

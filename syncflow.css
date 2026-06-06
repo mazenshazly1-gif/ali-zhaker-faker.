@@ -1,0 +1,190 @@
+/* ==========================================================================
+   SyncFlow Engine Styling - الّلي ذاكر فاكر © 2026
+   ========================================================================== */
+
+/* كارت خارطة الطريق الذكي في أعلى الصفحة */
+.sf-roadmap-card {
+    background: linear-gradient(135deg, var(--card-bg, #ffffff), rgba(59, 130, 246, 0.05));
+    border-right: 4px solid #3b82f6 !important;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.sf-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.sf-badge {
+    background: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.sf-streak-badge {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: #ffffff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.sf-roadmap-text {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text-main, #1e293b);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* كارت تحذير التعارض وجلسات الطوارئ والاستدعاء النشط */
+.sf-warning-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-right: 4px solid #ef4444 !important;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.08);
+    animation: sf-pulse-border 2s infinite alternate;
+}
+
+.sf-alert-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ef4444;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sf-alert-desc {
+    font-size: 13.5px;
+    color: var(--text-muted, #64748b);
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+/* أزرار اتخاذ القرار السريع */
+.sf-action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.sf-btn-action {
+    flex: 1;
+    min-width: 140px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sf-btn-action:active {
+    transform: scale(0.98);
+}
+
+.sf-btn-calibrate {
+    background: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.sf-btn-calibrate:hover {
+    background: #2563eb;
+}
+
+.sf-btn-postpone {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.sf-btn-postpone:hover {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+/* حقل إدخال الاستدعاء النشط Active Recall */
+.sf-recall-input-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.sf-input {
+    flex: 1;
+    background: var(--btn-mode-bg, #f1f5f9);
+    color: var(--text-main, #1e293b);
+    border: 1px solid var(--border-color, #e2e8f0);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.sf-input:focus {
+    border-color: #10b981;
+}
+
+.sf-btn-submit-recall {
+    background: #10b981;
+    color: #ffffff;
+    border: none;
+    padding: 0 18px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    transition: background 0.2s ease;
+}
+
+.sf-btn-submit-recall:hover {
+    background: #059669;
+}
+
+/* إنيميشن نبض الكارت التحذيري للحفاظ على التركيز */
+@keyframes sf-pulse-border {
+    0% {
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.05);
+    }
+    100% {
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.15);
+    }
+}
+
+/* تكييف الكروت مع شاشات التابلت والموبايل */
+@media (max-width: 600px) {
+    .sf-action-buttons {
+        flex-direction: column;
+    }
+    .sf-btn-action {
+        width: 100%;
+    }
+    .sf-recall-input-group {
+        flex-direction: column;
+    }
+    .sf-btn-submit-recall {
+        padding: 12px;
+        width: 100%;
+    }
+}
