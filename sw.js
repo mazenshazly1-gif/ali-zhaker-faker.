@@ -1,9 +1,9 @@
 // ==========================================================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.1 (منظومة SyncFlow الذكية)
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.2 (منظومة SyncFlow الذكية)
 // ==========================================================================
 
-// الترقية لـ V13.1 لإضافة أيقونة بيكاسو للكاش وتنظيف الإصدارات السابقة
-const CACHE_NAME = 'ali-zhaker-faker-v13.1'; 
+// الترقية لـ V13.2 لتحديث اسم أيقونة بيكاسو للكاش وتنظيف الإصدارات السابقة
+const CACHE_NAME = 'ali-zhaker-faker-v13.2'; 
 
 const ASSETS = [
   './',
@@ -17,7 +17,7 @@ const ASSETS = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './1000069604.png', // 🐧 إضافة أيقونة بيكاسو (البطريق الأسطوري) ليعمل أوفلاين بدون مشاكل!
+  './1000069604_2.png', // 🐧 تم تعديل الاسم لـ 1000069604_2.png مطابقاً للـ HTML والفولدر ليعمل أوفلاين!
   'https://cdn.jsdelivr.net/npm/chart.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js',
@@ -28,14 +28,14 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.1...');
+      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.2...');
       return cache.addAll(ASSETS);
     })
   );
   self.skipWaiting(); // إجبار الـ SW الجديد على التنشيط فوراً
 });
 
-// 2. تفعيل الـ SW وتنظيف كاش V13.0 وأي كاش قديم لتجنب التضارب
+// 2. تفعيل الـ SW وتنظيف كاش V13.1 وأي كاش قديم لتجنب التضارب
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         }).catch(() => {
-          // في حال انقطاع الشبكة تماماً، الـ Cache المسترجع هيقوم بالواجب
+          // في حال انقطاع الشبكة تماماً، الـ Cache المسترجع هيقوم بالواجب دون كراش
         });
 
         return cachedResponse || fetchPromise;
