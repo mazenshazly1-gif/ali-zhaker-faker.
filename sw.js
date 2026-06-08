@@ -1,9 +1,9 @@
 // ==========================================================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.3 (منظومة SyncFlow الذكية)
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.4 (منظومة مقامات السنن)
 // ==========================================================================
 
-// الترقية لـ V13.3 لتنشيط التحديثات الجديدة وضمان استقرار الكاش أوفلاين
-const CACHE_NAME = 'ali-zhaker-faker-v13.3'; 
+// الترقية لـ V13.4 لتنشيط التحديثات الجديدة وضمان استقرار الكاش أوفلاين
+const CACHE_NAME = 'ali-zhaker-faker-v13.4'; 
 
 const ASSETS = [
   './',
@@ -12,12 +12,14 @@ const ASSETS = [
   './script.js',
   './notes.css',
   './notes.js',
-  './syncflow.css', // 🌟 دمج ملف التصميم للمحرك الجديد
-  './syncflow.js',  // 🌟 دمج ملف اللوجيك للمحرك الجديد
+  './syncflow.css', 
+  './syncflow.js',  
+  './deen-time-challenges.css', // 🌟 دمج ملف تصميم مقامات السنن الجديد للعمل أوفلاين
+  './deen-time-challenges.js',  // 🌟 دمج ملف لوجيك مقامات السنن الجديد للعمل أوفلاين
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './1000069604_2.png', // 🐧 تم تعديل الاسم لـ 1000069604_2.png مطابقاً للـ HTML والفولدر ليعمل أوفلاين!
+  './1000069604_2.png', 
   'https://cdn.jsdelivr.net/npm/chart.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js',
@@ -28,14 +30,14 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.3...');
+      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.4...');
       return cache.addAll(ASSETS);
     })
   );
   self.skipWaiting(); // إجبار الـ SW الجديد على التنشيط فوراً
 });
 
-// 2. تفعيل الـ SW وتنظيف كاش V13.2 وأي كاش قديم لتجنب التضارب
+// 2. تفعيل الـ SW وتنظيف كاش V13.3 وأي كاش قديم لتجنب التضارب
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {

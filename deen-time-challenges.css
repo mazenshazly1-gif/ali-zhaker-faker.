@@ -1,0 +1,202 @@
+/* ==========================================================================
+   🕋 منظومة مقامات السنن والبركة الذكية - الّلي ذاكر فاكر © 2026
+   ========================================================================== */
+
+.dc-container {
+    background: linear-gradient(135deg, var(--card-bg, #111827), rgba(16, 185, 129, 0.02));
+    border: 1px solid var(--border-color, #1e293b);
+    border-radius: 16px;
+    padding: 22px;
+    margin-top: 25px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* وهج المقامات الأسطوري عند الحفاظ على Streak ديني عالي */
+.dc-container.dc-legendary-streak {
+    border-color: #10b981;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+    background: linear-gradient(135deg, var(--card-bg, #111827), rgba(16, 185, 129, 0.06));
+}
+
+.dc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color, #1e293b);
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+}
+
+.dc-title-area {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dc-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-main, #f1f5f9);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dc-streak-badge {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    transition: all 0.3s ease;
+}
+
+/* كارت عرض السنة الحالية للمقام النشط */
+.dc-active-card {
+    background: var(--timer-bg, #0f172a);
+    border: 1px solid var(--border-color, #1e293b);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.dc-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.dc-info-block {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.dc-period-badge {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    margin-bottom: 6px;
+    display: inline-block;
+    width: fit-content;
+}
+
+.dc-icon {
+    font-size: 24px;
+    background: var(--btn-mode-bg, #1f2937);
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color, #374151);
+}
+
+.dc-text-main {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-main, #f1f5f9);
+    line-height: 1.4;
+}
+
+.dc-text-sub {
+    font-size: 12px;
+    color: var(--text-muted, #94a3b8);
+    margin-top: 4px;
+    line-height: 1.5;
+}
+
+/* مؤشر فوات الوقت الصامت الأمين */
+.dc-status-indicator {
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+.dc-status-missed {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+.dc-status-done {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+/* زر مفتاح التدبر ولمحة البركة */
+.dc-btn-expand {
+    background: none;
+    border: none;
+    color: #10b981;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    margin-top: 10px;
+    font-family: inherit;
+    transition: opacity 0.2s;
+}
+.dc-btn-expand:hover {
+    opacity: 0.8;
+}
+
+.dc-expanded-panel {
+    background: rgba(16, 185, 129, 0.02);
+    border-right: 3px solid #10b981;
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    margin-top: 12px;
+    font-size: 12.5px;
+    color: var(--text-main);
+    line-height: 1.6;
+    display: none; /* يتم التحكم بالظهور عبر JS */
+}
+
+/* زر تفاعل إحياء السنة */
+.dc-action-area {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+    border-top: 1px solid var(--border-color, #1e293b);
+    padding-top: 15px;
+}
+
+.dc-btn-action {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dc-btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+}
+
+.dc-btn-action:disabled {
+    background: var(--btn-mode-bg, #1f2937);
+    color: var(--text-muted, #94a3b8);
+    border: 1px solid var(--border-color, #374151);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}

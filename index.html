@@ -7,8 +7,8 @@
     
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./notes.css">
-    <!-- ربط محرك الـ SyncFlow الذكي الجديد بشكل مستقل -->
     <link rel="stylesheet" href="./syncflow.css">
+    <link rel="stylesheet" href="./deen-time-challenges.css">
     
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#3b82f6">
@@ -35,9 +35,6 @@
     
     <div id="studyTab" class="tab-content">
         
-        <!-- ========================================== -->
-        <!-- [SyncFlow] كارت خارطة الطريق وفحص ما قبل الإقلاع -->
-        <!-- ========================================== -->
         <div class="card sf-roadmap-card" id="sfRoadmapCard" style="display: none;">
             <div class="sf-card-header">
                 <span class="sf-badge">📊 مخطط اليوم الذكي</span>
@@ -62,9 +59,6 @@
             <div class="xp-text" id="xpText">0 / 120 XP</div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- [SyncFlow] كارت اعتراض التعارض وجلسات الطوارئ والاستدعاء النشط -->
-        <!-- ========================================== -->
         <div class="card sf-warning-card" id="sfWarningCard" style="display: none;">
             <div id="sfConflictView">
                 <div class="sf-alert-title">⚠️ تعارض في التدفق الدراسي!</div>
@@ -160,6 +154,42 @@
     </div>
 
     <div id="deenTab" class="tab-content" style="display: none;">
+        
+        <div class="dc-container" id="dcMainContainer" style="margin-bottom: 25px;">
+            <div class="dc-header">
+                <div class="dc-title-area">
+                    <div class="dc-title">🕋 مقامات السنن والبركة اليومية</div>
+                </div>
+                <div class="dc-streak-badge" id="dtStreakDisplay">🔥 مقام السنن: 0 أيام</div>
+            </div>
+            
+            <div class="dc-active-card">
+                <div class="dc-card-top">
+                    <div class="dc-info-block">
+                        <span class="dc-icon" id="dtIcon">☀️</span>
+                        <div>
+                            <span class="dc-period-badge" id="dtPeriodBadge">جاري حساب الفترة...</span>
+                            <div class="dc-text-main" id="dtTitle">جاري تحميل المقام الحالي...</div>
+                            <div class="dc-text-sub" id="dtDescription">التطبيق يراجع ساعة مواقيت الصلاة الآن...</div>
+                        </div>
+                    </div>
+                    <span class="dc-status-indicator" id="dtStatusIndicator">⏳</span>
+                </div>
+
+                <button class="dc-btn-expand" onclick="toggleDtExpansion()">
+                    ✨ <span>مفتاح التدبر ولمحة البركة</span>
+                </button>
+                
+                <div class="dc-expanded-panel" id="dtExpandedPanel"></div>
+                
+                <div class="dc-action-area">
+                    <button class="dc-btn-action" id="dtActionBtn" onclick="completeCurrentDeenPeriod()">
+                        ✅ أحييتُ السُّنّة
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="top-grid">
             <div class="card prayers-card">
                 <div class="prayers-title" id="analyticsTitle">🕋 مواقيت الصلاة والعبادة</div>
@@ -302,7 +332,6 @@
     </div>
 </div>
 
-<!-- 🐧 زر كشكول بيكاسو العائم محقون فيه البطريق الأسطوري لوحده صافي وممسوح منه القلم تماماً -->
 <button class="picasso-notes-fab" id="notesFabBtn" onclick="openPicassoModal()" title="افتح كشكول المذاكرة الذكي" style="display: flex; align-items: center; justify-content: center; padding: 0; overflow: hidden; border-radius: 50%; width: 56px; height: 56px; background: #a855f7; border: none; box-shadow: 0 4px 14px rgba(168, 85, 247, 0.4);">
     <img src="./1000069604_2.png" alt="بيكاسو" style="width: 100%; height: 100%; object-fit: cover;">
 </button>
@@ -362,7 +391,7 @@
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 7v6h6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
                         </button>
                     </div>
-                    <button class="btn-panel-save" onclick="savePicassoNote()">حفظ Tعديلات</button>
+                    <button class="btn-panel-save" onclick="savePicassoNote()">حفظ التعديلات</button>
                     <button class="btn-panel-delete" id="deletePicassoBtn" onclick="deletePicassoNote()" title="حذف نهائي">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                     </button>
@@ -434,7 +463,7 @@
                 </div>
 
                 <div class="picasso-mini-palette">
-                    <div class="color-dot active" style="background: #1e293b;" onclick="setPicassoColor('#1e293b', this)"></div>
+                    <div class="color-dot" style="background: #1e293b;" onclick="setPicassoColor('#1e293b', this)"></div>
                     <div class="color-dot" style="background: #ef4444;" onclick="setPicassoColor('#ef4444', this)"></div>
                     <div class="color-dot" style="background: #2563eb;" onclick="setPicassoColor('#2563eb', this)"></div>
                     <div class="color-dot" style="background: #10b981;" onclick="setPicassoColor('#10b981', this)"></div>
@@ -474,8 +503,8 @@
 
 <script src="./script.js"></script>
 <script src="./notes.js"></script>
-<!-- ربط ميكانيكا محرك الـ SyncFlow المستقل -->
 <script src="./syncflow.js"></script>
+<script src="./deen-time-challenges.js"></script>
 
 <script>
 (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="RdqJtHOJbN00vp1wO5vsa";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
