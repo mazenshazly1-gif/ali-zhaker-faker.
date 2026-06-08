@@ -1,0 +1,64 @@
+/* ==========================================================================
+   🎨 تصميم كارت هل تعلم؟ المتجاوب - الّلي ذاكر فاكر
+   ========================================================================== */
+
+.hl-card-container {
+    background: rgba(30, 41, 59, 0.7); /* خلفية زجاجية داكنة متناسقة */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.hl-card-container:hover {
+    transform: translateY(-2px);
+    border-color: rgba(52, 211, 153, 0.3); /* وهج خفيف عند التمرير */
+    box-shadow: 0 6px 24px rgba(52, 211, 153, 0.1);
+}
+
+/* الشارات الملونة حسب تصنيف المعلومة */
+.hl-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.hl-badge-quran {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #10b981; /* أخضر قرآني */
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.hl-badge-sahaba {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #f59e0b; /* ذهبي / برتقالي */
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.hl-badge-sunnah {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3b82f6; /* أزرق */
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.hl-badge-fiqh {
+    background-color: rgba(139, 92, 246, 0.15);
+    color: #8b5cf6; /* بنفسجي للقطات الفقهية */
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* نص المعلومة */
+.hl-info-text {
+    color: #e2e8f0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 500;
+    text-align: justify;
+}

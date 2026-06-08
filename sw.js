@@ -1,9 +1,9 @@
 // ==========================================================================
-// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.4 (منظومة مقامات السنن)
+// 🛠️ Service Worker (sw.js) - الّلي ذاكر فاكر V13.5 (منظومة مقامات السنن وهل تعلم)
 // ==========================================================================
 
-// الترقية لـ V13.4 لتنشيط التحديثات الجديدة وضمان استقرار الكاش أوفلاين
-const CACHE_NAME = 'ali-zhaker-faker-v13.4'; 
+// الترقية لـ V13.5 لتنشيط التحديثات الجديدة وضمان استقرار الكاش أوفلاين للكارت الجديد
+const CACHE_NAME = 'ali-zhaker-faker-v13.5'; 
 
 const ASSETS = [
   './',
@@ -16,6 +16,8 @@ const ASSETS = [
   './syncflow.js',  
   './deen-time-challenges.css', // 🌟 دمج ملف تصميم مقامات السنن الجديد للعمل أوفلاين
   './deen-time-challenges.js',  // 🌟 دمج ملف لوجيك مقامات السنن الجديد للعمل أوفلاين
+  './info-card.css',             // 🧠 دمج ملف تصميم كارت هل تعلم الجديد ليعمل أوفلاين
+  './info-card.js',              // 🧠 دمج ملف لوجيك كارت هل تعلم الـ 100 معلومة ليعمل أوفلاين
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -30,14 +32,14 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.4...');
+      console.log('📌 جاري تحديث الكاش للمنظومة الذكية V13.5...');
       return cache.addAll(ASSETS);
     })
   );
   self.skipWaiting(); // إجبار الـ SW الجديد على التنشيط فوراً
 });
 
-// 2. تفعيل الـ SW وتنظيف كاش V13.3 وأي كاش قديم لتجنب التضارب
+// 2. تفعيل الـ SW وتنظيف كاش V13.4 وأي كاش قديم لتجنب التضارب
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
