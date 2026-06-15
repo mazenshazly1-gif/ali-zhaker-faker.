@@ -1,0 +1,645 @@
+/* ============================================
+   APP SHELL DESIGN SYSTEM V3.0 - اللي ذاكر فاكر
+   ============================================ */
+
+/* --- إخفاء الـ Header القديم وعناصره --- */
+header,
+.theme-toggle-btn,
+.tab-switch-btn,
+.date-bar,
+.header-prayer-countdown {
+    display: none !important;
+}
+
+/* --- تهيئة الـ Body للمقاسات الجديدة --- */
+body {
+    padding-top: 64px !important;
+    padding-bottom: 72px !important;
+}
+
+/* ============================================
+   HEADER الجديد
+   ============================================ */
+.app-header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 64px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 1000;
+    transition: background 0.4s ease, border-color 0.4s ease;
+    direction: rtl;
+}
+
+.app-header-right, .app-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.app-drawer-btn {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.app-drawer-btn:hover {
+    background: var(--btn-mode-bg);
+}
+
+.app-drawer-btn span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--text-main);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.app-logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-main);
+    text-shadow: 0 0 7px var(--logo-shadow);
+    white-space: nowrap;
+}
+
+.app-prayer-badge {
+    font-size: 12px;
+    font-weight: 800;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    white-space: nowrap;
+}
+
+.app-settings-btn {
+    width: 36px;
+    height: 36px;
+    background: var(--btn-mode-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.app-settings-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+/* ============================================
+   BOTTOM NAVIGATION
+   ============================================ */
+.app-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    height: 64px;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 1000;
+    transition: background 0.4s ease, border-color 0.4s ease;
+    direction: rtl;
+}
+
+.app-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 0;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    transition: color 0.2s ease;
+    position: relative;
+}
+
+.app-nav-item svg {
+    width: 22px;
+    height: 22px;
+    transition: transform 0.2s ease;
+}
+
+.app-nav-item.active {
+    color: var(--accent-color);
+}
+
+.app-nav-item.active svg {
+    transform: translateY(-1px);
+}
+
+.app-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 20%;
+    left: 20%;
+    height: 2px;
+    background: var(--accent-color);
+    border-radius: 0 0 3px 3px;
+}
+
+.app-nav-item:active svg {
+    transform: scale(0.85);
+}
+
+/* ============================================
+   DRAWER الجانبي
+   ============================================ */
+.app-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.app-drawer-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.app-drawer {
+    position: fixed;
+    top: 0;
+    right: -280px;
+    width: 280px;
+    height: 100%;
+    background: var(--card-bg);
+    border-left: 1px solid var(--border-color);
+    z-index: 1999;
+    transition: right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    direction: rtl;
+    overflow-y: auto;
+}
+
+.app-drawer.open {
+    right: 0;
+}
+
+.app-drawer-profile {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), transparent);
+}
+
+[data-interface="deen"] .app-drawer-profile {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), transparent);
+}
+
+.app-drawer-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-color), #a855f7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 12px;
+}
+
+.app-drawer-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 3px;
+}
+
+.app-drawer-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.app-drawer-menu {
+    flex: 1;
+    padding: 12px 0;
+}
+
+.app-drawer-section {
+    padding: 8px 20px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.app-drawer-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 20px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    text-align: right;
+    direction: rtl;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.app-drawer-item:hover {
+    background: var(--btn-mode-bg);
+}
+
+.app-drawer-item.active {
+    color: var(--accent-color);
+    background: rgba(59, 130, 246, 0.08);
+}
+
+[data-interface="deen"] .app-drawer-item.active {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.08);
+}
+
+.app-drawer-item svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.app-drawer-item.active svg {
+    opacity: 1;
+}
+
+.app-drawer-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 8px 20px;
+}
+
+.app-drawer-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.app-drawer-footer a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+/* ============================================
+   النظام المركزي لإدارة عرض الصفحات
+   ============================================ */
+.app-page {
+    display: none;
+    animation: appPageIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-page.active {
+    display: block;
+}
+
+@keyframes appPageIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.app-stats-wrapper, .app-profile-wrapper, .app-about-wrapper, .app-privacy-wrapper {
+    width: 95%;
+    max-width: 750px;
+    margin: 0 auto;
+    padding-top: 10px;
+}
+
+/* ============================================
+   صفحة حسابي والإعدادات
+   ============================================ */
+.app-profile-hero {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 28px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.app-profile-avatar-big {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-color), #a855f7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 800;
+    color: white;
+    margin: 0 auto 14px;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.app-profile-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+
+.app-profile-role {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.app-profile-goal {
+    font-size: 14px;
+    color: var(--accent-color);
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+.app-profile-rank-badge {
+    display: inline-block;
+    background: var(--rank-bg);
+    border: 1px solid var(--rank-border);
+    color: var(--accent-color);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    margin: 8px 0;
+}
+
+.app-settings-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.app-settings-title {
+    padding: 14px 20px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    direction: rtl;
+}
+
+.app-settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.2s ease;
+    direction: rtl;
+}
+
+.app-settings-item:last-child {
+    border-bottom: none;
+}
+
+.app-settings-item:hover {
+    background: var(--btn-mode-bg);
+}
+
+.app-settings-item-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.app-settings-item-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.app-settings-item-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.app-settings-item-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.app-settings-arrow {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* Toggle Switch */
+.app-toggle {
+    width: 44px;
+    height: 24px;
+    background: var(--btn-mode-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    flex-shrink: 0;
+}
+
+.app-toggle.on {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.app-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: right 0.3s ease;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.app-toggle.on::after {
+    right: calc(100% - 20px);
+}
+
+/* Select */
+.app-select {
+    background: var(--btn-mode-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    direction: rtl;
+}
+
+/* Danger Button */
+.app-btn-danger {
+    width: 100%;
+    padding: 14px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    color: #ef4444;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    direction: rtl;
+    margin-top: 8px;
+}
+
+.app-btn-danger:hover {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+/* ============================================
+   صفحات عن المنصة
+   ============================================ */
+.app-about-hero {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 32px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.app-about-logo { font-size: 40px; margin-bottom: 12px; }
+.app-about-name { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
+
+.app-about-version {
+    font-size: 12px;
+    color: var(--accent-color);
+    background: rgba(59, 130, 246, 0.1);
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 14px;
+}
+
+.app-about-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+.app-timeline {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.app-timeline-title { font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 18px; text-align: right; }
+.app-timeline-item { display: flex; gap: 14px; margin-bottom: 20px; direction: rtl; align-items: flex-start; }
+.app-timeline-item:last-child { margin-bottom: 0; }
+.app-timeline-dot-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.app-timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-color); margin-top: 4px; }
+.app-timeline-line { width: 1px; flex: 1; background: var(--border-color); margin-top: 4px; min-height: 24px; }
+.app-timeline-item:last-child .app-timeline-line { display: none; }
+.app-timeline-content { flex: 1; }
+.app-timeline-ver { font-size: 11px; font-weight: 700; color: var(--accent-color); margin-bottom: 3px; }
+.app-timeline-date { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.app-timeline-text { font-size: 13px; color: var(--text-main); line-height: 1.5; }
+
+/* ============================================
+   سياسة الخصوصية
+   ============================================ */
+.app-privacy-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px 20px;
+    margin-bottom: 16px;
+    direction: rtl;
+}
+
+.app-privacy-card h3 { font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0 0 12px; }
+.app-privacy-card p { font-size: 13px; color: var(--text-muted); line-height: 1.8; margin: 0 0 10px; }
+.app-privacy-card p:last-child { margin-bottom: 0; }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (min-width: 768px) {
+    .app-bottom-nav {
+        max-width: 750px;
+        right: 50%;
+        transform: translateX(50%);
+        border-radius: 20px 20px 0 0;
+        border-right: 1px solid var(--border-color);
+        border-left: 1px solid var(--border-color);
+    }
+}
+
+@media (max-width: 768px) {
+    .app-bottom-nav {
+        height: 56px;
+    }
+    .app-nav-item {
+        font-size: 9px;
+    }
+    .app-nav-item svg {
+        width: 18px;
+        height: 18px;
+    }
+    .app-drawer {
+        width: 260px;
+        right: -260px;
+    }
+}

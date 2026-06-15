@@ -1,14 +1,12 @@
 /* ==========================================================================
-   🕋 منظومة مقامات السنن والبركة الذكية - الّلي ذاكر فاكر © 2026
+   🕋 منظومة مقامات السنن والبركة الذكية V3.0 - الّلي ذاكر فاكر © 2026
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
     initDeenTimeChallenges();
-    // فحص دوري كل دقيقة لتحديث المقام تلقائياً إذا تغير الوقت
     setInterval(initDeenTimeChallenges, 60000);
 });
 
-// قاعدة بيانات مكتبة السنن والمقامات الخمسة وفضلها وتدبرها
 const deenPeriodsData = {
     dhaha: {
         title: "مقام ركعتي البركة واليسر",
@@ -47,7 +45,6 @@ const deenPeriodsData = {
     }
 };
 
-// تحميل البيانات والحالات من الـ localStorage
 let dtStates = JSON.parse(localStorage.getItem("dt_challenges_states")) || {};
 let dtStreak = parseInt(localStorage.getItem("dt_challenges_streak")) || 0;
 let dtLastCheckedDate = localStorage.getItem("dt_challenges_last_date") || "";
@@ -58,24 +55,18 @@ function initDeenTimeChallenges() {
     updateDtStreakUI();
 }
 
-/**
- * فحص وتصفير فترات اليوم الجديد مع ميكانيكية الـ Streak المرن (فترتين للإنقاذ)
- */
 function checkDeenNewDayReset() {
     const todayStr = new Date().toDateString();
     const yesterdayStr = new Date(Date.now() - 86400000).toDateString();
 
     if (dtLastCheckedDate !== "" && dtLastCheckedDate !== todayStr) {
-        // حساب كم فترة أنجزها الطالب بالأمس قبل المسح
         const periods = ["dhaha", "rawatib", "sakina", "bashair", "witr"];
         let completedYesterdayCount = 0;
         periods.forEach(p => {
             if (dtStates[p] === true) completedYesterdayCount++;
         });
 
-        // لو لم ينجز فترتين على الأقل.. يصفر الستريك
         if (completedYesterdayCount < 2 && dtLastCheckedDate !== todayStr) {
-            // للتأكد أنه ليس انتقال عشوائي بل فوت حقيقي ليوم كامل
             if (dtLastCheckedDate !== yesterdayStr) {
                 dtStreak = 0;
             } else if (completedYesterdayCount < 2) {
@@ -84,7 +75,6 @@ function checkDeenNewDayReset() {
             localStorage.setItem("dt_challenges_streak", dtStreak);
         }
 
-        // تصفير فترات اليوم الجديد تماماً
         dtStates = {};
         localStorage.setItem("dt_challenges_states", JSON.stringify(dtStates));
         localStorage.setItem("dt_challenges_last_date", todayStr);
@@ -95,17 +85,12 @@ function checkDeenNewDayReset() {
     }
 }
 
-/**
- * دالة تحديد الفترة الحالية بدقة بناءً على مواقيت الصلاة الفعلية للـ API المتاحة في الـ localStorage
- */
 function determineCurrentPeriodAndRender() {
-    // جلب أوقات الصلاة المخزنة في تطبيقك الأصلي
     let cachedTimes = null;
     try {
         cachedTimes = JSON.parse(localStorage.getItem('cachedPrayerTimes'));
     } catch(e) { cachedTimes = null; }
 
-    // مواقيت افتراضية ذكية ومحبوكة في حال عدم وجود نت أو كاش للـ API لتفادي الكراش نهائياً
     let shrooqTime = "06:00";
     let dhuhrTime = "12:00";
     let asrTime = "15:30";
@@ -126,7 +111,6 @@ function determineCurrentPeriodAndRender() {
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-    // دالة مساعدة لتحويل صيغة HH:MM لدقائق مطلقّة
     const timeToMin = (tStr) => {
         const splitted = tStr.split(':');
         return parseInt(splitted[0]) * 60 + parseInt(splitted[1]);
@@ -139,9 +123,8 @@ function determineCurrentPeriodAndRender() {
     const minIsha = timeToMin(ishaTime);
     const minFajr = timeToMin(fajrTime);
 
-    let currentPeriodKey = "witr"; // الافتراضي قيام الليل
+    let currentPeriodKey = "witr";
 
-    // تقسيم النوافذ الزمنية ديناميكياً بناءً على حركة الصلوات الفاشل تداخلها
     if (currentMinutes >= minShrooq && currentMinutes < minDhuhr) {
         currentPeriodKey = "dhaha";
     } else if (currentMinutes >= minDhuhr && currentMinutes < minAsr) {
@@ -151,63 +134,41 @@ function determineCurrentPeriodAndRender() {
     } else if (currentMinutes >= minMaghrib && currentMinutes < minIsha) {
         currentPeriodKey = "bashair";
     } else {
-        // من بعد العشاء حتى الفجر، أو من الفجر للشروق
         currentPeriodKey = "witr";
     }
 
     renderCurrentChallengeUI(currentPeriodKey);
 }
 
-/**
- * رندرة وعرض كارت المقام الحالي والتحقق من حالة الإنجاز أو فوات الوقت
- */
 function renderCurrentChallengeUI(activePeriodKey) {
     const data = deenPeriodsData[activePeriodKey];
     if (!data) return;
 
-    // تحديث الهوية والنصوص بداخل الكارت
     document.getElementById("dtPeriodBadge").innerText = data.badgeText;
     document.getElementById("dtIcon").innerText = data.icon;
     document.getElementById("dtTitle").innerText = data.title;
     document.getElementById("dtDescription").innerText = data.description;
     document.getElementById("dtExpandedPanel").innerHTML = data.tip;
 
-    // إخفاء لوحة التدبر عند الانتقال التلقائي
     document.getElementById("dtExpandedPanel").style.display = "none";
 
     const actionBtn = document.getElementById("dtActionBtn");
     const statusIndicator = document.getElementById("dtStatusIndicator");
 
-    // التحقق هل هذه الفترة تم إحياؤها بالفعل اليوم؟
     if (dtStates[activePeriodKey] === true) {
         statusIndicator.className = "dc-status-indicator dc-status-done";
         statusIndicator.innerText = "✓ أحييتَ السُّنّة بنجاح";
         actionBtn.disabled = true;
         actionBtn.innerHTML = "🌟 مَقام مُكتمل";
     } else {
-        // فترة نشطة بانتظار الإنجاز
         statusIndicator.className = "dc-status-indicator";
         statusIndicator.innerText = "⏳ المقام الحالي نشط";
         actionBtn.disabled = false;
         actionBtn.innerHTML = "✅ أحييتُ السُّنّة";
     }
-
-    // رندرة الفترات الفائتة الصامتة في الخلفية (أمانة برمجية)
-    // لو فتح بالليل والضحى لم تكتمل، تحفظ كـ Missed صامتة
-    const periodsKeys = ["dhaha", "rawatib", "sakina", "bashair", "witr"];
-    periodsKeys.forEach(pKey => {
-        if (pKey !== activePeriodKey && dtStates[pKey] === undefined) {
-            // إذا مر وقتها الفعلي دون تشيك، تعتبر فائتة صامتة
-            // نتركها في اللوجيك مرنة للستريك
-        }
-    });
 }
 
-/**
- * دالة زر التفاعل الرئيسي: إحياء السنة الحالية
- */
 function completeCurrentDeenPeriod() {
-    // تحديد أي فترة نحن فيها الآن لإغلاقها
     let cachedTimes = null;
     try { cachedTimes = JSON.parse(localStorage.getItem('cachedPrayerTimes')); } catch(e){}
     
@@ -230,23 +191,18 @@ function completeCurrentDeenPeriod() {
     else if (currentMinutes >= timeToMin(asrTime) && currentMinutes < timeToMin(maghribTime)) activePeriodKey = "sakina";
     else if (currentMinutes >= timeToMin(maghribTime) && currentMinutes < timeToMin(ishaTime)) activePeriodKey = "bashair";
 
-    // تحديث الحالة وحفظها أوفلاين
     dtStates[activePeriodKey] = true;
     localStorage.setItem("dt_challenges_states", JSON.stringify(dtStates));
 
-    // تأثير اهتزاز خفيف للموبايل والتابلت (Haptic Feedback) بدون التداخل مع الـ XP
-    if ("vibrate" in navigator) navigator.vibrate(60);
-
-    // إعادة رندرة الواجهة فوراً لقفل الزرار وتحويل المظهر
     renderCurrentChallengeUI(activePeriodKey);
 
-    // فحص شرط الـ Streak المرن: هل وصل لـ فترتين منجزتين اليوم لزيادة الستريك أو الحفاظ عليه؟
     checkFlexibleStreakProgression();
+    
+    if (typeof ToastSystem !== 'undefined') {
+        ToastSystem.success("تم إحياء السنة بنجاح! بارك الله فيك 🕌");
+    }
 }
 
-/**
- * فحص الـ Streak المرن: إذا أنجز فترتين يتحرك الستريك للأمام فوراً ويحمي نفسه
- */
 function checkFlexibleStreakProgression() {
     const periods = ["dhaha", "rawatib", "sakina", "bashair", "witr"];
     let completedCount = 0;
@@ -255,21 +211,18 @@ function checkFlexibleStreakProgression() {
     const todayStr = new Date().toDateString();
     const lastStreakDate = localStorage.getItem("dt_streak_earned_date") || "";
 
-    // إذا حقق فترتين اليوم ولم يأخذ الستريك لليوم الحالي بعد
     if (completedCount === 2 && lastStreakDate !== todayStr) {
         dtStreak += 1;
         localStorage.setItem("dt_challenges_streak", dtStreak);
         localStorage.setItem("dt_streak_earned_date", todayStr);
         updateDtStreakUI();
         
-        // تأثير alert تشجيعي لطيف ومستقل
-        alert(`✨ أدركتَ البركة! أنجزتَ مقامين من السنن اليوم، تم حماية وزيادة الـ Streak الديني الخاص بك بنجاح: ${dtStreak} أيام.`);
+        if (typeof ToastSystem !== 'undefined') {
+            ToastSystem.success(`✨ أدركتَ البركة! أنجزتَ مقامين من السنن اليوم، تم حماية وزيادة الـ Streak الديني الخاص بك بنجاح: ${dtStreak} أيام.`);
+        }
     }
 }
 
-/**
- * مفتاح التدبر: إظهار وإخفاء لمحة البركة التفسيرية بسلاسة
- */
 function toggleDtExpansion() {
     const panel = document.getElementById("dtExpandedPanel");
     if (panel.style.display === "block") {
@@ -279,9 +232,6 @@ function toggleDtExpansion() {
     }
 }
 
-/**
- * تحديث شارة الـ Streak الديني والتأثير البصري المحبوك
- */
 function updateDtStreakUI() {
     const streakDisplay = document.getElementById("dtStreakDisplay");
     const container = document.getElementById("dtMainContainer");
@@ -291,7 +241,6 @@ function updateDtStreakUI() {
     }
 
     if (container) {
-        // إذا كان الالتزام 3 أيام فأكثر يكتسب الوهج الأسطوري الأخضر المتناسق
         if (dtStreak >= 3) {
             container.classList.add("dc-legendary-streak");
         } else {

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   🕋 منظومة مقامات السنن والبركة الذكية - الّلي ذاكر فاكر © 2026
+   🕋 منظومة مقامات السنن والبركة الذكية V3.0 - الّلي ذاكر فاكر © 2026
    ========================================================================== */
 
 .dc-container {
@@ -14,7 +14,6 @@
     overflow: hidden;
 }
 
-/* وهج المقامات الأسطوري عند الحفاظ على Streak ديني عالي */
 .dc-container.dc-legendary-streak {
     border-color: #10b981;
     box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
@@ -56,7 +55,6 @@
     transition: all 0.3s ease;
 }
 
-/* كارت عرض السنة الحالية للمقام النشط */
 .dc-active-card {
     background: var(--timer-bg, #0f172a);
     border: 1px solid var(--border-color, #1e293b);
@@ -113,7 +111,6 @@
     line-height: 1.5;
 }
 
-/* مؤشر فوات الوقت الصامت الأمين */
 .dc-status-indicator {
     font-size: 12px;
     font-weight: bold;
@@ -129,7 +126,6 @@
     color: #10b981;
 }
 
-/* زر مفتاح التدبر ولمحة البركة */
 .dc-btn-expand {
     background: none;
     border: none;
@@ -158,10 +154,9 @@
     font-size: 12.5px;
     color: var(--text-main);
     line-height: 1.6;
-    display: none; /* يتم التحكم بالظهور عبر JS */
+    display: none;
 }
 
-/* زر تفاعل إحياء السنة */
 .dc-action-area {
     display: flex;
     justify-content: flex-end;

@@ -1,5 +1,5 @@
 // ===================================================
-// 🎨 LOGIC MODULE: كشكول بيكاسو الذكي V10 المحبوك الاحترافي 🎨
+// 🎨 LOGIC MODULE: كشكول بيكاسو الذكي V3.0 المحبوك الاحترافي 🎨
 // ===================================================
 
 let picassoNotesList = JSON.parse(localStorage.getItem('picasso_master_list')) || [];
@@ -9,7 +9,7 @@ let autoSaveInterval = null;
 // متغيرات الـ PDF المطور متعدد الصفحات
 let currentPdfDoc = null;
 let currentPdfPageNum = 1;
-let pdfPagesRenderedStates = {}; // لتخزين شخابيط كل صفحة على حدة داخل النوت الحالية
+let pdfPagesRenderedStates = {};
 
 const pCanvas = document.getElementById('picassoDrawingCanvas');
 const pTextArea = document.getElementById('picassoTextArea');
@@ -37,14 +37,14 @@ function openPicassoModal() {
 function closePicassoModal() {
     document.getElementById('picassoModalOverlay').style.display = 'none';
     stopAutoSaveTimer();
-    closePinMenu(); // إغلاق قائمة الدبوس لو مفتوحة
+    closePinMenu();
 }
 
 function backToPicassoGallery() {
     document.getElementById('picassoEditorView').style.display = 'none';
     document.getElementById('picassoGalleryView').style.display = 'flex';
     document.getElementById('pdfPageControls').style.display = 'none';
-    removePinMenuButton(); // إزالة زر الدبوس عند العودة للمعرض
+    removePinMenuButton();
     activePicassoId = null;
     currentPdfDoc = null;
     pdfPagesRenderedStates = {};
@@ -57,7 +57,6 @@ function renderPicassoGallery() {
     const searchQuery = document.getElementById('picassoSearchInput').value.trim().toLowerCase();
     if (!grid) return;
     
-    // فلترة الملاحظات بناءً على البحث في العنوان أو النص الداخلي
     let filteredNotes = picassoNotesList;
     if (searchQuery) {
         filteredNotes = picassoNotesList.filter(note => 
@@ -88,16 +87,20 @@ function createNewPicassoNote() {
         id: id, 
         title: '', 
         textContent: '', 
-        canvasDrawing: '', // للوضع العادي
-        pdfStates: null,   // لوضع الـ PDF متعدد الصفحات
+        canvasDrawing: '',
+        pdfStates: null,
         isPdf: false,
-        isRuled: true,     // جعل وضع الكشكول المسطر افتراضي للنوتس الجديدة
+        isRuled: true,
         date: dateStr 
     };
     
     picassoNotesList.unshift(newNote);
     saveToLocalStorage();
     loadPicassoNote(id);
+    
+    if (typeof ToastSystem !== 'undefined') {
+        ToastSystem.success("تم إنشاء ملاحظة جديدة 🎨");
+    }
 }
 
 function loadPicassoNote(id) {
@@ -109,10 +112,8 @@ function loadPicassoNote(id) {
     document.getElementById('picassoEditorView').style.display = 'flex';
     document.getElementById('picassoTitleInput').value = note.title;
     
-    // تحميل النص المنسق داخل الـ contenteditable لطبقة الوورد
     pTextArea.innerHTML = note.textContent || '';
 
-    // تطبيق وضع الورق المسطر بناءً على تفضيل المستخدم المحفوظ
     if (note.isRuled !== false) {
         pTextArea.classList.add('ruled-paper');
     } else {
@@ -124,7 +125,6 @@ function loadPicassoNote(id) {
     pdfPagesRenderedStates = note.pdfStates || {};
     currentPdfPageNum = 1;
 
-    // بناء واجهة الدبوس الذكي ديناميكياً لتجنب كبسة الأزرار
     injectPinMenuButton();
 
     setTimeout(() => {
@@ -350,14 +350,17 @@ function clearPicassoCanvasSurface() {
     if (!pCtx || !pCanvas) return;
     pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
     saveCanvasState();
+    
+    if (typeof ToastSystem !== 'undefined') {
+        ToastSystem.info("تم مسح لوحة الرسم 🧹");
+    }
 }
 
-// --- 8. ميكانيكية الدبوس الذكي والورق المسطر الاختياري (لمسة مازن الفنية) ---
+// --- 8. ميكانيكية الدبوس الذكي والورق المسطر ---
 
 function injectPinMenuButton() {
-    removePinMenuButton(); // تنظيف قديم لو وجد
+    removePinMenuButton();
     
-    // إنشاء زر الدبوس الرئيسي
     const pinBtn = document.createElement('button');
     pinBtn.id = 'picassoPinBtn';
     pinBtn.className = 'picasso-pin-dropdown-trigger';
@@ -368,17 +371,17 @@ function injectPinMenuButton() {
         togglePinMenu();
     };
     
-    // إنشاء القائمة المخفية الخاصة به
     const pinMenu = document.createElement('div');
     pinMenu.id = 'picassoPinMenu';
     pinMenu.className = 'picasso-pin-menu';
     pinMenu.style.display = 'none';
-    pinMenu.onclick = (e) => e.stopPropagation(); // منع غلق المنيو عند الضغط داخلها
+    pinMenu.onclick = (e) => e.stopPropagation();
     
     pinMenu.innerHTML = `
         <button class="pin-menu-item" onclick="toggleRuledPaperStyle()">📝 تحويل مظهر الورقة (مسطر/سادة)</button>
         <button class="pin-menu-item" onclick="clearPicassoCanvasSurface(); closePinMenu();">🗑️ مسح لوحة الرسم الصافي</button>
         <button class="pin-menu-item" onclick="insertTimestamp(); closePinMenu();">⏱️ إدراج طابع وقت المذاكرة</button>
+        <button class="pin-menu-item" onclick="exportPicassoAsPDF('${activePicassoId}'); closePinMenu();">📄 تصدير كـ PDF</button>
         <button class="pin-menu-item" onclick="savePicassoNote()">💾 حفظ سريع وخروج</button>
     `;
     
@@ -407,21 +410,22 @@ function closePinMenu() {
 function toggleRuledPaperStyle() {
     const isNowRuled = pTextArea.classList.toggle('ruled-paper');
     
-    // حفظ الحالة فوراً في مصفوفة النوت الحالية عشان الـ AutoSave يشيلها
     const index = picassoNotesList.findIndex(n => n.id === activePicassoId);
     if (index !== -1) {
         picassoNotesList[index].isRuled = isNowRuled;
     }
     closePinMenu();
+    
+    if (typeof ToastSystem !== 'undefined') {
+        ToastSystem.info(isNowRuled ? "تم تفعيل الورق المسطر 📝" : "تم تفعيل الورق السادة 📄");
+    }
 }
 
-// غلق قائمة الدبوس تلقائياً عند الضغط في أي مكان في مساحة العمل
 document.addEventListener('click', () => {
     closePinMenu();
 });
 
-
-// --- 9. محرك الـ PDF المطور ذو الصفحات المتعددة والتقليب ---
+// --- 9. محرك الـ PDF المطور ذو الصفحات المتعددة ---
 
 function handlePicassoAttachment(event) {
     const file = event.target.files[0];
@@ -457,6 +461,10 @@ function handlePicassoAttachment(event) {
             currentPdfPageNum = 1;
             pdfPagesRenderedStates = {};
             renderSavedPdfRaw(base64Raw);
+            
+            if (typeof ToastSystem !== 'undefined') {
+                ToastSystem.success("تم رفع ملف PDF بنجاح 📄");
+            }
         };
         reader.readAsArrayBuffer(file);
     }
@@ -528,9 +536,9 @@ function startAutoSaveTimer() {
         const index = picassoNotesList.findIndex(n => n.id === activePicassoId);
         if (index === -1) return;
 
-        picassoNotesList[index].title = document.getElementById('picassoTitleInput').value.trim() || 'ملخص بدون عنوان';
+        picassoNotesList[index].title = document.getElementById('picassoTitleInput').value.trim() || 'ملاحظة بدون عنوان';
         picassoNotesList[index].textContent = pTextArea.innerHTML; 
-        picassoNotesList[index].isRuled = pTextArea.classList.contains('ruled-paper'); // حفظ مظهر الكشكول تلقائياً
+        picassoNotesList[index].isRuled = pTextArea.classList.contains('ruled-paper');
 
         if (picassoNotesList[index].isPdf) {
             pdfPagesRenderedStates[`page_${currentPdfPageNum}`] = pCanvas.toDataURL();
@@ -560,7 +568,7 @@ function savePicassoNote() {
     const index = picassoNotesList.findIndex(n => n.id === activePicassoId);
     if (index === -1) return;
 
-    picassoNotesList[index].title = document.getElementById('picassoTitleInput').value.trim() || 'ملخص بدون عنوان';
+    picassoNotesList[index].title = document.getElementById('picassoTitleInput').value.trim() || 'ملاحظة بدون عنوان';
     picassoNotesList[index].textContent = pTextArea.innerHTML;
     picassoNotesList[index].isRuled = pTextArea.classList.contains('ruled-paper');
     
@@ -575,19 +583,40 @@ function savePicassoNote() {
         saveToLocalStorage();
         if (typeof addXp === 'function') { addXp(15); } 
         backToPicassoGallery();
+        
+        if (typeof ToastSystem !== 'undefined') {
+            ToastSystem.success("تم حفظ الملاحظة بنجاح! +15 XP 💾");
+        }
     } catch (error) {
-        alert('⚠️ تنبيه: مساحة التخزين ممتلئة بالملفات! تم حفظ النصوص والتنسيقات بنجاح، يفضل مسح النوتس القديمة جداً لتوفير مساحة للرسوم الكبيرة.');
+        if (typeof ToastSystem !== 'undefined') {
+            ToastSystem.warning("⚠️ تنبيه: مساحة التخزين ممتلئة بالملفات! تم حفظ النصوص والتنسيقات بنجاح، يفضل مسح النوتس القديمة جداً لتوفير مساحة للرسوم الكبيرة.");
+        }
     }
 }
 
 function deletePicassoNote() {
     if (!activePicassoId) return;
-    if (confirm('هل تريد مسح هذا الملخص وملاحظاته نهائياً؟ 🗑️')) {
-        stopAutoSaveTimer();
-        picassoNotesList = picassoNotesList.filter(n => n.id !== activePicassoId);
-        saveToLocalStorage();
-        backToPicassoGallery();
-    }
+    Swal.fire({
+        title: '🗑️ حذف الملاحظة؟',
+        text: 'هل تريد مسح هذا الملخص وملاحظاته نهائياً؟',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'نعم، احذف',
+        cancelButtonText: 'إلغاء',
+        confirmButtonColor: '#ef4444',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            stopAutoSaveTimer();
+            picassoNotesList = picassoNotesList.filter(n => n.id !== activePicassoId);
+            saveToLocalStorage();
+            backToPicassoGallery();
+
+            if (typeof ToastSystem !== 'undefined') {
+                ToastSystem.delete("تم حذف الملاحظة نهائياً 🗑️");
+            }
+        }
+    });
 }
 
 function saveToLocalStorage() {
@@ -625,3 +654,122 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderPicassoGallery();
 });
+
+// ==========================================================================
+// 📄 PDF EDITOR FUNCTIONS - Added to fix missing functionality
+// ==========================================================================
+
+function openPdfEditorModal() {
+    const modal = document.getElementById('pdfEditorModal');
+    if (!modal) {
+        ToastSystem.error('محرر PDF غير متوفر ❌');
+        return;
+    }
+    modal.style.display = 'flex';
+
+    // Ensure PDF.js is loaded
+    if (typeof pdfjsLib === 'undefined') {
+        ToastSystem.info('جاري تحميل مكتبة PDF...');
+        loadPdfJsLibrary();
+    }
+}
+
+function closePdfEditorModal() {
+    const modal = document.getElementById('pdfEditorModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function loadPdfJsLibrary() {
+    if (typeof pdfjsLib !== 'undefined') return;
+
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
+    script.onload = function() {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        ToastSystem.success('تم تحميل مكتبة PDF ✅');
+    };
+    script.onerror = function() {
+        ToastSystem.error('فشل تحميل مكتبة PDF ❌');
+    };
+    document.head.appendChild(script);
+}
+
+function handlePdfUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+        ToastSystem.error('من فضلك ارفع ملف PDF صالح ❌');
+        return;
+    }
+
+    // Ensure PDF.js is loaded
+    if (typeof pdfjsLib === 'undefined') {
+        ToastSystem.info('جاري تحميل مكتبة PDF أولاً...');
+        loadPdfJsLibrary();
+        // Retry after load
+        setTimeout(() => handlePdfUpload(event), 2000);
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const typedarray = new Uint8Array(e.target.result);
+
+        pdfjsLib.getDocument({data: typedarray}).promise.then(function(pdf) {
+            window.currentPdfDoc = pdf;
+            window.currentPdfPage = 1;
+            renderPdfPage(1);
+            ToastSystem.success('تم تحميل PDF: ' + pdf.numPages + ' صفحة 📄');
+        }).catch(function(err) {
+            ToastSystem.error('فشل تحميل PDF: ' + err.message);
+        });
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function renderPdfPage(pageNum) {
+    if (!window.currentPdfDoc) return;
+
+    window.currentPdfDoc.getPage(pageNum).then(function(page) {
+        const workspace = document.getElementById('pdfWorkspace');
+        if (!workspace) return;
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const viewport = page.getViewport({scale: 1.0});
+        const scale = Math.min(
+            (workspace.clientWidth - 40) / viewport.width,
+            (workspace.clientHeight - 40) / viewport.height,
+            1.5
+        );
+
+        const scaledViewport = page.getViewport({scale: scale});
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
+
+        page.render({
+            canvasContext: ctx,
+            viewport: scaledViewport
+        }).promise.then(function() {
+            workspace.innerHTML = '';
+            workspace.appendChild(canvas);
+            workspace.style.display = 'flex';
+            workspace.style.justifyContent = 'center';
+            workspace.style.alignItems = 'center';
+        });
+    });
+}
+
+function addPdfText() {
+    ToastSystem.info('📝 ميزة إضافة نص قيد التطوير');
+}
+
+function addPdfHighlight() {
+    ToastSystem.info('🖍️ ميزة التظليل قيد التطوير');
+}
+
+function exportPdf() {
+    ToastSystem.info('💾 تصدير PDF قيد التطوير');
+}

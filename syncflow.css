@@ -1,8 +1,7 @@
 /* ==========================================================================
-   SyncFlow Engine Styling - الّلي ذاكر فاكر © 2026
+   SyncFlow Engine Styling V3.0 - الّلي ذاكر فاكر © 2026
    ========================================================================== */
 
-/* كارت خارطة الطريق الذكي في أعلى الصفحة */
 .sf-roadmap-card {
     background: linear-gradient(135deg, var(--card-bg, #ffffff), rgba(59, 130, 246, 0.05));
     border-right: 4px solid #3b82f6 !important;
@@ -47,7 +46,6 @@
     font-weight: 500;
 }
 
-/* كارت تحذير التعارض وجلسات الطوارئ والاستدعاء النشط */
 .sf-warning-card {
     background: var(--card-bg, #ffffff);
     border: 1px solid rgba(239, 68, 68, 0.2);
@@ -76,7 +74,6 @@
     margin-bottom: 15px;
 }
 
-/* أزرار اتخاذ القرار السريع */
 .sf-action-buttons {
     display: flex;
     gap: 12px;
@@ -120,7 +117,6 @@
     background: rgba(239, 68, 68, 0.15);
 }
 
-/* حقل إدخال الاستدعاء النشط Active Recall */
 .sf-recall-input-group {
     display: flex;
     gap: 10px;
@@ -162,7 +158,6 @@
     background: #059669;
 }
 
-/* إنيميشن نبض الكارت التحذيري للحفاظ على التركيز */
 @keyframes sf-pulse-border {
     0% {
         box-shadow: 0 4px 20px rgba(239, 68, 68, 0.05);
@@ -172,7 +167,6 @@
     }
 }
 
-/* تكييف الكروت مع شاشات التابلت والموبايل */
 @media (max-width: 600px) {
     .sf-action-buttons {
         flex-direction: column;

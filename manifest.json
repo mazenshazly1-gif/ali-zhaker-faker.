@@ -17,5 +17,23 @@
   "background_color": "#0b0f19",
   "theme_color": "#3b82f6",
   "display": "standalone",
-  "orientation": "any"
+  "orientation": "any",
+  "categories": [
+    "education",
+    "productivity",
+    "lifestyle"
+  ],
+  "description": "منصة إنتاجية متكاملة لتنظيم الوقت وتتبع الإنجاز والتوازن بين العمل والروح",
+  "lang": "ar",
+  "dir": "rtl",
+  "id": "./index.html",
+  "screenshots": [
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "الشاشة الرئيسية"
+    }
+  ]
 }
